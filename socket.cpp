@@ -1,23 +1,54 @@
-#include "socket.hpp"
+#include "Socket.hpp"
 
-socket::socket()
+Socket::Socket()
 {
+	int	option = 1;
+
 	_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (_socket == ERROR)
-		std::cout << "ERREUR DE SOCKET !" << std::endl;
-	std::cout << "NOUVELLE SOCKET !" << std::endl;
-	std::cout << _socket << std::endl;
+		throw (std::exception());
+		// throw (std::exception("Socket error"));
+		// throw (errno); // verifier
 
+	_validity = setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
+	if (_validity == ERROR)
+		throw (std::exception());
+		// throw (std::exception("Unable to free the socket"));
+
+	
 }
 
-socket::~socket()
+Socket::Socket(Socket const &src)
+{
+	*this = src;
+}
+
+Socket	&Socket::operator=(Socket const &rhs)
+{
+	_socket = rhs._socket;
+	_validity = rhs._validity;
+
+	return (*this);
+}
+
+Socket::~Socket()
 {
 	close(_socket);
 }
 
-bool	socket::connect(const std::string &ipAddress, unsigned short port)
+int	Socket::getSocket()
 {
-	(void)ipAddress;
-	(void)port;
-	return (true);
+	return (_socket);
 }
+
+int	Socket::getValidity()
+{
+	return (_validity);
+}
+
+// bool	Socket::connect(const std::string &ipAddress, unsigned short port)
+// {
+// 	(void)ipAddress;
+// 	(void)port;
+// 	return (true);
+// }

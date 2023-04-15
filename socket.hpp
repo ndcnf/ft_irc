@@ -7,6 +7,7 @@
 # include <arpa/inet.h> // hton*, ntoh*, inet_addr
 # include <unistd.h>  // close
 # include <cerrno> // errors
+# include <stdexcept>
 
 // # include <stdlib.h>
 // # include <sys/types.h>
@@ -18,17 +19,23 @@
 
 
 
-class socket
+class Socket
 {
 	public:
-		socket();
-		~socket();
+		Socket();
+		Socket(Socket const &src);
+		Socket	&operator=(Socket const &rhs);
+		~Socket();
+
 
 		// bool	connect(const std::string &ipAddress, unsigned short port);
+		int	getSocket();
+		int	getValidity();
 		
 
 	private:
-		int		_socket;
+		int	_socket;
+		int	_validity;
 };
 
 #endif
