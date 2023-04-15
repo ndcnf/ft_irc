@@ -1,12 +1,25 @@
-#include "tcpSocket.hpp" // NADIA
+#include "socket.hpp" // NADIA
 
 int	main(int argc, char *argv[])
 {
 	// NADIA
-	(void)argc;
-	(void)argv;
-	// int	error = errno;
-	tcpSocket	socket;
+	try
+	{
+		(void)argc;
+		(void)argv;
+		// int	error = errno;
+		socket	sock;
+
+		
+		return (0);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << errno << '\n';
+		// std::cerr << e.what() << '\n';
+	}
+	
+
 
 
 
@@ -37,5 +50,5 @@ int	main(int argc, char *argv[])
 
 
 
-	return (0);
+	// return (0);
 }

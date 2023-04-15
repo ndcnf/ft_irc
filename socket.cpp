@@ -1,21 +1,21 @@
-#include "tcpSocket.hpp"
+#include "socket.hpp"
 
-tcpSocket::tcpSocket()
+socket::socket()
 {
 	_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (_socket == -1)
+	if (_socket == ERROR)
 		std::cout << "ERREUR DE SOCKET !" << std::endl;
 	std::cout << "NOUVELLE SOCKET !" << std::endl;
 	std::cout << _socket << std::endl;
 
 }
 
-tcpSocket::~tcpSocket()
+socket::~socket()
 {
 	close(_socket);
 }
 
-bool	tcpSocket::tcpConnect(const std::string &ipAddress, unsigned short port)
+bool	socket::connect(const std::string &ipAddress, unsigned short port)
 {
 	(void)ipAddress;
 	(void)port;
