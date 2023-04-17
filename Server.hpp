@@ -23,6 +23,7 @@ class Server
 
 		int		getPort();
 		// int		getSockets();
+		void	addSocket(int sock);
 		void	allSockets();
 
 		void	setPort(int port);

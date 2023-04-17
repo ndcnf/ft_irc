@@ -37,6 +37,19 @@ int		Server::getPort()
 	return (_port);
 }
 
+void	Server::addSocket(int sock)
+{
+	// if (!sock.empty())
+	// {
+		// for (std::vector<Socket>::iterator	it = _sockets.begin(); it != _sockets.end(); it++)
+		// {
+		// }
+		// _sockets.push_back(sock);
+		_sockets.insert(sock);
+
+	// }
+}
+
 void	Server::allSockets()
 {
 	if (_sockets.empty())
