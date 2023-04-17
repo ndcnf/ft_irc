@@ -8,7 +8,7 @@ int	main(int argc, char *argv[])
 	try
 	{
 		//gestion d'erreur ici a ajouter lors du parsing
-		(void)argc;
+		// (void)argc;
 		// (void)argv;
 
 
@@ -18,24 +18,19 @@ int	main(int argc, char *argv[])
 
 		//------------------------- SOCKET() & SETSOCKOPT() -------------------------//
 		// int	error = errno;
-		Socket	sock;
-		std::cout << "SOCKET: " << sock.getSocket() << std::endl; // VERIFICATION uniquement
-		std::cout << "IF 0, VALID: " << sock.getValidity() << std::endl; // VERIFICATION uniquement
+		// Socket	sock;
+		// std::cout << "SOCKET: " << sock.getSocket() << std::endl; // VERIFICATION uniquement
+		// std::cout << "IF 0, VALID: " << sock.getValidity() << std::endl; // VERIFICATION uniquement
 
+
+		//------------------------- BIND() -------------------------//
 		Server	srv;
 		if (argc < 3)
 			throw (std::exception());
 		srv.setPort(atoi(argv[1]));
 
 		std::cout << "PORT: " << srv.getPort() << std::endl;
-
-
-
-
-
-
-
-		//------------------------- BIND() -------------------------//
+		srv.allSockets();
 
 		//------------------------- LISTEN() -------------------------//
 

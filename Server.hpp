@@ -8,6 +8,10 @@
 # include <unistd.h>  // close
 # include <cerrno> // errors
 # include <stdexcept>
+// # include <queue>
+# include <vector>
+
+# include "Socket.hpp"
 
 class Server
 {
@@ -18,10 +22,17 @@ class Server
 		~Server();
 
 		int		getPort();
+		// int		getSockets();
+		void	allSockets();
+
 		void	setPort(int port);
 
+
 	private:
-		int	_port;
+		int		_port;
+		// Socket	_sock();
+		// std::queue<Socket*>	_sockets;
+		std::vector<Socket>	_sockets;
 
 };
 
