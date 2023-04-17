@@ -15,7 +15,9 @@ Socket::Socket()
 		throw (std::exception());
 		// throw (std::exception("Unable to free the socket"));
 
-	
+
+
+
 }
 
 Socket::Socket(Socket const &src)
