@@ -5,8 +5,8 @@
 #                                                     +:+ +:+         +:+      #
 #    By: nchennaf <nchennaf@student.42lausanne.c    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2023/01/27 09:34:25 by nchennaf          #+#    #+#              #
-#    Updated: 2023/01/27 09:35:43 by nchennaf         ###   ########.fr        #
+#    Created: 2023/04/15 08:45:10 by nchennaf          #+#    #+#              #
+#    Updated: 2023/04/15 08:46:05 by nchennaf         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,9 +17,9 @@ CPPFLAGS =	-Wall -Wextra -Werror -g3 -std=c++98 -pedantic #-fsanitize=address
 NAME =		ircserv
 AR =		ar rcs
 SRC =		main.cpp \
-			tcpSocket.cpp
+			Socket.cpp
 
-HEADER =	tcpSocket.hpp
+HEADER =	Socket.hpp
 
 OBJ =		${SRC:.cpp=.o}
 
