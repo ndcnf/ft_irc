@@ -13,6 +13,7 @@
 
 // # include "Socket.hpp"
 # define ERROR -1
+# define BACKLOG 32
 
 
 class Server

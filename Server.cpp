@@ -2,11 +2,11 @@
 
 Server::Server()
 {
-	struct sockaddr_in	addr;
+	// struct sockaddr_in	addr;
 
-	addr.sin_family = AF_INET;
-	addr.sin_addr.s_addr = INADDR_ANY;
-	addr.sin_port = htons(_port);
+	// addr.sin_family = AF_INET;
+	// addr.sin_addr.s_addr = INADDR_ANY;
+	// addr.sin_port = htons(_port);
 }
 
 Server::Server(Server const &src)
@@ -42,6 +42,7 @@ int		Server::getPort()
 bool	Server::createSocket()
 {
 	int	option = 1;
+	struct sockaddr_in	addr;
 
 	_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (_socket == ERROR)
@@ -56,24 +57,21 @@ bool	Server::createSocket()
 
 	_sockets.push_back(_socket);
 
+	bzero(&addr, sizeof(addr));
+	addr.sin_family = AF_INET;
+	addr.sin_addr.s_addr = INADDR_ANY;
+	addr.sin_port = htons(_port);
 
-	
+	_validity = bind(_socket, (struct sockaddr *)&addr, sizeof(addr));
+	if (_validity == ERROR)
+		throw (std::exception());
 
+	_validity = listen(_socket, BACKLOG);
+	if (_validity == ERROR)
+		throw (std::exception());
 
-	std::cout << "End of socket: " << _socket << std::endl;
+	std::cout << "End of socket: " << _socket << std::endl; // DEBUG ONLY
 
-
-
-
-	// if (!sock.empty())
-	// {
-		// for (std::vector<Socket>::iterator	it = _sockets.begin(); it != _sockets.end(); it++)
-		// {
-		// }
-		// _sockets.push_back(sock);
-		// _sockets.insert(_socket, _sockets.back());
-
-	// }
 	return (true);
 }
 
@@ -85,12 +83,12 @@ void	Server::allSockets()
 		return;
 	}
 
-	// for (std::vector<Socket>::iterator	it = _sockets.begin(); it != _sockets.end(); it++)
-	// 	std::cout << (*it).getSocket() << std::endl;
-	std::cout << "Collection of sockets: " << _sockets.size() << std::endl;
+	// DEBUG ONLY ///////////////////////////////////////////////////////////////////////
+	std::cout << "Number of sockets: " << _sockets.size() << std::endl;
 
 	for (std::vector<int>::iterator	it = _sockets.begin(); it != _sockets.end(); it++)
 		std::cout << (*it) << std::endl;
+	/////////////////////////////////////////////////////////////////////////////////////
 }
 
 int	Server::getSocket()

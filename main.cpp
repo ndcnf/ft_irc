@@ -28,14 +28,46 @@ int	main(int argc, char *argv[])
 		if (argc < 3)
 			throw (std::exception());
 
-		srv.createSocket();
-		srv.createSocket();
-		// close(srv.getSocket());
-		srv.createSocket();
 		srv.setPort(atoi(argv[1]));
-
 		std::cout << "PORT: " << srv.getPort() << std::endl;
+		
+		srv.createSocket();
+		// srv.createSocket();
+		// close(srv.getSocket());
+		// srv.createSocket();
+
 		srv.allSockets();
+
+		// -------- tests
+
+		struct sockaddr_in	addr;
+
+		bzero(&addr, sizeof(addr));
+		int fd_client;
+		unsigned int len;
+		char buf[250];
+		int ret;
+
+		while (true)
+		{ 
+			len = sizeof(addr);
+			fd_client = accept(srv.getSocket(), (struct sockaddr *)&addr, &len);
+			if (fd_client > 0)
+			{
+				std::cout << "client accepte !" << std::endl;
+				std::cout << inet_ntoa(addr.sin_addr) << std::endl; //affichage de l'adresse en decimal du client
+				ret = recv(fd_client, &buf, sizeof(buf), 0);
+				write(1, buf, ret);
+
+			}
+			// else
+			// {
+			// 	std::cout << "dommage" << std::endl;
+			// }
+		}
+
+		// ------ fin tests
+
 
 		//------------------------- LISTEN() -------------------------//
 
