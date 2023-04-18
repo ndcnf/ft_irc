@@ -11,7 +11,9 @@
 // # include <queue>
 # include <vector>
 
-# include "Socket.hpp"
+// # include "Socket.hpp"
+# define ERROR -1
+
 
 class Server
 {
@@ -22,18 +24,22 @@ class Server
 		~Server();
 
 		int		getPort();
+		int		getSocket();
+		int		getValidity();
 		// int		getSockets();
-		void	addSocket(int sock);
+		bool	createSocket();
 		void	allSockets();
 
 		void	setPort(int port);
 
 
 	private:
-		int		_port;
+		int					_socket;
+		int					_validity;
+		int					_port;
 		// Socket	_sock();
 		// std::queue<Socket*>	_sockets;
-		std::vector<Socket>	_sockets;
+		std::vector<int>	_sockets;
 
 };
 

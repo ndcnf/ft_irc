@@ -27,6 +27,11 @@ int	main(int argc, char *argv[])
 		Server	srv;
 		if (argc < 3)
 			throw (std::exception());
+
+		srv.createSocket();
+		srv.createSocket();
+		// close(srv.getSocket());
+		srv.createSocket();
 		srv.setPort(atoi(argv[1]));
 
 		std::cout << "PORT: " << srv.getPort() << std::endl;
