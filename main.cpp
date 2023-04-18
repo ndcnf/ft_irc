@@ -1,4 +1,4 @@
-#include "Socket.hpp" // NADIA
+// #include "Socket.hpp" // NADIA
 #include "Server.hpp" // NADIA
 
 // mode d'emploi : ./ircserv <port> <password>
@@ -7,36 +7,30 @@ int	main(int argc, char *argv[])
 	// NADIA
 	try
 	{
-		//gestion d'erreur ici a ajouter lors du parsing
-		// (void)argc;
-		// (void)argv;
+		// [ ] Gestion d'erreur ici a ajouter lors du parsing
 
+		// [X] SOCKET()
+		// [X] SETSOCKOPT()
+		// [X] BIND()
+		// [X] LISTEN()
 
-		// int	tempura;
-		// struct addrinfo addr;
+		// [ ] POLL() / SELECT()
+		// [ ] ACCEPT()
+		// [ ] SEND()
+		// [ ] CLOSE()
 
-
-		//------------------------- SOCKET() & SETSOCKOPT() -------------------------//
-		// int	error = errno;
-		// Socket	sock;
-		// std::cout << "SOCKET: " << sock.getSocket() << std::endl; // VERIFICATION uniquement
-		// std::cout << "IF 0, VALID: " << sock.getValidity() << std::endl; // VERIFICATION uniquement
-
-
-		//------------------------- BIND() -------------------------//
 		Server	srv;
 		if (argc < 3)
 			throw (std::exception());
 
 		srv.setPort(atoi(argv[1]));
-		std::cout << "PORT: " << srv.getPort() << std::endl;
-		
+		std::cout << "PORT: " << srv.getPort() << std::endl; // DEBUG ONLY
 		srv.createSocket();
 		// srv.createSocket();
 		// close(srv.getSocket());
 		// srv.createSocket();
 
-		srv.allSockets();
+		srv.allSockets(); // DEBUG ONLY
 
 		// -------- tests
 
@@ -47,6 +41,7 @@ int	main(int argc, char *argv[])
 		unsigned int len;
 		char buf[250];
 		int ret;
+		char basic[] = "je suis arrive";
 
 		while (true)
 		{ 
@@ -58,6 +53,7 @@ int	main(int argc, char *argv[])
 				std::cout << inet_ntoa(addr.sin_addr) << std::endl; //affichage de l'adresse en decimal du client
 				ret = recv(fd_client, &buf, sizeof(buf), 0);
 				write(1, buf, ret);
+				send(fd_client, basic, sizeof(basic), 0);
 
 			}
 			// else
@@ -67,18 +63,6 @@ int	main(int argc, char *argv[])
 		}
 
 		// ------ fin tests
-
-
-		//------------------------- LISTEN() -------------------------//
-
-		//------------------------- POLL() / SELECT() -------------------------//
-
-		//------------------------- ACCEPT() -------------------------//
-
-		//------------------------- SEND() -------------------------//
-
-		//------------------------- CLOSE() -------------------------//
-
 
 		return (0);
 	}
