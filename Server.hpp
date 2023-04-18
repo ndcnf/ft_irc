@@ -27,22 +27,17 @@ class Server
 		int		getPort();
 		int		getSocket();
 		int		getValidity();
-		// int		getSockets();
 		bool	createSocket();
 		void	allSockets();
 
 		void	setPort(int port);
 
-
 	private:
 		int					_socket;
 		int					_validity;
 		int					_port;
-		// Socket	_sock();
-		// std::queue<Socket*>	_sockets;
 		std::vector<int>	_sockets;
 
 };
-
 
 #endif
