@@ -32,14 +32,15 @@ class Server
 		Server	&operator=(Server const &rhs);
 		~Server();
 
-		int		getPort();
-		int		getSocket();
-		int		getValidity();
 		bool	createSocket();
+		bool	pollConnection();
 		void	allSockets();
 
 
 
+		int		getPort();
+		int		getSocket();
+		// int		getValidity();
 		void	setPort(int port);
 
 	private:
@@ -47,10 +48,12 @@ class Server
 		int					_validity;
 		int					_port;
 		std::vector<int>	_sockets;
-		struct pollfd		_fds[MAX_FD]; // number of fd may be more appropriate in a vector
-		// std::vector
-		int					_nfds;
-		
+		// struct pollfd		_fds[MAX_FD]; // number of fd may be more appropriate in a vector
+		std::vector<pollfd>	_cliFds;
+		// int					_fdsNum;
+		struct sockaddr_in	_addr;
+
+
 };
 
 #endif

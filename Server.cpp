@@ -41,22 +41,23 @@ int		Server::getPort()
 
 bool	Server::createSocket()
 {
-	int	option = 1;
+	int					option = 1;
+	int					validity;
 	struct sockaddr_in	addr;
 
-	_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	// _socket = socket(AF_INET, SOCK_STREAM, 0);
+	// _socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_socket == ERROR)
 		throw (std::exception());
 		// throw (std::exception("Socket error"));
 		// throw (errno); // verifier
 
-	_validity = setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
-	if (_validity == ERROR)
+	validity = setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
+	if (validity == ERROR)
 		throw (std::exception());
 		// throw (std::exception("Unable to free the socket"));
 
-	_validity = fcntl(_socket, F_SETFL, O_NONBLOCK);
+	validity = fcntl(_socket, F_SETFL, O_NONBLOCK);
 	if (_socket == ERROR)
 		throw (std::exception());
 
@@ -67,18 +68,60 @@ bool	Server::createSocket()
 	addr.sin_addr.s_addr = INADDR_ANY;
 	addr.sin_port = htons(_port);
 
-	_validity = bind(_socket, (struct sockaddr *)&addr, sizeof(addr));
-	if (_validity == ERROR)
-		throw (std::exception());
+	validity = bind(_socket, (struct sockaddr *)&addr, sizeof(addr));
+	if (validity == ERROR)
+		throw (std::exception()); // binding failed
 
-	_validity = listen(_socket, BACKLOG);
-	if (_validity == ERROR)
-		throw (std::exception());
-
-	std::cout << "End of socket: " << _socket << std::endl; // DEBUG ONLY
+	validity = listen(_socket, BACKLOG);
+	if (validity == ERROR)
+		throw (std::exception()); //listen failed
 
 	return (true);
 }
+
+
+bool	Server::pollConnection()
+{
+	bzero(&_addr, sizeof(_addr));
+	pollfd				srvFds;
+	int					cliSocket;
+	unsigned int		len;
+
+	while (true)
+	{
+		// struct sockaddr_in	addr;
+		srvFds.fd = _socket;
+		srvFds.events = POLLIN;
+
+		std::cout << "Hello, I'm your server. How may I help you?" << std::endl;
+		_validity = poll(&srvFds, 1, TIMEOUT_NO); // just 1 ?
+		if (_validity == ERROR || _validity == 0)
+			throw (std::exception()); // poll failed
+
+		std::cout << "inbetween poll and accept. _validity = " << _validity << std::endl;
+
+		len = sizeof(_addr);
+		cliSocket = accept(_socket, (struct sockaddr *)&_addr, &len);
+		std::cout << "cliSocket: " << cliSocket << std::endl;
+		if (cliSocket != ERROR)
+		{
+			std::cout << "Welcome, " << inet_ntoa(_addr.sin_addr) << std::endl;
+			// ret = recv(fd_client, &buf, sizeof(buf), 0);
+			// write(1, buf, ret);
+			// send(fd_client, basic, sizeof(basic), 0);
+
+		}
+		else
+			throw (std::exception()); // accept failed
+
+	}
+
+
+
+
+	return (true);
+}
+
 
 void	Server::allSockets()
 {
@@ -90,9 +133,11 @@ void	Server::allSockets()
 
 	// DEBUG ONLY ///////////////////////////////////////////////////////////////////////
 	std::cout << "Number of sockets: " << _sockets.size() << std::endl;
-
+	
+	std::cout << "Socket(s): | ";
 	for (std::vector<int>::iterator	it = _sockets.begin(); it != _sockets.end(); it++)
-		std::cout << (*it) << std::endl;
+		std::cout << (*it) << " | ";
+	std::cout << std::endl;
 	/////////////////////////////////////////////////////////////////////////////////////
 }
 
@@ -101,7 +146,7 @@ int	Server::getSocket()
 	return (_socket);
 }
 
-int	Server::getValidity()
-{
-	return (_validity);
-}
+// int	Server::getValidity()
+// {
+// 	return (_validity);
+// }
