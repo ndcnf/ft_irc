@@ -10,10 +10,18 @@
 # include <stdexcept>
 // # include <queue>
 # include <vector>
+# include <fcntl.h>
+
+# include <sys/poll.h>
+
 
 // # include "Socket.hpp"
-# define ERROR -1
-# define BACKLOG 32
+
+# define ERROR -1						// Everywhere when -1 means error
+# define BACKLOG 32						// Number of connections allowed on the incoming queue for listen()
+# define TIMEOUT_NO -1					// Specifying a negative value in timeout means an infinite timeout
+# define TIMEOUT_YES (3 * 60 * 1000)	// 3 minutes
+# define MAX_FD 200						// Number of maximum fds / may be replaced by a vector
 
 
 class Server
@@ -30,6 +38,8 @@ class Server
 		bool	createSocket();
 		void	allSockets();
 
+
+
 		void	setPort(int port);
 
 	private:
@@ -37,7 +47,10 @@ class Server
 		int					_validity;
 		int					_port;
 		std::vector<int>	_sockets;
-
+		struct pollfd		_fds[MAX_FD]; // number of fd may be more appropriate in a vector
+		// std::vector
+		int					_nfds;
+		
 };
 
 #endif

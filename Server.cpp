@@ -45,6 +45,7 @@ bool	Server::createSocket()
 	struct sockaddr_in	addr;
 
 	_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	// _socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_socket == ERROR)
 		throw (std::exception());
 		// throw (std::exception("Socket error"));
@@ -54,6 +55,10 @@ bool	Server::createSocket()
 	if (_validity == ERROR)
 		throw (std::exception());
 		// throw (std::exception("Unable to free the socket"));
+
+	_validity = fcntl(_socket, F_SETFL, O_NONBLOCK);
+	if (_socket == ERROR)
+		throw (std::exception());
 
 	_sockets.push_back(_socket);
 
