@@ -84,40 +84,75 @@ bool	Server::pollConnection()
 {
 	bzero(&_addr, sizeof(_addr));
 	pollfd				srvFds;
-	int					cliSocket;
-	unsigned int		len;
+	// pollfd				newCliFds;
+	// int					cliSocket;
+	// unsigned int		len;
 
-	char				buf[250];
-	int					ret;
-	char				basic[] = "je te vois";
+	// char				buf[250];
+	// int					ret = 0;
+	// char				msg[] = "Je te vois...";
+	// char				basic[] = "je te vois";
+
+	int					pollCounter;
+
+	// newCliFds.fd = _socket;
+	// newCliFds.events = POLLIN;cc
+
+	// cliFds.push_back(newCliFds);
+	srvFds.fd = _socket;
+	srvFds.events = POLLIN;
 
 	while (true)
 	{
 		// // struct sockaddr_in	addr;
-		srvFds.fd = _socket;
-		srvFds.events = POLLIN;
+		// srvFds.fd = _socket;
+		// srvFds.events = POLLIN;
 
-		std::cout << "Hello, I'm your server. How may I help you?" << std::endl;
-		_validity = poll(&srvFds, 1, TIMEOUT_NO); // just 1 ?
-		if (_validity == ERROR || _validity == 0)
-			throw (std::exception()); // poll failed
-
-		std::cout << "inbetween poll and accept. _validity = " << _validity << std::endl;
-
-		len = sizeof(_addr);
-		cliSocket = accept(_socket, (struct sockaddr *)&_addr, &len);
-		std::cout << "cliSocket: " << cliSocket << std::endl;
-		// if (cliSocket > 0)
-		if (cliSocket != ERROR)
+		std::cout << "Hello, I'm your server. Have you some time for a poll?" << std::endl;
+		pollCounter = poll(&srvFds, 1, TIMEOUT_NO_P); // just 1 ? plutot remplacer par le nombre de clients online ?
+		if (pollCounter == ERROR)
 		{
-			std::cout << "Welcome, " << inet_ntoa(_addr.sin_addr) << std::endl;
-			ret = recv(cliSocket, &buf, sizeof(buf), 0);
-			write(1, buf, ret);
-			send(cliSocket, basic, sizeof(basic), 0);
-
+			// throw (std::exception()); // poll failed
+			std::cout << "poll error: " << strerror(errno) << std::endl;
+			exit (ERROR);
 		}
-		else
-			throw (std::exception()); // accept failed
+
+		std::cout << "inbetween poll and accept. _validity = " << pollCounter << std::endl;
+
+
+		for(unsigned long i = 0; i < cliFds.size(); i++)
+		{
+		// 	// len = sizeof(_addr);
+		// 	// cliSocket = accept(_socket, (struct sockaddr *)&_addr, &len);
+		// 	// std::cout << "cliSocket: " << cliSocket << std::endl;
+		// 	if ((int)i != srvFds.fd)
+		// 	// if (cliSocket != ERROR)
+		// 	{
+		// 		// std::cout << "Welcome, " << inet_ntoa(_addr.sin_addr) << std::endl;
+		// 		ret = recv(i, &buf, sizeof(buf), 0);
+		// 		// ret = recv(cliSocket, buf, sizeof(buf), 0);
+
+		// 		std::cout << "RET="<< ret << std::endl;
+
+		// 		write(1, buf, ret);
+		// 		send(i, basic, sizeof(basic), 0);
+		// 		// send(cliSocket, msg, sizeof(msg), 0);
+
+		// 	}
+		// 	else
+		// 	{
+		// 		len = sizeof(_addr);
+		// 		cliSocket = accept(_socket, (struct sockaddr *)&_addr, &len);
+		// 		std::cout << "cliSocket: " << cliSocket << std::endl;
+		// 		std::cout << "Welcome, " << inet_ntoa(_addr.sin_addr) << std::endl;
+		// 		newCliFds.fd = cliSocket;
+		// 		newCliFds.events = POLLIN;
+
+		// 		cliFds.push_back(newCliFds);
+		// 	}
+		// 		// throw (std::exception()); // accept failed
+		}
+
 
 	}
 
@@ -126,6 +161,29 @@ bool	Server::pollConnection()
 
 	return (true);
 }
+
+
+// bool	Server::selectConnection()
+// {
+// 	fd_set	setRd;
+// 	fd_set	setWrt;
+// 	fd_set	setErr;
+// 	int		result;
+
+// 	FD_ZERO(&set);
+// 	FD_SET(_socket, &set);
+
+// 	readyOK = select(_socket + 1, &set, )
+
+
+
+
+// 	TIMEOUT_NO_S
+
+
+
+// 	return (true);
+// }
 
 
 void	Server::allSockets()
@@ -138,7 +196,7 @@ void	Server::allSockets()
 
 	// DEBUG ONLY ///////////////////////////////////////////////////////////////////////
 	std::cout << "Number of sockets: " << _sockets.size() << std::endl;
-	
+
 	std::cout << "Socket(s): | ";
 	for (std::vector<int>::iterator	it = _sockets.begin(); it != _sockets.end(); it++)
 		std::cout << (*it) << " | ";

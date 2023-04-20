@@ -19,7 +19,8 @@
 
 # define ERROR -1						// Everywhere when -1 means error
 # define BACKLOG 32						// Number of connections allowed on the incoming queue for listen()
-# define TIMEOUT_NO -1					// Specifying a negative value in timeout means an infinite timeout
+# define TIMEOUT_NO_P -1					// Specifying a negative value in timeout means an infinite timeout (for poll())
+# define TIMEOUT_NO_S NULL					// Specifying a negative value in timeout means an infinite timeout (for select())
 # define TIMEOUT_YES (3 * 60 * 1000)	// 3 minutes
 # define MAX_FD 200						// Number of maximum fds / may be replaced by a vector
 
@@ -27,6 +28,8 @@
 class Server
 {
 	public:
+		std::vector<pollfd>	cliFds;
+
 		Server();
 		Server(Server const &src);
 		Server	&operator=(Server const &rhs);
@@ -34,6 +37,7 @@ class Server
 
 		bool	createSocket();
 		bool	pollConnection();
+		bool	selectConnection();
 		void	allSockets();
 
 
@@ -49,7 +53,7 @@ class Server
 		int					_port;
 		std::vector<int>	_sockets;
 		// struct pollfd		_fds[MAX_FD]; // number of fd may be more appropriate in a vector
-		std::vector<pollfd>	_cliFds;
+		// std::vector<pollfd>	_cliFds;
 		// int					_fdsNum;
 		struct sockaddr_in	_addr;
 
