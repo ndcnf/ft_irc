@@ -54,7 +54,7 @@ int	main(int argc, char *argv[])
 		// char basic[] = "je suis arrive";
 
 		// while (true)
-		// { 
+		// {
 		// 	len = sizeof(addr);
 		// 	// fd_client = accept(srv.getSocket(), NULL, NULL); // ne renvoie pas l'adresse
 		// 	fd_client = accept(srv.getSocket(), (struct sockaddr *)&addr, &len);

@@ -87,9 +87,13 @@ bool	Server::pollConnection()
 	int					cliSocket;
 	unsigned int		len;
 
+	char				buf[250];
+	int					ret;
+	char				basic[] = "je te vois";
+
 	while (true)
 	{
-		// struct sockaddr_in	addr;
+		// // struct sockaddr_in	addr;
 		srvFds.fd = _socket;
 		srvFds.events = POLLIN;
 
@@ -103,12 +107,13 @@ bool	Server::pollConnection()
 		len = sizeof(_addr);
 		cliSocket = accept(_socket, (struct sockaddr *)&_addr, &len);
 		std::cout << "cliSocket: " << cliSocket << std::endl;
+		// if (cliSocket > 0)
 		if (cliSocket != ERROR)
 		{
 			std::cout << "Welcome, " << inet_ntoa(_addr.sin_addr) << std::endl;
-			// ret = recv(fd_client, &buf, sizeof(buf), 0);
-			// write(1, buf, ret);
-			// send(fd_client, basic, sizeof(basic), 0);
+			ret = recv(cliSocket, &buf, sizeof(buf), 0);
+			write(1, buf, ret);
+			send(cliSocket, basic, sizeof(basic), 0);
 
 		}
 		else
