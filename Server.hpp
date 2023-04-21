@@ -10,6 +10,7 @@
 # include <stdexcept>
 // # include <queue>
 # include <vector>
+# include <map>
 # include <fcntl.h>
 
 # include <sys/poll.h>
@@ -28,7 +29,7 @@
 class Server
 {
 	public:
-		std::vector<pollfd>	cliFds;
+		// std::vector<pollfd>	cliFds;
 
 		Server();
 		Server(Server const &src);
@@ -53,7 +54,9 @@ class Server
 		int					_port;
 		std::vector<int>	_sockets;
 		// struct pollfd		_fds[MAX_FD]; // number of fd may be more appropriate in a vector
-		// std::vector<pollfd>	_cliFds;
+		std::vector<pollfd>	_pfds;
+		std::map<int, sockaddr_in>	_clients;
+		bool				_quit;
 		// int					_fdsNum;
 		struct sockaddr_in	_addr;
 
