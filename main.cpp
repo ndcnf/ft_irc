@@ -89,7 +89,7 @@ int	main(int argc, char *argv[])
 	// 	/*************************************************************/
 	// 	/* Initialize the pollfd structure                           */
 	// 	/*************************************************************/
-	// 	memset(fds, 0 , sizeof(fds));
+	//	memset(fds, 0 , sizeof(fds));
 
 	// 	/*************************************************************/
 	// 	/* Set up the initial listening socket                        */
