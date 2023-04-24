@@ -87,6 +87,7 @@ bool	Server::pollConnection()
 	pollfd				pfd;
 	int					clientSock;
 	int					pollCounter;
+	// bool				isServer = true;
 
 	// unsigned int		len;
 
@@ -104,9 +105,13 @@ bool	Server::pollConnection()
 	 * The first fd will be the one from the server.
 	 * The subsequent ones, will be from the client(s).
 	 * ********************************************************* */
-	pfd.fd = _socket;
-	pfd.events = POLLIN;
-	_pfds.push_back(pfd);
+	// if (isServer)
+	// {
+		pfd.fd = _socket;
+		pfd.events = POLLIN;
+		_pfds.push_back(pfd);
+		// isServer = false;
+	// }
 
 	// while (true)
 	for (int i = 0; i < 10; i++) // DEBUG ONLY, pour eviter une boucle infini inarretable
@@ -135,33 +140,45 @@ bool	Server::pollConnection()
 		* The subsequent ones, are from the client(s), so we skip
 		* to the first client (begin + 1)
 		* ********************************************************* */
-		for(std::vector<pollfd>::iterator it = _pfds.begin(); it != _pfds.end(); it++)
+		// for(std::vector<pollfd>::iterator it = _pfds.begin(); it != _pfds.end(); it++)
+
+		std::cout << _pfds.size() << std::endl;
+		for(unsigned int i = 0; i < _pfds.size(); i++)
 		// for(std::map<int, sockaddr_in>::iterator it = _clients.begin() + 1; it != _clients.end(); it++)
 		{
-			std::cout << "revents = " << (*it).revents << std::endl;
-			std::cout << "vector fd : " << (*it).fd << std::endl;
-			std::cout << "events ? " << (*it).events << std::endl;
+			std::cout << "i: " << i << std::endl;
+			// std::cout << "revents = " << (*it).revents << std::endl;
+			std::cout << "vector fd : " << _pfds[i].fd << std::endl;
+			std::cout << "events ? " << _pfds[i].events << std::endl;
 
-			if ((*it).revents & POLLIN)
+			// _pfds[i].revents = pfd.revents;
+			// (*it).revents = pfd.revents;
+			// _pfds[0].revents = &pfd.revents;
+
+
+			_pfds[i].revents = pfd.revents;
+			if (_pfds[i].revents & POLLIN)
+			// if (pfd.revents & POLLIN)
 			{
 				// if ((*it).fd == clientSock)
-				if ((*it).fd == _socket)
+				if (_pfds[i].fd == _socket)
 				{
-					struct sockaddr_in	addr;
+					// struct sockaddr_in	addr;
+					// bzero(&_addr, sizeof(_addr));
 					bzero(&_addr, sizeof(_addr));
 
 					socklen_t			addrlen;
 
-					addrlen = sizeof(addr);
-					clientSock = accept(_socket, (sockaddr*)(&addr), &addrlen);
+					addrlen = sizeof(_addr);
+					clientSock = accept(_socket, (sockaddr*)(&_addr), &addrlen);
 					if (clientSock != ERROR)
 					{
-						// addr.sin_family = AF_INET;
+						_addr.sin_family = AF_INET;
 						// addr.sin_addr.s_addr = INADDR_ANY;
-						// addr.sin_port = htons(_port);
+						_addr.sin_port = htons(_port);
 						std::cout << _port << std::endl;
-						_clients[clientSock] = addr;
-						std::cout << "Un nouveau client ! Bonjour, " << inet_ntoa(addr.sin_addr) << ":" << ntohs(addr.sin_port) << std::endl;
+						_clients[clientSock] = _addr;
+						std::cout << "T'es un serveur, non ? Bonjour, " << inet_ntoa(_addr.sin_addr) << ":" << ntohs(_addr.sin_port) << std::endl;
 						pfd.fd = clientSock;
 						pfd.events = POLLIN | POLLOUT; //uniquement POLLIN ?
 						_pfds.push_back(pfd);
@@ -172,7 +189,7 @@ bool	Server::pollConnection()
 
 
 					std::cout << "size of _pfds vector = " << _pfds.size() << std::endl;
-					std::cout << "Un nouveau client ! Bonjour, " << inet_ntoa(addr.sin_addr) << std::endl;
+					std::cout << "Un nouveau client ! Bonjour, " << inet_ntoa(_addr.sin_addr) << std::endl;
 				}
 				else
 					std::cout << "Une requete client !" << std::endl;
@@ -273,7 +290,7 @@ bool	Server::pollConnection()
 			// 		}
 			// 	} while (clientSock != ERROR);
 			// }
-			
+
 
 
 
