@@ -49,16 +49,16 @@ class Server
 		void	setPort(int port);
 
 	private:
-		int					_socket;
-		int					_validity;
-		int					_port;
-		std::vector<int>	_sockets;
-		// struct pollfd		_fds[MAX_FD]; // number of fd may be more appropriate in a vector
-		std::vector<pollfd>	_pfds;
+		int							_socket;
+		int							_validity;
+		int							_port;
+		struct sockaddr_in			_addr;
+		std::vector<int>			_sockets; //peut-etre inutile
+		// struct pollfd				_fds[MAX_FD]; // number of fd may be more appropriate in a vector
+		std::vector<pollfd>			_pfds;
 		std::map<int, sockaddr_in>	_clients;
-		bool				_quit;
-		// int					_fdsNum;
-		struct sockaddr_in	_addr;
+		// int							_fdsNum;
+		bool						_quit;
 
 
 };
