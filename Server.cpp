@@ -43,7 +43,7 @@ bool	Server::createSocket()
 {
 	int					option = 1;
 	int					validity;
-	struct sockaddr_in	addr;
+	// struct sockaddr_in	addr;
 
 	// _socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -63,12 +63,12 @@ bool	Server::createSocket()
 
 	_sockets.push_back(_socket); // optionnel, peut-etre que le vecteur des sockets sera inutile
 
-	bzero(&addr, sizeof(addr));
-	addr.sin_family = AF_INET;
-	addr.sin_addr.s_addr = INADDR_ANY;
-	addr.sin_port = htons(_port);
+	bzero(&_addr, sizeof(_addr));
+	_addr.sin_family = AF_INET;
+	_addr.sin_addr.s_addr = INADDR_ANY;
+	_addr.sin_port = htons(_port);
 
-	validity = bind(_socket, (struct sockaddr *)&addr, sizeof(addr));
+	validity = bind(_socket, (struct sockaddr *)&_addr, sizeof(_addr));
 	if (validity == ERROR)
 		throw (std::exception()); // binding failed
 
@@ -454,7 +454,7 @@ bool	Server::connection()
 	int		pollCounter;
 	char	buf[250];
 	socklen_t	addrlen;
-	sockaddr_in	addr;
+	// sockaddr_in	addr;
 
 	bzero(&pfds, sizeof(pfds));
 
@@ -474,8 +474,9 @@ bool	Server::connection()
 			{
 				if (pfds[i].fd == _socket)
 				{
-					addrlen = sizeof(addr);
-					clientSock = accept(_socket, (struct sockaddr *)&addr, &addrlen);
+					addrlen = sizeof(_addr);
+					// addrlen = sizeof(addr);
+					clientSock = accept(_socket, (struct sockaddr *)&_addr, &addrlen);
 
 					if (clientSock != ERROR)
 					{
@@ -483,7 +484,9 @@ bool	Server::connection()
 						pfds[fd_count].events = POLLIN;
 						fd_count++;
 
-						std::cout << "Adresse : " << inet_ntoa(addr.sin_addr) << std::endl;
+						std::cout << "Adresse : " << inet_ntop(_addr.sin_family, (void*)&(_addr.sin_addr), buf, addrlen) << ":" << ntohs(_addr.sin_port) << std::endl;
+						//htons(addr.sin_port)
+						// std::cout << "Adresse : " << inet_ntoa(addr.sin_addr) << std::endl;
 					}
 					else
 						std::cout << "erreur d'accept()" << std::endl;
