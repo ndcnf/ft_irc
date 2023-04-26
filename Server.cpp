@@ -445,8 +445,6 @@ int	Server::getSocket()
 
 bool	Server::connection()
 {
-	// pollfd	pfd;
-	// int		fd_size = 5;
 	int		fd_count = 1;
 
 	pollfd pfds[5];
@@ -454,7 +452,6 @@ bool	Server::connection()
 	int		pollCounter;
 	char	buf[250];
 	socklen_t	addrlen;
-	// sockaddr_in	addr;
 
 	bzero(&pfds, sizeof(pfds));
 
@@ -475,7 +472,6 @@ bool	Server::connection()
 				if (pfds[i].fd == _socket)
 				{
 					addrlen = sizeof(_addr);
-					// addrlen = sizeof(addr);
 					clientSock = accept(_socket, (struct sockaddr *)&_addr, &addrlen);
 
 					if (clientSock != ERROR)
@@ -484,9 +480,8 @@ bool	Server::connection()
 						pfds[fd_count].events = POLLIN;
 						fd_count++;
 
-						std::cout << "Adresse : " << inet_ntop(_addr.sin_family, (void*)&(_addr.sin_addr), buf, addrlen) << ":" << ntohs(_addr.sin_port) << std::endl;
-						//htons(addr.sin_port)
-						// std::cout << "Adresse : " << inet_ntoa(addr.sin_addr) << std::endl;
+						// std::cout << "Adresse : " << inet_ntop(_addr.sin_family, (void*)&(_addr.sin_addr), buf, addrlen) << ":" << ntohs(_addr.sin_port) << std::endl;
+						std::cout << "Bonjour, " << inet_ntoa(_addr.sin_addr) << ":" << ntohs(_addr.sin_port) << std::endl;
 					}
 					else
 						std::cout << "erreur d'accept()" << std::endl;
@@ -496,7 +491,6 @@ bool	Server::connection()
 					std::cout << "client " << pfds[i].fd << " request your attention." << std::endl;
 					int	bytesNbr = recv(pfds[i].fd, buf, sizeof(buf), 0);
 					int	sender = pfds[i].fd;
-					std::cout << buf << std::endl;
 
 					if (bytesNbr <= 0)
 					{
@@ -513,12 +507,12 @@ bool	Server::connection()
 					{
 						for (int j = 0; j < fd_count; j++)
 						{
-							int	dest = pfds[i].fd;
+							int	dest = pfds[j].fd;
 
 							if (dest != _socket && dest != sender)
 							{
 								if (send(dest, buf, bytesNbr, 0) == ERROR)
-									std::cout << "erreur de send()" << std::endl;
+									std::cout << "erreur de send() " << j << std::endl;
 							}
 						}
 					}
