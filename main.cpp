@@ -36,7 +36,8 @@ int	main(int argc, char *argv[])
 		// bzero(&srv._addr, sizeof(srv._addr));
 		// while (true)
 		// {
-			srv.pollConnection();
+			// srv.pollConnection();
+			srv.connection();
 		// }
 
 		// -------- tests

@@ -442,3 +442,93 @@ int	Server::getSocket()
 // {
 // 	return (_validity);
 // }
+
+bool	Server::connection()
+{
+	// pollfd	pfd;
+	// int		fd_size = 5;
+	int		fd_count = 1;
+
+	pollfd pfds[5];
+	int		clientSock;
+	int		pollCounter;
+	char	buf[250];
+	socklen_t	addrlen;
+	sockaddr_in	addr;
+
+	bzero(&pfds, sizeof(pfds));
+
+	pfds[0].fd = _socket;
+	pfds[0].events = POLLIN;
+
+
+	while (true)
+	{
+		pollCounter = poll(pfds, fd_count, TIMEOUT_NO_P);
+		if (pollCounter == ERROR)
+			std::cout << "erreur de poll()" << std::endl;
+
+		for (int i = 0; i < fd_count; i++)
+		{
+			if (pfds[i].revents & POLLIN)
+			{
+				if (pfds[i].fd == _socket)
+				{
+					addrlen = sizeof(addr);
+					clientSock = accept(_socket, (struct sockaddr *)&addr, &addrlen);
+
+					if (clientSock != ERROR)
+					{
+						pfds[fd_count].fd = clientSock;
+						pfds[fd_count].events = POLLIN;
+						fd_count++;
+
+						std::cout << "Adresse :" << inet_ntoa(addr.sin_addr) << std::endl;
+					}
+					else
+						std::cout << "erreur d'accept()" << std::endl;
+				}
+				else
+				{
+					int	bytesNbr = recv(pfds[i].fd, buf, sizeof(buf), 0);
+					int	sender = pfds[i].fd;
+
+					if (bytesNbr <= 0)
+					{
+						if (bytesNbr == 0)
+							std::cout << "socket " << sender << " is gone." << std::endl;
+						else
+							std::cout << "erreur de recv()" << std::endl;
+
+						close(pfds[i].fd);
+						pfds[i] = pfds[fd_count - 1];
+						fd_count--;
+					}
+					else
+					{
+						for (int j = 0; j < fd_count; j++)
+						{
+							int	dest = pfds[i].fd;
+
+							if (dest != _socket && dest != sender)
+							{
+								if (send(dest, buf, bytesNbr, 0) == ERROR)
+									std::cout << "erreur de send()" << std::endl;
+							}
+						}
+					}
+				}
+			}
+		}
+
+
+
+
+	}
+
+
+
+
+
+
+}

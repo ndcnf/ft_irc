@@ -38,6 +38,7 @@ class Server
 
 		bool	createSocket();
 		bool	pollConnection();
+		bool	connection();
 		bool	selectConnection();
 		void	allSockets();
 
