@@ -483,15 +483,17 @@ bool	Server::connection()
 						pfds[fd_count].events = POLLIN;
 						fd_count++;
 
-						std::cout << "Adresse :" << inet_ntoa(addr.sin_addr) << std::endl;
+						std::cout << "Adresse : " << inet_ntoa(addr.sin_addr) << std::endl;
 					}
 					else
 						std::cout << "erreur d'accept()" << std::endl;
 				}
 				else
 				{
+					std::cout << "client " << pfds[i].fd << " request your attention." << std::endl;
 					int	bytesNbr = recv(pfds[i].fd, buf, sizeof(buf), 0);
 					int	sender = pfds[i].fd;
+					std::cout << buf << std::endl;
 
 					if (bytesNbr <= 0)
 					{
