@@ -447,7 +447,8 @@ bool	Server::connection()
 {
 	int		fd_count = 1;
 
-	pollfd pfds[5];
+	pollfd	pfd;			// for vector _pfds
+	pollfd	pfds[5];		// temp, should be replaced by vector and other pollfd
 	int		clientSock;
 	int		pollCounter;
 	char	buf[250];
@@ -455,13 +456,22 @@ bool	Server::connection()
 
 	bzero(&pfds, sizeof(pfds));
 
-	pfds[0].fd = _socket;
-	pfds[0].events = POLLIN;
+	pfds[0].fd = _socket;	//temp
+	pfds[0].events = POLLIN;	//temp
 
+	pfd.fd = _socket;
+	pfd.events = POLLIN;
+	_pfds.push_back(pfd);
 
 	while (true)
 	{
-		pollCounter = poll(pfds, fd_count, TIMEOUT_NO_P);
+		pollCounter = poll(pfds, fd_count, TIMEOUT_NO_P);	//temp
+
+		std::cout << "_pfds.data(): " << _pfds.data() << std::endl;						//DEBUG
+		std::cout << "_pfds.front(): " << &_pfds.front() << std::endl;					//DEBUG
+		std::cout << "pfds: " << pfds << std::endl;										//DEBUG
+		// pollCounter = poll(_pfds.data(), fd_count, TIMEOUT_NO_P);	//to think about again
+
 		if (pollCounter == ERROR)
 			std::cout << "erreur de poll()" << std::endl;
 
@@ -500,7 +510,7 @@ bool	Server::connection()
 							std::cout << "erreur de recv()" << std::endl;
 
 						close(pfds[i].fd);
-						pfds[i] = pfds[fd_count - 1];
+						pfds[i] = pfds[fd_count - 1]; // This line seems problematic
 						fd_count--;
 					}
 					else
