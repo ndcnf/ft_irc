@@ -216,7 +216,7 @@ bool	Server::pollConnection()
 							std::cout << "bye bye from " << sender << std::endl;
 						else
 						{
-							std::cout << "Erreur recv()" << std::endl;
+							std::cout << "Erreur recv()" << strerror(errno) << std::endl;
 						}
 						close(_pfds[j].fd);
 						// _pfds.erase(_pfds[j].fd);
@@ -453,6 +453,7 @@ bool	Server::connection()
 	int		pollCounter;
 	char	buf[250];
 	socklen_t	addrlen;
+	bool	disconnected;
 
 	bzero(&pfds, sizeof(pfds));
 
@@ -465,79 +466,100 @@ bool	Server::connection()
 
 	while (true)
 	{
-		pollCounter = poll(pfds, fd_count, TIMEOUT_NO_P);	//temp
+		// pollCounter = poll(pfds, fd_count, TIMEOUT_NO_P);	//temp
 
-		std::cout << "_pfds.data(): " << _pfds.data() << std::endl;						//DEBUG
-		std::cout << "_pfds.front(): " << &_pfds.front() << std::endl;					//DEBUG
-		std::cout << "pfds: " << pfds << std::endl;										//DEBUG
-		// pollCounter = poll(_pfds.data(), fd_count, TIMEOUT_NO_P);	//to think about again
+		// std::cout << "_pfds.data(): " << _pfds.data() << std::endl;						//DEBUG
+		// std::cout << "_pfds.front(): " << &_pfds.front() << std::endl;					//DEBUG
+		// std::cout << "pfds: " << pfds << std::endl;										//DEBUG
+		fd_count = _pfds.size(); //DEBUG, pour eviter de tout remplacer sans etre sure
+
+		pollCounter = poll(_pfds.data(), fd_count, TIMEOUT_NO_P);	//to think about again
 
 		if (pollCounter == ERROR)
-			std::cout << "erreur de poll()" << std::endl;
+			std::cout << "erreur de poll() : " << strerror(errno) << std::endl;
 
-		for (int i = 0; i < fd_count; i++)
+		// for (int i = 0; i < fd_count; i++)
+		// for (std::vector<pollfd>::iterator it = _pfds.begin(); it != _pfds.end(); it++)
+		disconnected = false;
+		for (std::vector<pollfd>::iterator it = _pfds.begin(); it != _pfds.end(); it++)
 		{
-			if (pfds[i].revents & POLLIN)
+			// if (pfds[i].revents & POLLIN)
+			if ((*it).revents & POLLIN)
 			{
-				if (pfds[i].fd == _socket)
+				// if (pfds[i].fd == _socket)
+				if ((*it).fd == _socket)
 				{
 					addrlen = sizeof(_addr);
 					clientSock = accept(_socket, (struct sockaddr *)&_addr, &addrlen);
 
 					if (clientSock != ERROR)
 					{
-						pfds[fd_count].fd = clientSock;
-						pfds[fd_count].events = POLLIN;
-						fd_count++;
+						fd_count = _pfds.size();
+						// pfds[fd_count].fd = clientSock;
+						// pfds[fd_count].events = POLLIN;
+						// fd_count++;
+
+						pfd.fd = clientSock;
+						pfd.events = POLLIN;
+						_pfds.push_back(pfd);
 
 						// std::cout << "Adresse : " << inet_ntop(_addr.sin_family, (void*)&(_addr.sin_addr), buf, addrlen) << ":" << ntohs(_addr.sin_port) << std::endl;
 						std::cout << "Bonjour, " << inet_ntoa(_addr.sin_addr) << ":" << ntohs(_addr.sin_port) << std::endl;
 					}
 					else
-						std::cout << "erreur d'accept()" << std::endl;
+						std::cout << "erreur d'accept() : " << strerror(errno) << std::endl;
 				}
 				else
 				{
-					std::cout << "client " << pfds[i].fd << " request your attention." << std::endl;
-					int	bytesNbr = recv(pfds[i].fd, buf, sizeof(buf), 0);
-					int	sender = pfds[i].fd;
+					// std::cout << "client " << pfds[i].fd << " request your attention." << std::endl;
+					std::cout << "client " << (*it).fd << " request your attention." << std::endl;
+					// int	bytesNbr = recv(pfds[i].fd, buf, sizeof(buf), 0);
+					int	bytesNbr = recv((*it).fd, buf, sizeof(buf), 0);
+					// int	sender = pfds[i].fd;
+					int	sender = (*it).fd;
 
 					if (bytesNbr <= 0)
 					{
 						if (bytesNbr == 0)
 							std::cout << "socket " << sender << " is gone." << std::endl;
 						else
-							std::cout << "erreur de recv()" << std::endl;
+							std::cout << "erreur de recv() : " << strerror(errno) << std::endl;
 
-						close(pfds[i].fd);
-						pfds[i] = pfds[fd_count - 1]; // This line seems problematic
-						fd_count--;
+						// close(pfds[i].fd);
+						close((*it).fd);
+						// pfds[i] = pfds[fd_count - 1]; // This line seems problematic
+						_pfds.erase(it);
+						// fd_count--;
 					}
 					else
 					{
-						for (int j = 0; j < fd_count; j++)
+						// for (int j = 0; j < fd_count; j++)
+						for (std::vector<pollfd>::iterator it = _pfds.begin(); it != _pfds.end(); it++)
 						{
-							int	dest = pfds[j].fd;
+							// int	dest = pfds[j].fd;
+							int	dest = (*it).fd;
 
 							if (dest != _socket && dest != sender)
 							{
 								if (send(dest, buf, bytesNbr, 0) == ERROR)
-									std::cout << "erreur de send() " << j << std::endl;
+									// std::cout << "erreur de send() : " << strerror(errno) << j << std::endl;
+									std::cout << "erreur de send() : " << strerror(errno) << (*it).fd << std::endl;
 							}
 						}
 					}
 				}
 			}
+			// it++;
+			// else
+			// {
+			// 	disconnected = true;
+			// }
+
+			// if (disconnected)
+			// {
+			// 	it = _pfds.erase(it - 1);
+			// 	disconnected = false;
+			// }
 		}
-
-
-
-
 	}
-
-
-
-
-
-
 }
