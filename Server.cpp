@@ -479,22 +479,22 @@ bool	Server::connection()
 			std::cout << "erreur de poll() : " << strerror(errno) << std::endl;
 
 		// for (int i = 0; i < fd_count; i++)
-		// for (std::vector<pollfd>::iterator it = _pfds.begin(); it != _pfds.end(); it++)
 		disconnected = false;
-		for (std::vector<pollfd>::iterator it = _pfds.begin(); it != _pfds.end(); it++)
+		for (unsigned int i = 0; i < _pfds.size(); i++)
+		// for (std::vector<pollfd>::iterator it = _pfds.begin(); it != _pfds.end(); it++)
 		{
-			// if (pfds[i].revents & POLLIN)
-			if ((*it).revents & POLLIN)
+			if (_pfds[i].revents & POLLIN)
+			// if ((*it).revents & POLLIN)
 			{
-				// if (pfds[i].fd == _socket)
-				if ((*it).fd == _socket)
+				if (_pfds[i].fd == _socket)
+				// if ((*it).fd == _socket)
 				{
 					addrlen = sizeof(_addr);
 					clientSock = accept(_socket, (struct sockaddr *)&_addr, &addrlen);
 
 					if (clientSock != ERROR)
 					{
-						fd_count = _pfds.size();
+						// fd_count = _pfds.size(); // semble inutile ici
 						// pfds[fd_count].fd = clientSock;
 						// pfds[fd_count].events = POLLIN;
 						// fd_count++;
@@ -511,12 +511,12 @@ bool	Server::connection()
 				}
 				else
 				{
-					// std::cout << "client " << pfds[i].fd << " request your attention." << std::endl;
-					std::cout << "client " << (*it).fd << " request your attention." << std::endl;
-					// int	bytesNbr = recv(pfds[i].fd, buf, sizeof(buf), 0);
-					int	bytesNbr = recv((*it).fd, buf, sizeof(buf), 0);
-					// int	sender = pfds[i].fd;
-					int	sender = (*it).fd;
+					std::cout << "client " << _pfds[i].fd << " request your attention." << std::endl;
+					// std::cout << "client " << (*it).fd << " request your attention." << std::endl;
+					int	bytesNbr = recv(_pfds[i].fd, buf, sizeof(buf), 0);
+					// int	bytesNbr = recv((*it).fd, buf, sizeof(buf), 0);
+					int	sender = _pfds[i].fd;
+					// int	sender = (*it).fd;
 
 					if (bytesNbr <= 0)
 					{
@@ -525,10 +525,12 @@ bool	Server::connection()
 						else
 							std::cout << "erreur de recv() : " << strerror(errno) << std::endl;
 
-						// close(pfds[i].fd);
-						close((*it).fd);
+						close(_pfds[i].fd);
+						// close((*it).fd);
 						// pfds[i] = pfds[fd_count - 1]; // This line seems problematic
-						_pfds.erase(it);
+						// _pfds.erase(it);
+						_pfds.erase(_pfds.begin() + i);
+						i--;
 						// fd_count--;
 					}
 					else
