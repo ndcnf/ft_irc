@@ -60,6 +60,8 @@
 		"unordered_map": "cpp",
 		"utility": "cpp",
 		"vector": "cpp",
-		"clocale": "cpp"
+		"clocale": "cpp",
+		"__tree": "cpp",
+		"map": "cpp"
 	}
 }

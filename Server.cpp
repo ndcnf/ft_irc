@@ -1,12 +1,11 @@
 #include "Server.hpp"
 
-Server::Server()
+Server::Server():	_socket(0),
+					_validity(0),
+					_port(0)
+					// _quit(false)
 {
-	// struct sockaddr_in	addr;
 
-	// addr.sin_family = AF_INET;
-	// addr.sin_addr.s_addr = INADDR_ANY;
-	// addr.sin_port = htons(_port);
 }
 
 Server::Server(Server const &src)
@@ -20,6 +19,10 @@ Server	&Server::operator=(Server const &rhs)
 	_validity = rhs._validity;
 	_port = rhs._port;
 	_sockets = rhs._sockets;
+	_addr = rhs._addr;
+	_pfds = rhs._pfds;
+	_clients = rhs._clients;
+	// _quit = rhs._quit;
 
 	return (*this);
 }
@@ -41,36 +44,38 @@ int		Server::getPort()
 
 bool	Server::createSocket()
 {
-	int	option = 1;
-	struct sockaddr_in	addr;
+	int					option = 1;
+	int					validity;
 
-	_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_socket == ERROR)
 		throw (std::exception());
 		// throw (std::exception("Socket error"));
 		// throw (errno); // verifier
 
-	_validity = setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
-	if (_validity == ERROR)
+	validity = setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
+	if (validity == ERROR)
 		throw (std::exception());
 		// throw (std::exception("Unable to free the socket"));
 
-	_sockets.push_back(_socket);
-
-	bzero(&addr, sizeof(addr));
-	addr.sin_family = AF_INET;
-	addr.sin_addr.s_addr = INADDR_ANY;
-	addr.sin_port = htons(_port);
-
-	_validity = bind(_socket, (struct sockaddr *)&addr, sizeof(addr));
-	if (_validity == ERROR)
+	validity = fcntl(_socket, F_SETFL, O_NONBLOCK);
+	if (_socket == ERROR)
 		throw (std::exception());
 
-	_validity = listen(_socket, BACKLOG);
-	if (_validity == ERROR)
-		throw (std::exception());
+	_sockets.push_back(_socket); // optionnel, peut-etre que le vecteur des sockets sera inutile
 
-	std::cout << "End of socket: " << _socket << std::endl; // DEBUG ONLY
+	bzero(&_addr, sizeof(_addr));
+	_addr.sin_family = AF_INET;
+	_addr.sin_addr.s_addr = INADDR_ANY;
+	_addr.sin_port = htons(_port);
+
+	validity = bind(_socket, (struct sockaddr *)&_addr, sizeof(_addr));
+	if (validity == ERROR)
+		throw (std::exception()); // binding failed
+
+	validity = listen(_socket, BACKLOG);
+	if (validity == ERROR)
+		throw (std::exception()); //listen failed
 
 	return (true);
 }
@@ -79,15 +84,17 @@ void	Server::allSockets()
 {
 	if (_sockets.empty())
 	{
-		std::cout << "No live socket at the moment." << std::endl;
+		std::cout << "No live socket at the moment." << std::endl; // Change this message with errno
 		return;
 	}
 
 	// DEBUG ONLY ///////////////////////////////////////////////////////////////////////
 	std::cout << "Number of sockets: " << _sockets.size() << std::endl;
 
+	std::cout << "Socket(s): | ";
 	for (std::vector<int>::iterator	it = _sockets.begin(); it != _sockets.end(); it++)
-		std::cout << (*it) << std::endl;
+		std::cout << (*it) << " | ";
+	std::cout << std::endl;
 	/////////////////////////////////////////////////////////////////////////////////////
 }
 
@@ -96,7 +103,83 @@ int	Server::getSocket()
 	return (_socket);
 }
 
-int	Server::getValidity()
+bool	Server::connection()
 {
-	return (_validity);
+	pollfd		pfd;
+	int			clientSock;
+	int			pollCounter;
+	char		buf[250];
+	socklen_t	addrlen;
+
+	bzero(&pfd, sizeof(pfd));
+
+	/* *********************************************************
+	 * The first fd will be the one from the server.
+	 * The subsequent ones, will be from the client(s).
+	 * ********************************************************* */
+	pfd.fd = _socket;
+	pfd.events = POLLIN;
+	_pfds.push_back(pfd);
+
+	while (true)
+	{
+		pollCounter = poll(_pfds.data(), _pfds.size(), TIMEOUT_NO_P);
+
+		if (pollCounter == ERROR)
+			std::cout << ERRMSG << strerror(errno) << std::endl;
+
+		for (unsigned int i = 0; i < _pfds.size(); i++)
+		{
+			if (_pfds[i].revents & POLLIN)
+			{
+				if (_pfds[i].fd == _socket)
+				{
+					addrlen = sizeof(_addr);
+					clientSock = accept(_socket, (struct sockaddr *)&_addr, &addrlen);
+
+					if (clientSock != ERROR)
+					{
+						pfd.fd = clientSock;
+						pfd.events = POLLIN;
+						_pfds.push_back(pfd);
+
+						std::cout << "Bonjour, " << inet_ntoa(_addr.sin_addr) << ":" << ntohs(_addr.sin_port) << std::endl;
+					}
+					else
+						std::cout << ERRMSG << strerror(errno) << std::endl;
+				}
+				else
+				{
+					std::cout << "client " << _pfds[i].fd << " request your attention." << std::endl; // only for DEBUG
+					int	bytesNbr = recv(_pfds[i].fd, buf, sizeof(buf), 0);
+					int	sender = _pfds[i].fd;
+
+					if (bytesNbr <= 0)
+					{
+						if (bytesNbr == 0)
+							std::cout << "socket " << sender << " is gone." << std::endl; // 
+						else
+							std::cout << ERRMSG << strerror(errno) << std::endl;
+
+						close(_pfds[i].fd);
+						_pfds.erase(_pfds.begin() + i);
+						i--;
+					}
+					else
+					{
+						for (std::vector<pollfd>::iterator it = _pfds.begin(); it != _pfds.end(); it++)
+						{
+							int	dest = (*it).fd;
+
+							if (dest != _socket && dest != sender)
+							{
+								if (send(dest, buf, bytesNbr, 0) == ERROR)
+									std::cout << ERRMSG << strerror(errno) << (*it).fd << std::endl;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }

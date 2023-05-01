@@ -13,7 +13,7 @@
 CC =		c++
 #CC =		g++
 #CPPFLAGS =	g++-11 -Werror -Wextra -Wall -std=c++98 -pedantic
-CPPFLAGS =	-Wall -Wextra -Werror -g3 -std=c++98 -pedantic #-fsanitize=address
+CPPFLAGS =	-Wall -Wextra -Werror -g3 -std=c++98 -pedantic -fsanitize=address
 NAME =		ircserv
 AR =		ar rcs
 SRC =		main.cpp \
