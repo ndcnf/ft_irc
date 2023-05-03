@@ -36,6 +36,8 @@ class Server
 
 		bool	createSocket();
 		bool	connection();
+		void	inputClient(char *buf);
+		void	cmdSelection();
 		// bool	selectConnection();
 		void	allSockets();					// useless at the moment
 		// void	errorminator();					// TBD

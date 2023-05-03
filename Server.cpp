@@ -150,14 +150,15 @@ bool	Server::connection()
 				}
 				else
 				{
-					std::cout << "client " << _pfds[i].fd << " request your attention." << std::endl; // only for DEBUG
+					// std::cout << "client " << _pfds[i].fd << " request your attention." << std::endl; // only for DEBUG
 					int	bytesNbr = recv(_pfds[i].fd, buf, sizeof(buf), 0);
 					int	sender = _pfds[i].fd;
+					inputClient(buf);
 
 					if (bytesNbr <= 0)
 					{
 						if (bytesNbr == 0)
-							std::cout << "socket " << sender << " is gone." << std::endl; // 
+							std::cout << "socket " << sender << " is gone." << std::endl; //
 						else
 							std::cout << ERRMSG << strerror(errno) << std::endl;
 
@@ -182,4 +183,28 @@ bool	Server::connection()
 			}
 		}
 	}
+}
+
+// void	Server::cmdSelection()
+// {
+// 	enum Color { red, green, blue };
+// 	Color r = red;
+
+// 	switch(r)
+// 	{
+// 		case red  : std::cout << "red\n";   break;
+// 		case green: std::cout << "green\n"; break;
+// 		case blue : std::cout << "blue\n";  break;
+// 	}
+
+// 	enum commands
+
+// }
+
+void	Server::inputClient(char *buf)
+{
+	if (buf[0] == '\\')
+		std::cout << "Votre demande est une commande." << std::endl;
+	else
+		std::cout << "Juste du texte." << std::endl;
 }
