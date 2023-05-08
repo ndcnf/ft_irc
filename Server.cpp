@@ -185,26 +185,81 @@ bool	Server::connection()
 	}
 }
 
-// void	Server::cmdSelection()
-// {
-// 	enum Color { red, green, blue };
-// 	Color r = red;
+void	Server::cmdSelection(char *buf)
+{
+	std::string	str(buf);
+	std::string	token;
 
-// 	switch(r)
-// 	{
-// 		case red  : std::cout << "red\n";   break;
-// 		case green: std::cout << "green\n"; break;
-// 		case blue : std::cout << "blue\n";  break;
-// 	}
+	if (str.size() < 2)
+	{
+		std::cout << "ERREUR, pas de commande donnee" << std::endl; // NEEDS IMPROVEMENT
+		return ;
+	}
 
-// 	enum commands
+	// enum commands
+	// {
+	// 	JOIN,
+	// 	PASS,
+	// 	NICK,
+	// 	USER,
+	// 	// OPER,
+	// 	// QUIT,
+	// 	PART,
+	// 	PRIVMSG,
+	// 	NOTICE,
 
-// }
+	// 	//commandes operators listes dans le sujet
+	// 	KICK,
+	// 	INVITE,
+	// 	TOPIC,
+	// 	MODE,
+
+	// 	//commandes donnees par Nicole
+	// 	PONG,
+	// 	WHO,
+	// 	NUM_COMMANDS
+	// };
+
+	token = str.substr(1, str.find(' ') - 1);
+	for (unsigned int i = 0; i < token.size(); i++)
+		token[i] = toupper(token[i]);
+
+	std::cout << "TOKEN : [" << token << "]" << std::endl; // DEBUG ONLY
+
+	//FORET de IF
+	if (token == "JOIN")
+		std::cout << "join us..."<< std::endl;
+	else if (token == "NICK")
+		std::cout << "nice nickname..." << std::endl;
+	else
+		std::cout << "I don't understand this command." << std::endl;
+	// commands	cmd;
+	// cmd = JOIN;
+
+	// for (int i = 0; i < NUM_COMMANDS; i++)
+	// {
+	// 	if (token == "JOIN")
+	// 		std::cout << "join us..."<< std::endl;
+	// 	std::cout << "fooooor"<< std::endl;
+	// }
+
+	// std::cout << cmd << std::endl;
+	// switch(cmd)
+	// {
+	// 	case join	: std::cout << "join us..."<< std::endl;	break;
+	// 	case nick	: std::cout << "nice nickname..." << std::endl;	break;
+	// 	default		: std::cout << "I don't understand you." << std::endl;	break;
+	// }
+
+}
 
 void	Server::inputClient(char *buf)
 {
 	if (buf[0] == '\\')
+	{
 		std::cout << "Votre demande est une commande." << std::endl;
+		cmdSelection(buf);
+	}
 	else
 		std::cout << "Juste du texte." << std::endl;
 }
