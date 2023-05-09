@@ -151,6 +151,7 @@ bool	Server::connection()
 				else
 				{
 					// std::cout << "client " << _pfds[i].fd << " request your attention." << std::endl; // only for DEBUG
+					bzero(&buf, sizeof(buf));
 					int	bytesNbr = recv(_pfds[i].fd, buf, sizeof(buf), 0);
 					int	sender = _pfds[i].fd;
 					inputClient(buf);
@@ -189,6 +190,7 @@ void	Server::cmdSelection(char *buf)
 {
 	std::string	str(buf);
 	std::string	token;
+	std::string	content;
 
 	if (str.size() < 2)
 	{
@@ -226,13 +228,42 @@ void	Server::cmdSelection(char *buf)
 
 	std::cout << "TOKEN : [" << token << "]" << std::endl; // DEBUG ONLY
 
+	if (str.size() == (token.size() + 1) && (str.size() < token.size() + 2))
+	{
+		std::cout << token.size() << " | ";
+		std::cout << "ERREUR Your command is empty." << std::endl; // ERROR
+		return ;
+	}
+
+	content = str.substr(token.size() + 2);
+	std::cout << "CONTENT : [" << content << "]" << std::endl; // DEBUG ONLY
+
 	//FORET de IF
 	if (token == "JOIN")
-		std::cout << "join us..."<< std::endl;
+		std::cout << "join us on : " << content << std::endl;
 	else if (token == "NICK")
-		std::cout << "nice nickname..." << std::endl;
+		std::cout << "nickname : " << std::endl;
+	else if (token == "USER")
+		std::cout << "user name : " << std::endl;
+	else if (token == "PART")
+		std::cout << "part + arg ? : " << std::endl;
+	else if (token == "PRIVMSG")
+		std::cout << "private msg : " << std::endl;
+	else if (token == "NOTICE")
+		std::cout << "notice (private msg also) : " << std::endl;
+	else if (token == "KICK")
+		std::cout << "kick : " << std::endl;
+	else if (token == "INVITE")
+		std::cout << "invite : " << std::endl;
+	else if (token == "TOPIC")
+		std::cout << "topic : " << std::endl;
+	else if (token == "MODE")
+		std::cout << "mode (+ i, t, k, o or l) : " << std::endl;
+	else if (token == "PONG")
+		std::cout << "pong ? : " << std::endl;
 	else
 		std::cout << "I don't understand this command." << std::endl;
+
 	// commands	cmd;
 	// cmd = JOIN;
 
