@@ -175,6 +175,7 @@ bool	Server::connection()
 
 							if (dest != _socket && dest != sender)
 							{
+								// VERIFIER QUE CE N'EST PAS UNE COMMANDE MAIS DU TEXTE A ENVOYER
 								if (send(dest, buf, bytesNbr, 0) == ERROR)
 									std::cout << ERRMSG << strerror(errno) << (*it).fd << std::endl;
 							}
