@@ -150,14 +150,16 @@ bool	Server::connection()
 				}
 				else
 				{
-					std::cout << "client " << _pfds[i].fd << " request your attention." << std::endl; // only for DEBUG
+					// std::cout << "client " << _pfds[i].fd << " request your attention." << std::endl; // only for DEBUG
+					bzero(&buf, sizeof(buf));
 					int	bytesNbr = recv(_pfds[i].fd, buf, sizeof(buf), 0);
 					int	sender = _pfds[i].fd;
+					inputClient(buf);
 
 					if (bytesNbr <= 0)
 					{
 						if (bytesNbr == 0)
-							std::cout << "socket " << sender << " is gone." << std::endl; // 
+							std::cout << "socket " << sender << " is gone." << std::endl; //
 						else
 							std::cout << ERRMSG << strerror(errno) << std::endl;
 
@@ -173,6 +175,7 @@ bool	Server::connection()
 
 							if (dest != _socket && dest != sender)
 							{
+								// VERIFIER QUE CE N'EST PAS UNE COMMANDE MAIS DU TEXTE A ENVOYER
 								if (send(dest, buf, bytesNbr, 0) == ERROR)
 									std::cout << ERRMSG << strerror(errno) << (*it).fd << std::endl;
 							}
@@ -182,4 +185,113 @@ bool	Server::connection()
 			}
 		}
 	}
+}
+
+void	Server::cmdSelection(char *buf)
+{
+	std::string	str(buf);
+	std::string	token;
+	std::string	content;
+
+	if (str.size() < 2)
+	{
+		std::cout << "ERREUR, pas de commande donnee" << std::endl; // NEEDS IMPROVEMENT
+		return ;
+	}
+
+	// enum commands
+	// {
+	// 	JOIN,
+	// 	PASS,
+	// 	NICK,
+	// 	USER,
+	// 	// OPER,
+	// 	// QUIT,
+	// 	PART,
+	// 	PRIVMSG,
+	// 	NOTICE,
+
+	// 	//commandes operators listes dans le sujet
+	// 	KICK,
+	// 	INVITE,
+	// 	TOPIC,
+	// 	MODE,
+
+	// 	//commandes donnees par Nicole
+	// 	PONG,
+	// 	WHO,
+	// 	NUM_COMMANDS
+	// };
+
+	token = str.substr(1, str.find(' ') - 1);
+	for (unsigned int i = 0; i < token.size(); i++)
+		token[i] = toupper(token[i]);
+
+	std::cout << "TOKEN : [" << token << "]" << std::endl; // DEBUG ONLY
+
+	if (str.size() == (token.size() + 1) && (str.size() < token.size() + 2))
+	{
+		std::cout << token.size() << " | ";
+		std::cout << "ERREUR Your command is empty." << std::endl; // ERROR
+		return ;
+	}
+
+	content = str.substr(token.size() + 2);
+	std::cout << "CONTENT : [" << content << "]" << std::endl; // DEBUG ONLY
+
+	//FORET de IF
+	if (token == "JOIN")
+		std::cout << "join us on : " << content << std::endl;
+	else if (token == "NICK")
+		std::cout << "nickname : " << std::endl;
+	else if (token == "USER")
+		std::cout << "user name : " << std::endl;
+	else if (token == "PART")
+		std::cout << "part + arg ? : " << std::endl;
+	else if (token == "PRIVMSG")
+		std::cout << "private msg : " << std::endl;
+	else if (token == "NOTICE")
+		std::cout << "notice (private msg also) : " << std::endl;
+	else if (token == "KICK")
+		std::cout << "kick : " << std::endl;
+	else if (token == "INVITE")
+		std::cout << "invite : " << std::endl;
+	else if (token == "TOPIC")
+		std::cout << "topic : " << std::endl;
+	else if (token == "MODE")
+		std::cout << "mode (+ i, t, k, o or l) : " << std::endl;
+	else if (token == "PONG")
+		std::cout << "pong ? : " << std::endl;
+	else
+		std::cout << "I don't understand this command." << std::endl;
+
+	// commands	cmd;
+	// cmd = JOIN;
+
+	// for (int i = 0; i < NUM_COMMANDS; i++)
+	// {
+	// 	if (token == "JOIN")
+	// 		std::cout << "join us..."<< std::endl;
+	// 	std::cout << "fooooor"<< std::endl;
+	// }
+
+	// std::cout << cmd << std::endl;
+	// switch(cmd)
+	// {
+	// 	case join	: std::cout << "join us..."<< std::endl;	break;
+	// 	case nick	: std::cout << "nice nickname..." << std::endl;	break;
+	// 	default		: std::cout << "I don't understand you." << std::endl;	break;
+	// }
+
+}
+
+void	Server::inputClient(char *buf)
+{
+	if (buf[0] == '\\')
+	{
+		std::cout << "Votre demande est une commande." << std::endl;
+		cmdSelection(buf);
+	}
+	else
+		std::cout << "Juste du texte." << std::endl;
 }
