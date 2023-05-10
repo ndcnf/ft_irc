@@ -159,7 +159,12 @@ bool	Server::connection()
 					if (bytesNbr <= 0)
 					{
 						if (bytesNbr == 0)
-							std::cout << "socket " << sender << " is gone." << std::endl; //
+						{
+							std::cout << "socket " << sender << " is gone." << std::endl;
+							// Quand il n'y a plus de client, juste le serveur
+							// if (_pfds.size() == 2)
+								// std::cout << _pfds.size() << " * cricket noises *" << std::endl;
+						}
 						else
 							std::cout << ERRMSG << strerror(errno) << std::endl;
 
