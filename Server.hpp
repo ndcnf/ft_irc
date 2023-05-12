@@ -8,15 +8,12 @@
 # include <unistd.h>  // close
 # include <cerrno> // errors
 # include <stdexcept>
-// # include <queue>
 # include <vector>
 # include <map>
 # include <fcntl.h>
-
 # include <sys/poll.h>
 
-
-// # include "Socket.hpp"
+# include "Client.hpp"
 
 # define ERROR -1						// Everywhere when -1 means error
 # define BACKLOG 32						// Number of connections allowed on the incoming queue for listen()
@@ -36,6 +33,7 @@ class Server
 
 		bool	createSocket();
 		bool	connection();
+		void	addClient(int fd);
 		void	inputClient(char *buf);
 		void	cmdSelection(char *buf);
 		// bool	selectConnection();
@@ -53,7 +51,7 @@ class Server
 		struct sockaddr_in			_addr;
 		std::vector<int>			_sockets;	// maybe useless
 		std::vector<pollfd>			_pfds;
-		std::map<int, sockaddr_in>	_clients;	// useless at the moment
+		std::vector<Client>			_clients;	// useless at the moment, maybe now?
 		// bool						_quit;		// useless at the moment
 };
 

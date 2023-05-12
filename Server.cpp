@@ -143,6 +143,10 @@ bool	Server::connection()
 						pfd.events = POLLIN;
 						_pfds.push_back(pfd);
 
+						// New client
+						addClient(clientSock); // new way to handle client via Client class
+						//////////////////////////
+
 						std::cout << "Bonjour, " << inet_ntoa(_addr.sin_addr) << ":" << ntohs(_addr.sin_port) << std::endl;
 					}
 					else
@@ -153,6 +157,11 @@ bool	Server::connection()
 					// std::cout << "client " << _pfds[i].fd << " request your attention." << std::endl; // only for DEBUG
 					bzero(&buf, sizeof(buf));
 					int	bytesNbr = recv(_pfds[i].fd, buf, sizeof(buf), 0);
+					for (std::vector<Client>::iterator	it = _clients.begin(); it != _clients.end(); it++)
+					{
+						if ((*it).getFd() == _pfds[i].fd)
+							std::cout << "I'm the " << _pfds[i].fd << std::endl;
+					}
 					int	sender = _pfds[i].fd;
 					inputClient(buf);
 
@@ -299,4 +308,13 @@ void	Server::inputClient(char *buf)
 	}
 	else
 		std::cout << "Juste du texte." << std::endl;
+}
+
+void	Server::addClient(int fd)
+{
+	Client client(fd);
+
+	_clients.push_back(client);
+
+	std::cout << "new client added : " << client.getFd() << std::endl; //DEBUG ONLY
 }

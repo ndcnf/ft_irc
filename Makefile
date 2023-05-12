@@ -17,9 +17,11 @@ CPPFLAGS =	-Wall -Wextra -Werror -g3 -std=c++98 -pedantic -fsanitize=address
 NAME =		ircserv
 AR =		ar rcs
 SRC =		main.cpp \
-			Server.cpp
+			Server.cpp \
+			Client.cpp
 
-HEADER =	Server.hpp
+HEADER =	Server.hpp \
+			Client.hpp
 
 OBJ =		${SRC:.cpp=.o}
 
