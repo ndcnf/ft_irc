@@ -32,6 +32,11 @@ class Client
 		~Client();
 
 		int		getFd();
+		//autres fonctions a creer probablement @Verena :
+		void	logIn();
+		void	applyNick();
+		void	defineUsername();
+		bool	isConnected();
 
 	private:
 		int			_fd;
