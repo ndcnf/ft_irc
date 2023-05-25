@@ -261,9 +261,18 @@ void	Server::cmdSelection(char *buf)
 	splitStr = str.substr(token.size(), str.find('\n'));
 	if (splitStr.size() != 0) {
 		content = str.substr(splitStr.size() + 2);
+		 for (unsigned int i = 0; i < content.size(); i++)
+		 content[i] = toupper(content[i]);
+		 if (token.size() < 4)
+		 content = str.substr(splitStr.size() + 1);
+		 for (unsigned int i = 0; i < content.size(); i++)
+		 content[i] = toupper(content[i]);
+
 		std::cout << "CONTENT : [" << content << "]" << std::endl; // DEBUG ONLY
 
 		//FORET de IF
+		if (token == "CAP" && content == "LS")
+			std::cout << "CAP LS done" << std::endl;
 		if (token == "JOIN")
 			std::cout << "join us on : " << content << std::endl;
 		else if (token == "NICK")
