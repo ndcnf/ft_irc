@@ -26,7 +26,7 @@ int	main(int argc, char *argv[])
 
 
 		if (argc < 3)
-			throw (std::exception()); // usage ./ircserv <port> <password> a afficher
+			throw (Server::ServException("ERR :arg")); // usage ./ircserv <port> <password> a afficher
 
 		srv.setPort(atoi(argv[1]));
 		srv.createSocket();

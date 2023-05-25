@@ -12,8 +12,15 @@
 # include <map>
 # include <fcntl.h>
 # include <sys/poll.h>
+# include <string>
+# include <cstring>
+# include <sstream>
+# include <algorithm>
 
 # include "Client.hpp"
+
+# define RED "\e[31m"
+# define RES "\e[0m"
 
 # define ERROR -1						// Everywhere when -1 means error
 # define BACKLOG 32						// Number of connections allowed on the incoming queue for listen()
@@ -36,6 +43,8 @@ class Server
 		void	addClient(int fd);
 		void	inputClient(char *buf);
 		void	cmdSelection(char *buf);
+		//@Verena CAP LS
+		int		capOrNOt();
 		// bool	selectConnection();
 		void	allSockets();					// useless at the moment
 		// void	errorminator();					// TBD
@@ -43,6 +52,17 @@ class Server
 		int		getPort();
 		int		getSocket();
 		void	setPort(int port);
+
+		class ServException : public std::exception {
+			public:
+				ServException(const char* msg) : _msg(msg) {}
+				const char* what() const throw() { 
+					return _msg;
+				}
+
+			private:
+				const char* _msg;
+		};
 
 	private:
 		int							_socket;
