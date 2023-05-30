@@ -28,7 +28,8 @@
 # define TIMEOUT_NO_S NULL				// Specifying a negative value in timeout means an infinite timeout (for select())
 # define TIMEOUT_YES (3 * 60 * 1000)	// 3 minutes
 # define MAX_FD 200						// Number of maximum fds / may be replaced by a vector
-# define ERRMSG "Error: "
+# define ERRMSG RED"Error: "
+
 
 class Server
 {

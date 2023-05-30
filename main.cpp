@@ -26,7 +26,7 @@ int	main(int argc, char *argv[])
 
 
 		if (argc < 3)
-			throw (Server::ServException("ERR :arg")); // usage ./ircserv <port> <password> a afficher
+			throw (Server::ServException(ERRMSG"bad argument. Please respect this format ./ircserv <port> <password>")); // usage ./ircserv <port> <password> a afficher
 
 		srv.setPort(atoi(argv[1]));
 		srv.createSocket();
