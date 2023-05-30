@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: vferraro <vferraro@student.42.fr>          +#+  +:+       +#+         #
+#    By: vferraro <vferraror@student.42lausanne.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/05/23 15:18:37 by vferraro          #+#    #+#              #
-#    Updated: 2023/05/23 15:18:38 by vferraro         ###   ########.fr        #
+#    Updated: 2023/05/30 14:32:06 by vferraro         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,12 +21,15 @@ RESET	= \e[0m
 BLUE	= \033[34m
 CYAN	= \033[36m
 MAGENTA = \033[35m
+RUN_C	= \033[0;32m
 
 NAME	= ircserv
 
-SRCS	= main.cpp Server.cpp Client.cpp
+SRCS	= main.cpp $(addprefix src/, Server.cpp Client.cpp)
 MAIN	= main.cpp
+
 OBJS	= ${SRCS:.cpp=.o}
+#OBJ	= $(addprefix objs/, $(OBJS))
 
 LOGO_IRC	= 	 @echo "$(CYAN) \tWelcome to : \n\
  								\tIIIIIIIIIIRRRRRRRRRRRRRRRRR           CCCCCCCCCCCCC\n\
@@ -49,27 +52,29 @@ LOGO_IRC	= 	 @echo "$(CYAN) \tWelcome to : \n\
 								\t  \n"
 
 CC			= c++
-CPPFLAGS	= -Wall -Wextra -Werror -g3 -std=c++98 -pedantic -fsanitize=address
+CPPFLAGS	= -Wall -Wextra -Werror -g3 -std=c++98 -pedantic -fsanitize=address  -I./inc
 
 AR 		= ar rc
 RM 		= rm -f
 
 .c.o:		%.o : %.cpp
-					@$(CC)${CPPFLAGS}
+					$(CC)${CPPFLAGS}
 
-all: 		logo ${NAME} 
 
 logo:
 			$(LOGO_IRC)
 
+all: 		 logo ${NAME}
 
 ${NAME}:			${OBJS}
-					@echo "$(CYAN)---- Compiling library ----"
-					@echo "$(GREEN2)📚 Link paths"
+					@echo "⛳️ Flags and O->CPP ✅"
 					@$(CC) $(CPPFLAGS) ${OBJS} -o $(NAME)
-					@printf "$(BLUE)🍵 Creating $(NAME)$(RESET)\n"
-					@echo "$(CYAN)$(NAME) Compiled ! \033[39m(\033[31m๑\033[39m╹◡╹\033[31m๑\033[39m)"
+					@printf "$(BLUE)🍵 Creating $(NAME)$(RESET) ✅\n"
+					@echo "$(CYAN)$(NAME) Compiled !  ✅ \033[39m(\033[31m๑\033[39m╹◡╹\033[31m๑\033[39m)"
 					@echo ""
+					@echo "$(RUN_C)****************************************************************"
+					@echo "$(RUN_C)* Now you can run the program with ./ircserv <port> <passwort> *"
+					@echo "$(RUN_C)****************************************************************\033[0m"
 
 
 clean:
@@ -77,7 +82,6 @@ clean:
 					@echo ""
 					@echo "$(YELLOW)---- Cleaning library ----"
 					@printf "$(BLUE)🧽 Cleaning $(NAME)$(RESET)\n"
-					@echo "$(GREEN2)📚 Cleaning paths"
 					@echo "$(YELLOW)$(NAME) is all clean ! $(ORANGE)(ﾉ◕ヮ◕)ﾉ$(YELLOW)*:･ﾟ✧"
 					@echo ""
 
