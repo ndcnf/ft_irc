@@ -271,15 +271,21 @@ void	Server::cmdSelection(char *buf)
 		std::cout << "CONTENT : [" << content << "]" << std::endl; // DEBUG ONLY
 
 		//FORET de IF
-		if ((token.compare("CAP") == 0) && (content.compare("LS") == 0)) {
-			std::cout << "CAP LS done" << std::endl;
-			std::cout << "Capabilities supported: " << std::endl; // envoyer la liste de commandes a imprimer (note de @Verena)
-			return ;
+		if (token.size() != 0 && content.size() != 0) {
+			if ((token.compare("CAP") == 0) && (content.compare("LS") == 0)) {
+				std::cout << "CAP LS done" << std::endl;
+				std::cout << "Capabilities supported: " << std::endl; // envoyer la liste de commandes a imprimer (note de @Verena)
+				return ;
+			}
+			else if ((token.compare("CAP") == 0) && (content.compare("LS") != 0)) {
+				std::cerr << ERRMSG << RES << content << RED << " is not an accepted command" << RES << std::endl;
+				return;
+			}
 		}
-		else if ((token.compare("CAP") == 0) && (content.compare("LS") != 0)) {
-			std::cerr << ERRMSG << RES << content << RED << " is not an accepted command" << RES << std::endl;
-		}
-		else if (token.size() != 0 && content.empty()) {
+		
+		//ca ne rentre pas dedant. Faire une fonction par commande et comparer a chaque fois comme pour le CAP LS ? @Verena
+		else if (token.size() != 0 && content.size() == 0) {
+			std::cout << "I am in" << std::endl;
 			if (token == "JOIN")
 				std::cout << "join us on : " << content << std::endl;
 			else if (token == "NICK")
@@ -308,7 +314,7 @@ void	Server::cmdSelection(char *buf)
 				std::cout << "I don't understand this command." << std::endl;
 		}
 		else if (token.size() != 0 && content.size() != 0)
-			std::cout << "I need a working content to handle" << std::endl; // ca segfault je ne comprend pas pk @Verena
+			std::cout << "I need a working content to handle" << std::endl;
 		}
 	// else
 	// 	throw Server::ServException(ERRMSG"pas content");
