@@ -51,18 +51,18 @@ bool	Server::createSocket()
 
 	_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_socket == ERROR)
-		throw (Server::ServException("ERR : socket stream"));
+		throw (Server::ServException(ERRMSG"socket stream"));
 		// throw (std::exception("Socket error"));
 		// throw (errno); // verifier
 
 	validity = setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
 	if (validity == ERROR)
-		throw (Server::ServException("Unable to free the socket"));
+		throw (Server::ServException(ERRMSG"unable to free the socket"));
 		// throw (std::exception("Unable to free the socket"));
 
 	validity = fcntl(_socket, F_SETFL, O_NONBLOCK);
 	if (_socket == ERROR)
-		throw (Server::ServException("ERR : socket"));
+		throw (Server::ServException(ERRMSG"socket"));
 
 	_sockets.push_back(_socket); // optionnel, peut-etre que le vecteur des sockets sera inutile
 
@@ -271,33 +271,45 @@ void	Server::cmdSelection(char *buf)
 		std::cout << "CONTENT : [" << content << "]" << std::endl; // DEBUG ONLY
 
 		//FORET de IF
-		if (token == "CAP" && content == "LS")
+		if ((token.compare("CAP") == 0) && (content.compare("LS") == 0)) {
 			std::cout << "CAP LS done" << std::endl;
-		if (token == "JOIN")
-			std::cout << "join us on : " << content << std::endl;
-		else if (token == "NICK")
-			std::cout << "nickname : " << std::endl;
-		else if (token == "USER")
-			std::cout << "user name : " << std::endl;
-		else if (token == "PART")
-			std::cout << "part + arg ? : " << std::endl;
-		else if (token == "PRIVMSG")
-			std::cout << "private msg : " << std::endl;
-		else if (token == "NOTICE")
-			std::cout << "notice (private msg also) : " << std::endl;
-		else if (token == "KICK")
-			std::cout << "kick : " << std::endl;
-		else if (token == "INVITE")
-			std::cout << "invite : " << std::endl;
-		else if (token == "TOPIC")
-			std::cout << "topic : " << std::endl;
-		else if (token == "MODE")
-			std::cout << "mode (+ i, t, k, o or l) : " << std::endl;
-		else if (token == "PONG")
-			std::cout << "pong ? : " << std::endl;
-		else
-			std::cout << "I don't understand this command." << std::endl;
-	}
+			std::cout << "Capabilities supported: " << std::endl; // envoyer la liste de commandes a imprimer (note de @Verena)
+			return ;
+		}
+		else if ((token.compare("CAP") == 0) && (content.compare("LS") != 0)) {
+			std::cerr << ERRMSG << RES << content << RED << " is not an accepted command" << RES << std::endl;
+		}
+		else if (token.size() != 0 && content.empty()) {
+			if (token == "JOIN")
+				std::cout << "join us on : " << content << std::endl;
+			else if (token == "NICK")
+				std::cout << "nickname : " << std::endl;
+			else if (token == "USER")
+				std::cout << "user name : " << std::endl;
+			else if (token == "PART")
+				std::cout << "part + arg ? : " << std::endl;
+			else if (token == "PRIVMSG")
+				std::cout << "private msg : " << std::endl;
+			else if (token == "NOTICE")
+				std::cout << "notice (private msg also) : " << std::endl;
+			else if (token == "KICK")
+				std::cout << "kick : " << std::endl;
+			else if (token == "INVITE")
+				std::cout << "invite : " << std::endl;
+			else if (token == "TOPIC")
+				std::cout << "topic : " << std::endl;
+			else if (token == "MODE")
+				std::cout << "mode (+ i, t, k, o or l) : " << std::endl;
+			else if (token.compare("PONG")) {
+				std::cout << "pong ? : " << std::endl;
+				return ;
+			}
+			else
+				std::cout << "I don't understand this command." << std::endl;
+		}
+		else if (token.size() != 0 && content.size() != 0)
+			std::cout << "I need a working content to handle" << std::endl; // ca segfault je ne comprend pas pk @Verena
+		}
 	// else
 	// 	throw Server::ServException(ERRMSG"pas content");
 
