@@ -151,7 +151,7 @@ bool	Server::connection()
 						//////////////////////////
 
 						std::cout << "Bonjour, " << inet_ntoa(_addr.sin_addr) << ":" << ntohs(_addr.sin_port) << std::endl;
-						capOrNOt(clientSock);
+						// capOrNOt(clientSock);
 						// doit renvoyer le CAP au client comme ceci 
 						/* CAP LS
 							NICK n1t4r4
@@ -364,11 +364,13 @@ void	Server::inputClient(char *buf)
 
 void	Server::addClient(int fd)
 {
+	//comment gerer une nouvelle connexion ? un nouveau client avec un nouvel fd ?
 	Client client(fd);
-
 	_clients.push_back(client);
-
 	std::cout << "new client added : " << client.getFd() << std::endl; //DEBUG ONLY
+	int newFD = client.getFd();
+	capOrNOt(newFD);
+	std::cout << "fd client APRES : " << client.getFd() << std::endl; //DEBUG ONLY
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -402,8 +404,11 @@ void	Server::setPassword(std::string pass)  {
 	// std::string serverAddress = _addr.str_c();
 	int serverPort = Server::getPort();
 	std::string nickname = cl.getNick();
+	// std::string clientNumber = cl.getFd();
 	std::string channel = "#mychannel";
 
+	//print clientNumber (socket)
+	std::cout << "NEW CLIENT : " << clientSocket << std::endl;
 	// // Création du socket
 	// int clientSocket = socket(AF_INET, SOCK_STREAM, 0);
 	// if (clientSocket == -1) {
@@ -488,10 +493,13 @@ void	Server::setPassword(std::string pass)  {
 
 				serverResponse.clear();
 			}
+			std::cout << "CLIENT SOCKET 1: " << clientSocket << std::endl;
 		}
+		std::cout << "CLIENT SOCKET 2: " << clientSocket << std::endl;
 	}
 	// Fermeture du socket
-	// close(clientSocket);
+	close(clientSocket);
+	std::cout << "CLIENT SOCKET 3: " << clientSocket << std::endl;
 
 	// return 0;
 }
