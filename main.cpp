@@ -30,7 +30,8 @@ int	main(int argc, char *argv[])
 
 		srv.setPort(atoi(argv[1]));
 		srv.createSocket();
-
+		srv.setPassword(argv[2]);
+		std::cout << "Port: " << srv.getPort() << "\nPassword: " << srv.getPassword() << std::endl; //@Verena (pour recuperer les infos de co)
 		srv.allSockets(); // DEBUG ONLY
 
 		// bzero(&srv._addr, sizeof(srv._addr));
@@ -39,7 +40,6 @@ int	main(int argc, char *argv[])
 			// srv.pollConnection();
 			srv.connection();
 		// }
-
 		// -------- tests
 
 		// struct sockaddr_in	addr;

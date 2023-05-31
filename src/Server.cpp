@@ -25,6 +25,7 @@ Server	&Server::operator=(Server const &rhs)
 	_pfds = rhs._pfds;
 	_clients = rhs._clients;
 	// _quit = rhs._quit;
+	_password = rhs._password;
 
 	return (*this);
 }
@@ -359,6 +360,18 @@ void	Server::addClient(int fd)
 	std::cout << "new client added : " << client.getFd() << std::endl; //DEBUG ONLY
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// VERENA
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::string	Server::getPassword() {
+	return _password;
+} //@Verena to print the password entered
+
+void	Server::setPassword(std::string pass)  {
+	_password = pass;
+}
+
 
 // int	Server::capOrNOt() {
 // // Connexion au serveur IRC
@@ -397,3 +410,4 @@ void	Server::addClient(int fd)
 // 		// Votre logique de traitement des réponses du serveur IRC ici
 // 	}
 // }
+
