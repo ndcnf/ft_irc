@@ -16,6 +16,8 @@
 # include <cstring>
 # include <sstream>
 # include <algorithm>
+# include <poll.h>
+# include <cstdlib>
 
 # include "Client.hpp"
 
@@ -45,7 +47,8 @@ class Server
 		void	inputClient(char *buf);
 		void	cmdSelection(char *buf);
 		//@Verena CAP LS
-		int		capOrNOt();
+		void		capOrNOt(int clientSocket);
+		std::vector<std::string> getCap();
 		// bool	selectConnection();
 		void	allSockets();					// useless at the moment
 		// void	errorminator();					// TBD

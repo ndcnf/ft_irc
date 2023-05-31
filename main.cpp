@@ -33,7 +33,6 @@ int	main(int argc, char *argv[])
 		srv.setPassword(argv[2]);
 		std::cout << "Port: " << srv.getPort() << "\nPassword: " << srv.getPassword() << std::endl; //@Verena (pour recuperer les infos de co)
 		srv.allSockets(); // DEBUG ONLY
-
 		// bzero(&srv._addr, sizeof(srv._addr));
 		// while (true)
 		// {
@@ -343,7 +342,10 @@ int	main(int argc, char *argv[])
 		// std::cerr << errno << '\n';
 		std::cerr << e.what() << '\n';
 	}
+	// Server 	srv;
+	// srv.capOrNOt();
 
+	
 	// std::cout	<< error << std::endl;
 
 	//*/
@@ -368,15 +370,95 @@ int	main(int argc, char *argv[])
 
 
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// VERENA
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// VERENA DEBUG ONLY !!!
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// #include <iostream>
+// #include <string>
+// #include <sstream>
+// #include <cstdlib>
+// #include <cstring>
+// #include <sys/socket.h>
+// #include <arpa/inet.h>
+// #include <unistd.h>
+
+// //const int BUFFER_SIZE = 1024;
+// 	Server				srv;
+// 	std::string serverAddress = "irc.server.com";
+// 	int serverPort = srv.getPort();
+// 	std::string nickname = "MyNickname";
+// 	std::string channel = "#mychannel";
+
+// 	// Création du socket
+// 	int clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+// 	if (clientSocket == -1) {
+// 		std::cerr << "Erreur lors de la création du socket" << std::endl;
+// 		return 1;
+// 	}
+
+// 	// Préparation des informations de connexion du serveur
+// 	sockaddr_in serverAddr;
+// 	serverAddr.sin_family = AF_INET;
+// 	serverAddr.sin_port = htons(serverPort);
+// 	if (inet_pton(AF_INET, serverAddress.c_str(), &(serverAddr.sin_addr)) <= 0) {
+// 		std::cerr << "Adresse du serveur invalide" << std::endl;
+// 		return 1;
+// 	}
+
+// 	// Connexion au serveur
+// 	if (connect(clientSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
+// 		std::cerr << "Erreur de connexion au serveur" << std::endl;
+// 		return 1;
+// 	}
+
+// 	// Envoi des commandes d'authentification
+// 	std::string authCommand = "NICK " + nickname + "\r\n";
+// 	send(clientSocket, authCommand.c_str(), authCommand.size(), 0);
+
+// 	std::string userCommand = "USER " + nickname + " 0 * :" + nickname + "\r\n";
+// 	send(clientSocket, userCommand.c_str(), userCommand.size(), 0);
+
+// 	// Envoi de la commande pour demander les capacités du serveur
+// 	std::string capCommand = "CAP LS\r\n";
+// 	send(clientSocket, capCommand.c_str(), capCommand.size(), 0);
+
+// 	// Réception et traitement des réponses du serveur
+// 	char buffer[BUFFER_SIZE];
+// 	std::string serverResponse;
+// 	while (true) {
+// 		memset(buffer, 0, sizeof(buffer));
+// 		int bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
+// 		if (bytesRead <= 0) {
+// 			break;
+// 		}
+
+// 		serverResponse += buffer;
+
+// 		// Vérification si la réponse complète a été reçue
+// 		std::stringstream responseStream(serverResponse);
+// 		std::string line;
+// 		while (std::getline(responseStream, line)) {
+// 			std::cout << "Server response: " << line << std::endl;
+
+// 			// Vérification des capacités renvoyées
+// 			if (line.find("CAP") != std::string::npos && line.find("LS") != std::string::npos) {
+// 				// Traitez ici les capacités renvoyées selon vos besoins
+// 			}
+// 		}
+
+// 		serverResponse.clear();
+// 	}
+
+// 	// Fermeture du socket
+// 	close(clientSocket);
+
+// 	return 0;
+
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	/* CODE DE VERENA ICI
-
-	*/
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// VERENA
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 	// return (0);

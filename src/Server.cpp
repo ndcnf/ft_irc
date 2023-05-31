@@ -151,6 +151,11 @@ bool	Server::connection()
 						//////////////////////////
 
 						std::cout << "Bonjour, " << inet_ntoa(_addr.sin_addr) << ":" << ntohs(_addr.sin_port) << std::endl;
+						capOrNOt(clientSock);
+						// doit renvoyer le CAP au client comme ceci 
+						/* CAP LS
+							NICK n1t4r4
+							USER n1t4r4 n1t4r4 localhost :Verena Ferraro*/
 					}
 					else
 						std::cout << ERRMSG << strerror(errno) << std::endl;
@@ -274,8 +279,14 @@ void	Server::cmdSelection(char *buf)
 		//FORET de IF
 		if (token.size() != 0 && content.size() != 0) {
 			if ((token.compare("CAP") == 0) && (content.compare("LS") == 0)) {
-				std::cout << "CAP LS done" << std::endl;
-				std::cout << "Capabilities supported: " << std::endl; // envoyer la liste de commandes a imprimer (note de @Verena)
+				std::cout << "CAP LS start" << std::endl;
+				// std::cout << "Capabilities supported: " << std::endl; // envoyer la liste de commandes a imprimer (note de @Verena)
+				// capOrNOt();
+				try {
+					getCap();
+				} catch (const std::exception &e) {
+						std::cerr << "End of CAP LS negotiation" << e.what() << std::endl;
+				}
 				return ;
 			}
 			else if ((token.compare("CAP") == 0) && (content.compare("LS") != 0)) {
@@ -373,7 +384,138 @@ void	Server::setPassword(std::string pass)  {
 }
 
 
-// int	Server::capOrNOt() {
+// void	Server::capOrNOt() {
+// 	std::string capabilities = "CAP LS done\n";
+// 	for (std::vector<pollfd>::iterator it = _pfds.begin(); it != _pfds.end(); it++) {
+// 		int dest = (*it).fd;
+// 		if (dest != _socket) {
+// 			if (send(dest, capabilities.c_str(), capabilities.size(), 0) == ERROR)
+// 				std::cout << ERRMSG << strerror(errno) << std::endl;
+// 		}
+// 	getCap();
+// 	}
+// 	// std::cout << "Capabilities supported: " << Server::getCap() << std::endl; // envoyer la liste de commandes a imprimer (note de @Verena)
+// }
+
+ void	Server::capOrNOt(int clientSocket) {
+	Client	cl;
+	// std::string serverAddress = _addr.str_c();
+	int serverPort = Server::getPort();
+	std::string nickname = cl.getNick();
+	std::string channel = "#mychannel";
+
+	// // Création du socket
+	// int clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+	// if (clientSocket == -1) {
+	// 	std::cerr << "Erreur lors de la création du socket" << std::endl;
+	// 	// return 1;
+	// 	return;
+	// }
+
+    // Obtention de l'adresse IP du serveur
+    char ipAddress[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &(_addr.sin_addr), ipAddress, INET_ADDRSTRLEN);
+    std::cout << "IP adresse server : " << ipAddress << std::endl;
+	std::string serverAddress = ipAddress;
+
+	// Préparation des informations de connexion du serveur
+	// sockaddr_in serverAddr{};//_addr
+	_addr.sin_family = AF_INET;
+	_addr.sin_port = htons(serverPort);
+	if (inet_pton(AF_INET, serverAddress.c_str(), &(_addr.sin_addr)) <= 0) {
+		std::cerr << "Unvalid IP adresse server" << std::endl;
+		// return 1;
+		return;
+	}
+
+	// // Connexion au serveur
+	// if (connect(clientSocket, (struct sockaddr*)&_addr, sizeof(_addr)) < 0) {
+	// 	std::cerr << "Erreur de connexion au serveur" << std::endl;
+	// 	// return 1;
+	// 	return;
+	// }
+
+	// Envoi de la commande pour demander les capacités du serveur
+	std::string capCommand = "CAP LS\r\n";
+	send(clientSocket, capCommand.c_str(), capCommand.size(), 0);
+
+	// Envoi des commandes d'authentification
+	std::string authCommand = "NICK " + nickname + "\r\n";
+	send(clientSocket, authCommand.c_str(), authCommand.size(), 0);
+
+	std::string userCommand = "USER " + nickname + " 0 * :" + nickname + "\r\n";
+	send(clientSocket, userCommand.c_str(), userCommand.size(), 0);
+
+
+	// Préparation des structures pour la fonction poll()
+	struct pollfd fds[1];
+	fds[0].fd = clientSocket;
+	fds[0].events = POLLIN;
+
+	// Réception et traitement des réponses du serveur
+	char buffer[BUFFER_SIZE];
+	std::string serverResponse = "CAP LS";
+	while (true) {
+	// std::cout << "ca bug la !" << std::endl;
+		int result = poll(fds, 1, -1);
+		if (result == -1) {
+			std::cerr << "Erreur lors de l'appel à poll()" << std::endl;
+			break;
+		}
+
+		if (result > 0) {
+			if (fds[0].revents & POLLIN) {
+				memset(buffer, 0, sizeof(buffer));
+				int bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
+				if (bytesRead <= 0) {
+					break;
+				}
+
+				serverResponse += buffer;
+
+				// Vérification si la réponse complète a été reçue
+				std::stringstream responseStream(serverResponse);
+				std::string line;
+				while (std::getline(responseStream, line)) {
+					std::cout << "Server response: " << line << std::endl;
+
+					// Vérification des capacités renvoyées
+					if (line.find("CAP") != std::string::npos && line.find("LS") != std::string::npos) {
+						//gerer ici les commandes !
+						getCap();
+					}
+				}
+
+				serverResponse.clear();
+			}
+		}
+	}
+	// Fermeture du socket
+	// close(clientSocket);
+
+	// return 0;
+}
+
+std::vector<std::string> Server::getCap() {
+	std::vector<std::string> capabilities;
+
+	// Ajoutez le code nécessaire pour récupérer les capacités (CAP LS)
+	capabilities.push_back("CAPABILITY1");
+	capabilities.push_back("CAPABILITY2");
+	capabilities.push_back("CAPABILITY3");
+	// ...
+
+	std::cout << "Capabilities supported:";
+	for (std::vector<std::string>::const_iterator it = capabilities.begin(); it != capabilities.end(); ++it)
+	{
+		const std::string& capability = *it;
+		std::cout << " " << capability;
+	}
+	std::cout << std::endl;
+
+	return capabilities;
+}
+
 // // Connexion au serveur IRC
 // 	if (connect(_socket, reinterpret_cast<sockaddr*>(&_addr), sizeof(_addr)) < 0) {
 // 		std::cerr << "Connexion au serveur échouée." << std::endl;
@@ -407,7 +549,8 @@ void	Server::setPassword(std::string pass)  {
 // 		}
 // 		serverResponse += buffer;
 
-// 		// Votre logique de traitement des réponses du serveur IRC ici
+// 		// la logique de traitement des réponses du serveur IRC ici
 // 	}
 // }
 
+//Capabilities supported: End of CAP LS negotiation
