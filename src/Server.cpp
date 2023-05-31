@@ -478,12 +478,12 @@ void	Server::setPassword(std::string pass)  {
 				std::string line;
 				while (std::getline(responseStream, line)) {
 					std::cout << "Server response: " << line << std::endl;
-
-					// Vérification des capacités renvoyées
-					if (line.find("CAP") != std::string::npos && line.find("LS") != std::string::npos) {
-						//gerer ici les commandes !
-						getCap();
-					}
+					inputClient(buffer);
+					// // Vérification des capacités renvoyées
+					// if (line.find("CAP") != std::string::npos && line.find("LS") != std::string::npos) {
+					// 	//gerer ici les commandes !
+					// 	getCap();
+					// }
 				}
 
 				serverResponse.clear();
