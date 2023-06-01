@@ -260,7 +260,9 @@ void	Server::cmdSelection(char *buf)
 
 	splitStr = str.substr(token.size(), str.find('\n'));
 	if (splitStr.size() != 0) {
-		content = str.substr(splitStr.size() + 2);
+		content = str.substr(splitStr.size() + 1);
+		for (unsigned int i = 0; i < content.size(); i++)
+			content[i] = toupper(content[i]);
 		std::cout << "CONTENT : [" << content << "]" << std::endl; // DEBUG ONLY
 
 		//FORET de IF
