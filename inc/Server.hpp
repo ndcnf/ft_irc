@@ -43,7 +43,7 @@ class Server
 
 		bool	createSocket();
 		bool	connection();
-		void	addClient(int fd);
+		bool	addClient(int fd);
 		void	inputClient(char *buf);
 		void	cmdSelection(char *buf);
 		//@Verena CAP LS
@@ -60,7 +60,7 @@ class Server
 		void		setPassword(std::string pass) ;
 
 		//COMMNANDS
-		std::string	parsePing(std::string token);
+		std::string	parsePing(std::string token, int clientSocket);
 
 		class ServException : public std::exception {
 			public:

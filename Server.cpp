@@ -146,8 +146,10 @@ bool	Server::connection()
 						_pfds.push_back(pfd);
 
 						// New client
-						addClient(clientSock); // new way to handle client via Client class
+						if (false) {
+							addClient(clientSock); // new way to handle client via Client class
 						//////////////////////////
+						}
 
 						std::cout << "Bonjour, " << inet_ntoa(_addr.sin_addr) << ":" << ntohs(_addr.sin_port) << std::endl;
 					}
