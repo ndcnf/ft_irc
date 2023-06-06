@@ -6,7 +6,7 @@
 /*   By: creyt <marvin@42lausanne.ch>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/01 09:04:19 by creyt             #+#    #+#             */
-/*   Updated: 2023/06/01 16:43:13 by creyt            ###   ########.fr       */
+/*   Updated: 2023/06/01 15:49:25 by creyt            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -330,9 +330,8 @@ void	Server::cmdSelection(char *buf)
 				std::cout << "topic : " << std::endl;
 			else if (token == "MODE")
 				std::cout << "mode (+ i, t, k, o or l) : " << std::endl;
-			else if (token.compare("ping")) {
-				// recuperer ce qui a apres le ping et le renvoyer apres le pong parsePing
-				std::cout << "PONG : " << parsePing << std::endl;
+			else if (token.compare("PONG")) {
+				std::cout << "pong ? : " << std::endl;
 				return ;
 			}
 			else
@@ -381,10 +380,10 @@ void	Server::addClient(int fd)
 	Client client(fd);
 	_clients.push_back(client);
 	std::cout << "new client added : " << client.getFd() << std::endl; //DEBUG ONLY
-	int newFD = client.getFd();
-	capOrNOt(newFD);
-	std::cout << "fd client APRES : " << client.getFd() << std::endl; //DEBUG ONLY
-}
+// 	int newFD = client.getFd();
+// 	capOrNOt(newFD);
+// 	std::cout << "fd client APRES : " << client.getFd() << std::endl; //DEBUG ONLY
+// }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // VERENA
