@@ -151,7 +151,7 @@ bool	Server::connection()
 						//////////////////////////
 
 						std::cout << "Bonjour, " << inet_ntoa(_addr.sin_addr) << ":" << ntohs(_addr.sin_port) << std::endl;
-						// capOrNOt(clientSock);
+						capOrNOt(clientSock);
 						// doit renvoyer le CAP au client comme ceci 
 						/* CAP LS
 							NICK n1t4r4
