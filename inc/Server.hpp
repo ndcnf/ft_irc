@@ -59,10 +59,13 @@ class Server
 		std::string	getPassword();//@Verena to print the password entered
 		void		setPassword(std::string pass) ;
 
+		//COMMNANDS
+		std::string	parsePing(std::string token);
+
 		class ServException : public std::exception {
 			public:
 				ServException(const char* msg) : _msg(msg) {}
-				const char* what() const throw() { 
+				const char* what() const throw() {
 					return _msg;
 				}
 

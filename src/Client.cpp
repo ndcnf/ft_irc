@@ -1,4 +1,4 @@
-#include "Client.hpp"
+#include "../inc/Client.hpp"
 // #include "Server.hpp"
 
 Client::Client():	_fd(0),
@@ -44,9 +44,9 @@ std::string	Client::getNick()
 	return _nick;
 }
 
-// void	Client::setNick(std::string nick) const 
+// void	Client::setNick(std::string nick) const
 // {
-// 	std::string commande = std::cin 
+// 	std::string commande = std::cin
 // 	if commmande.compare("/nick");
 // 	std::cout << "You're now known as " << nick << std::endl;
 // 	_username = nick;

@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Server.cpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: creyt <marvin@42lausanne.ch>               +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/06/01 09:04:19 by creyt             #+#    #+#             */
-/*   Updated: 2023/06/01 16:43:13 by creyt            ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "../inc/Server.hpp"
 // #include "Client.hpp"
 
@@ -221,6 +209,15 @@ bool	Server::connection()
 	}
 }
 
+std::string	Server::parsePing(std::string token) {
+	std::string ping = "PING";
+	std::string pong = "PONG";
+	// std::string	content;
+	std::string parsePing = token.substr(token.find(ping));
+	std::cout << "parsePing : " << parsePing << std::endl;
+	return parsePing;
+}
+
 void	Server::cmdSelection(char *buf)
 {
 	std::string	str(buf);
@@ -275,7 +272,6 @@ void	Server::cmdSelection(char *buf)
 		return ;
 	}
 
-
 	splitStr = str.substr(token.size(), str.find('\n'));
 	if (splitStr.size() != 0) {
 		content = str.substr(splitStr.size() + 2);
@@ -306,6 +302,7 @@ void	Server::cmdSelection(char *buf)
 				return;
 			}
 		}
+		// else if (token.size() != 0 && content.size() == 0) {
 
 		//ca ne rentre pas dedant. Faire une fonction par commande et comparer a chaque fois comme pour le CAP LS ? @Verena
 		else if (token.size() != 0 && content.size() == 0) {
@@ -330,10 +327,14 @@ void	Server::cmdSelection(char *buf)
 				std::cout << "topic : " << std::endl;
 			else if (token == "MODE")
 				std::cout << "mode (+ i, t, k, o or l) : " << std::endl;
-			else if (token.compare("ping")) {
-				// recuperer ce qui a apres le ping et le renvoyer apres le pong parsePing
-				std::cout << "PONG : " << parsePing << std::endl;
-				return ;
+			// else if (token.compare("PONG")) {
+			// 	std::cout << "pong ? : " << std::endl;
+			// 	return ;
+			// }
+			else if (token.compare("PING")) {
+			// recuperer ce qui a apres le ping et le renvoyer apres le pong parsePing
+			std::cout << "PONG : " << parsePing(content) << std::endl;
+			return ;
 			}
 			else
 				std::cout << "I don't understand this command." << std::endl;
@@ -430,10 +431,10 @@ void	Server::setPassword(std::string pass)  {
 	// 	return;
 	// }
 
-    // Obtention de l'adresse IP du serveur
-    char ipAddress[INET_ADDRSTRLEN];
-    inet_ntop(AF_INET, &(_addr.sin_addr), ipAddress, INET_ADDRSTRLEN);
-    std::cout << "IP adresse server : " << ipAddress << std::endl;
+	// Obtention de l'adresse IP du serveur
+	char ipAddress[INET_ADDRSTRLEN];
+	inet_ntop(AF_INET, &(_addr.sin_addr), ipAddress, INET_ADDRSTRLEN);
+	std::cout << "IP adresse server : " << ipAddress << std::endl;
 	std::string serverAddress = ipAddress;
 
 	// Préparation des informations de connexion du serveur
