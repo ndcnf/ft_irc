@@ -364,7 +364,7 @@ void	Server::inputClient(char *buf)
 
 void	Server::addClient(int fd)
 {
-	//comment gerer une nouvelle connexion ? un nouveau client avec un nouvel fd ?
+	//comment gerer une nouvelle connexion ? un nouveau client avec un nouvel fd 
 	Client client(fd);
 	_clients.push_back(client);
 	std::cout << "new client added : " << client.getFd() << std::endl; //DEBUG ONLY
