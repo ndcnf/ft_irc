@@ -1,4 +1,4 @@
-#include "Server.hpp"
+#include "../inc/Server.hpp"
 // #include "Client.hpp"
 
 
@@ -151,7 +151,7 @@ bool	Server::connection()
 						//////////////////////////
 
 						std::cout << "Bonjour, " << inet_ntoa(_addr.sin_addr) << ":" << ntohs(_addr.sin_port) << std::endl;
-						// capOrNOt(clientSock);
+						capOrNOt(clientSock);
 						// doit renvoyer le CAP au client comme ceci 
 						/* CAP LS
 							NICK n1t4r4
@@ -209,6 +209,16 @@ bool	Server::connection()
 	}
 }
 
+std::string	Server::parsePing(std::string token, int clientSocket) {
+	std::string ping = "PING";
+	std::string pong = "PONG";
+	// std::string	content;
+	std::string parsePing = token.substr(token.find(ping));
+	std::cout << "parsePing : " << parsePing << std::endl;
+	send(clientSocket, parsePing.c_str(), parsePing.size(), 0);
+	return parsePing;
+}
+
 void	Server::cmdSelection(char *buf)
 {
 	std::string	str(buf);
@@ -263,7 +273,6 @@ void	Server::cmdSelection(char *buf)
 		return ;
 	}
 
-
 	splitStr = str.substr(token.size(), str.find('\n'));
 	if (splitStr.size() != 0) {
 		content = str.substr(splitStr.size() + 2);
@@ -294,6 +303,7 @@ void	Server::cmdSelection(char *buf)
 				return;
 			}
 		}
+		// else if (token.size() != 0 && content.size() == 0) {
 		
 		//ca ne rentre pas dedant. Faire une fonction par commande et comparer a chaque fois comme pour le CAP LS ? @Verena
 		else if (token.size() != 0 && content.size() == 0) {
@@ -318,9 +328,14 @@ void	Server::cmdSelection(char *buf)
 				std::cout << "topic : " << std::endl;
 			else if (token == "MODE")
 				std::cout << "mode (+ i, t, k, o or l) : " << std::endl;
-			else if (token.compare("PONG")) {
-				std::cout << "pong ? : " << std::endl;
-				return ;
+			// else if (token.compare("PONG")) {
+			// 	std::cout << "pong ? : " << std::endl;
+			// 	return ;
+			// }
+			// else if (token.compare("PING")) {
+			// // recuperer ce qui a apres le ping et le renvoyer apres le pong parsePing
+			// std::cout << "PONG : " << parsePing(token, ) << std::endl;
+			// return ;
 			}
 			else
 				std::cout << "I don't understand this command." << std::endl;
@@ -349,7 +364,7 @@ void	Server::cmdSelection(char *buf)
 	// 	default		: std::cout << "I don't understand you." << std::endl;	break;
 	// }
 
-}
+// }
 
 void	Server::inputClient(char *buf)
 {
@@ -362,15 +377,16 @@ void	Server::inputClient(char *buf)
 		std::cout << "Juste du texte." << std::endl;
 }
 
-void	Server::addClient(int fd)
+bool	Server::addClient(int fd)
 {
 	//comment gerer une nouvelle connexion ? un nouveau client avec un nouvel fd 
 	Client client(fd);
 	_clients.push_back(client);
 	std::cout << "new client added : " << client.getFd() << std::endl; //DEBUG ONLY
-	int newFD = client.getFd();
-	capOrNOt(newFD);
+	// int newFD = client.getFd();
+	// capOrNOt(newFD);
 	std::cout << "fd client APRES : " << client.getFd() << std::endl; //DEBUG ONLY
+	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -404,6 +420,7 @@ void	Server::setPassword(std::string pass)  {
 	// std::string serverAddress = _addr.str_c();
 	int serverPort = Server::getPort();
 	std::string nickname = cl.getNick();
+	std::string version = "2.0";
 	// std::string clientNumber = cl.getFd();
 	std::string channel = "#mychannel";
 
@@ -417,10 +434,10 @@ void	Server::setPassword(std::string pass)  {
 	// 	return;
 	// }
 
-    // Obtention de l'adresse IP du serveur
-    char ipAddress[INET_ADDRSTRLEN];
-    inet_ntop(AF_INET, &(_addr.sin_addr), ipAddress, INET_ADDRSTRLEN);
-    std::cout << "IP adresse server : " << ipAddress << std::endl;
+	// Obtention de l'adresse IP du serveur
+	char ipAddress[INET_ADDRSTRLEN];
+	inet_ntop(AF_INET, &(_addr.sin_addr), ipAddress, INET_ADDRSTRLEN);
+	std::cout << "IP adresse server : " << ipAddress << std::endl;
 	std::string serverAddress = ipAddress;
 
 	// Préparation des informations de connexion du serveur
@@ -434,12 +451,17 @@ void	Server::setPassword(std::string pass)  {
 	}
 
 	// // Connexion au serveur
-	// if (connect(clientSocket, (struct sockaddr*)&_addr, sizeof(_addr)) < 0) {
-	// 	std::cerr << "Erreur de connexion au serveur" << std::endl;
-	// 	// return 1;
-	// 	return;
-	// }
+	if (connect(clientSocket, (struct sockaddr*)&_addr, sizeof(_addr)) < 0) {
+		std::cerr <<  "other connexion detected"  << std::endl;
+		// return 1;
+		parsePing("PING\n", clientSocket);
+		std::string servCommand = "PONG " + nickname + ":" + nickname + "\r\n";
+		send(clientSocket, servCommand.c_str(), servCommand.size(), 0);
+		std::cout << "PONG : " << parsePing("PING\n", clientSocket) << std::endl;
+		return;
+	}
 
+	std::cout << "coucou" << std::endl;
 	// Envoi de la commande pour demander les capacités du serveur
 	std::string capCommand = "CAP LS\r\n";
 	send(clientSocket, capCommand.c_str(), capCommand.size(), 0);
@@ -448,8 +470,21 @@ void	Server::setPassword(std::string pass)  {
 	std::string authCommand = "NICK " + nickname + "\r\n";
 	send(clientSocket, authCommand.c_str(), authCommand.size(), 0);
 
+	std::string passCommand = "PASS " + _password + "\r\n";
+	send(clientSocket, passCommand.c_str(), authCommand.size(), 0);
+
 	std::string userCommand = "USER " + nickname + " 0 * :" + nickname + "\r\n";
 	send(clientSocket, userCommand.c_str(), userCommand.size(), 0);
+
+	send(clientSocket, (" 001 Verena Hi ! Welcome to this awesome IRC server !, Verena\r\n"), 100, 0);
+	send(clientSocket, (" 002 Your host is 127.0.0.1 running version 4.20\r\n"), 100, 0);
+	send(clientSocket, (" 003 This server was created Verena\r\n"), 100, 0);
+	send(clientSocket, (" 004 Verena 127.0.0.1 4.20  none none.\r\n"), 100, 0); // 100 faire un strlen de la string
+	// PASS
+
+	parsePing("PING\n", clientSocket);
+	std::string servCommand = "PONG " + nickname + ":" + nickname + "\r\n";
+	send(clientSocket, servCommand.c_str(), servCommand.size(), 0);
 
 
 	// Préparation des structures pour la fonction poll()

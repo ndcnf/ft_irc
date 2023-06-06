@@ -1,4 +1,4 @@
-#include "../inc/Client.hpp"
+#include "Client.hpp"
 // #include "Server.hpp"
 
 Client::Client():	_fd(0),

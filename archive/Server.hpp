@@ -16,8 +16,6 @@
 # include <cstring>
 # include <sstream>
 # include <algorithm>
-# include <poll.h>
-# include <cstdlib>
 
 # include "Client.hpp"
 
@@ -30,8 +28,7 @@
 # define TIMEOUT_NO_S NULL				// Specifying a negative value in timeout means an infinite timeout (for select())
 # define TIMEOUT_YES (3 * 60 * 1000)	// 3 minutes
 # define MAX_FD 200						// Number of maximum fds / may be replaced by a vector
-# define ERRMSG RED"Error: "
-
+# define ERRMSG "Error: "
 
 class Server
 {
@@ -43,24 +40,18 @@ class Server
 
 		bool	createSocket();
 		bool	connection();
-		bool	addClient(int fd);
+		void	addClient(int fd);
 		void	inputClient(char *buf);
 		void	cmdSelection(char *buf);
 		//@Verena CAP LS
-		void		capOrNOt(int clientSocket);
-		std::vector<std::string> getCap();
+		int		capOrNOt();
 		// bool	selectConnection();
 		void	allSockets();					// useless at the moment
 		// void	errorminator();					// TBD
 
-		int			getPort();
-		int			getSocket();
-		void		setPort(int port);
-		std::string	getPassword();//@Verena to print the password entered
-		void		setPassword(std::string pass) ;
-
-		//COMMNANDS
-		std::string	parsePing(std::string token, int clientSocket);
+		int		getPort();
+		int		getSocket();
+		void	setPort(int port);
 
 		class ServException : public std::exception {
 			public:
@@ -82,7 +73,6 @@ class Server
 		std::vector<pollfd>			_pfds;
 		std::vector<Client>			_clients;	// useless at the moment, maybe now?
 		// bool						_quit;		// useless at the moment
-		std::string					_password; //@Verena to get the password
 };
 
 #endif
