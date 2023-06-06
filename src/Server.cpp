@@ -172,7 +172,8 @@ bool	Server::connection()
 					}
 					int	sender = _pfds[i].fd;
 					inputClient(buf);
-
+					// parsePing(buff ?);
+					// fonction qui redefini buff (buff = newValeurs) et bytesNbr pour tester 
 					if (bytesNbr <= 0)
 					{
 						if (bytesNbr == 0)
@@ -198,7 +199,7 @@ bool	Server::connection()
 							if (dest != _socket && dest != sender)
 							{
 								// VERIFIER QUE CE N'EST PAS UNE COMMANDE MAIS DU TEXTE A ENVOYER
-								if (send(dest, buf, bytesNbr, 0) == ERROR)
+								if (send(dest, buf, bytesNbr, 0) == ERROR) //renvoi le seul send authorisé
 									std::cout << ERRMSG << strerror(errno) << (*it).fd << std::endl;
 							}
 						}
@@ -209,13 +210,13 @@ bool	Server::connection()
 	}
 }
 
-std::string	Server::parsePing(std::string token, int clientSocket) {
+std::string	Server::parsePing(std::string token) {
 	std::string ping = "PING";
 	std::string pong = "PONG";
 	// std::string	content;
 	std::string parsePing = token.substr(token.find(ping));
 	std::cout << "parsePing : " << parsePing << std::endl;
-	send(clientSocket, parsePing.c_str(), parsePing.size(), 0);
+	// send(clientSocket, parsePing.c_str(), parsePing.size(), 0);
 	return parsePing;
 }
 
@@ -285,7 +286,7 @@ void	Server::cmdSelection(char *buf)
 
 		std::cout << "CONTENT : [" << content << "]" << std::endl; // DEBUG ONLY
 
-		//FORET de IF
+		//FORET de IF attention a modifier le try and catch risque d arreet du prog
 		if (token.size() != 0 && content.size() != 0) {
 			if ((token.compare("CAP") == 0) && (content.compare("LS") == 0)) {
 				std::cout << "CAP LS start" << std::endl;
@@ -368,10 +369,17 @@ void	Server::cmdSelection(char *buf)
 
 void	Server::inputClient(char *buf)
 {
-	if (buf[0] == '/')
+	if (cap ls) {
+		gestion du CAP LS 
+		parsePing(buf);
+	} // renvoi un pong : (premier ping de la part du serveur)
+	else if (buf[0] == '/')
 	{
 		std::cout << "Votre demande est une commande." << std::endl;
 		cmdSelection(buf);
+	}
+	else if (ping) { //@Verena ajout d un input ping check de l apart du client
+		PONG : + truc qui vient apres
 	}
 	else
 		std::cout << "Juste du texte." << std::endl;
@@ -454,10 +462,10 @@ void	Server::setPassword(std::string pass)  {
 	if (connect(clientSocket, (struct sockaddr*)&_addr, sizeof(_addr)) < 0) {
 		std::cerr <<  "other connexion detected"  << std::endl;
 		// return 1;
-		parsePing("PING\n", clientSocket);
+		parsePing("PING\n");
 		std::string servCommand = "PONG " + nickname + ":" + nickname + "\r\n";
-		send(clientSocket, servCommand.c_str(), servCommand.size(), 0);
-		std::cout << "PONG : " << parsePing("PING\n", clientSocket) << std::endl;
+		// send(clientSocket, servCommand.c_str(), servCommand.size(), 0);
+		// std::cout << "PONG : " << parsePing("PING\n", clientSocket) << std::endl;
 		return;
 	}
 
@@ -476,13 +484,13 @@ void	Server::setPassword(std::string pass)  {
 	std::string userCommand = "USER " + nickname + " 0 * :" + nickname + "\r\n";
 	send(clientSocket, userCommand.c_str(), userCommand.size(), 0);
 
-	send(clientSocket, (" 001 Verena Hi ! Welcome to this awesome IRC server !, Verena\r\n"), 100, 0);
-	send(clientSocket, (" 002 Your host is 127.0.0.1 running version 4.20\r\n"), 100, 0);
-	send(clientSocket, (" 003 This server was created Verena\r\n"), 100, 0);
-	send(clientSocket, (" 004 Verena 127.0.0.1 4.20  none none.\r\n"), 100, 0); // 100 faire un strlen de la string
+	// send(clientSocket, (" 001 Verena Hi ! Welcome to this awesome IRC server !, Verena\r\n"), 100, 0);
+	// send(clientSocket, (" 002 Your host is 127.0.0.1 running version 4.20\r\n"), 100, 0);
+	// send(clientSocket, (" 003 This server was created Verena\r\n"), 100, 0);
+	// send(clientSocket, (" 004 Verena 127.0.0.1 4.20  none none.\r\n"), 100, 0); // 100 faire un strlen de la string
 	// PASS
 
-	parsePing("PING\n", clientSocket);
+	parsePing("PING\n");
 	std::string servCommand = "PONG " + nickname + ":" + nickname + "\r\n";
 	send(clientSocket, servCommand.c_str(), servCommand.size(), 0);
 
