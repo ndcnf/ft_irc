@@ -6,7 +6,7 @@
 #    By: vferraro <vferraror@student.42lausanne.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/05/23 15:18:37 by vferraro          #+#    #+#              #
-#    Updated: 2023/05/31 12:10:03 by vferraro         ###   ########.fr        #
+#    Updated: 2023/06/07 09:44:05 by vferraro         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,7 +25,7 @@ RUN_C	= \033[0;32m
 
 NAME	= ircserv
 
-SRCS	= main.cpp $(addprefix src/, Server.cpp Client.cpp)
+SRCS	= main.cpp $(addprefix src/, Server.cpp Client.cpp Commands.cpp)
 MAIN	= main.cpp
 
 OBJS	= ${SRCS:.cpp=.o}
