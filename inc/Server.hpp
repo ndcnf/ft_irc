@@ -44,7 +44,7 @@ class Server
 		bool	createSocket();
 		bool	connection();
 		bool	addClient(int fd);
-		void	inputClient(char *buf);
+		void	inputClient(char *buf, int fd);
 		void	cmdSelection(char *buf);
 		//@Verena CAP LS
 		void		capOrNOt(int clientSocket);
@@ -61,7 +61,8 @@ class Server
 
 		//COMMNANDS
 		std::string	parsePing(std::string token, int clientSocket);
-		void sendMsg(std::string message, int fd);
+		void		sendMsg(std::string message, int fd);
+		void		welcomeMsg(char *buf, int fd);
 
 		class ServException : public std::exception {
 			public:

@@ -152,6 +152,7 @@ bool	Server::connection()
 
 						std::cout << "Bonjour, " << inet_ntoa(_addr.sin_addr) << ":" << ntohs(_addr.sin_port) << std::endl;
 						capOrNOt(clientSock);
+						welcomeMsg(buf, clientSock);
 						// doit renvoyer le CAP au client comme ceci 
 						/* CAP LS
 							NICK n1t4r4
@@ -171,7 +172,7 @@ bool	Server::connection()
 							std::cout << "I'm the " << _pfds[i].fd << std::endl;
 					}
 					int	sender = _pfds[i].fd;
-					inputClient(buf);
+					inputClient(buf, sender);
 
 					if (bytesNbr <= 0)
 					{
@@ -200,6 +201,8 @@ bool	Server::connection()
 								// VERIFIER QUE CE N'EST PAS UNE COMMANDE MAIS DU TEXTE A ENVOYER
 								if (send(dest, buf, bytesNbr, 0) == ERROR)
 									std::cout << ERRMSG << strerror(errno) << (*it).fd << std::endl;
+								// else
+								// 	sendMsg(buf, dest);//debug ONLY !!! to erase
 							}
 						}
 					}
@@ -212,35 +215,56 @@ bool	Server::connection()
 std::string	Server::parsePing(std::string token, int clientSocket) {
 	std::string ping = "PING";
 	std::string pong = "PONG";
+	// std::string	msg = " 001 Verena Hi ! Welcome to this awesome IRC server !, @ Verena\r\n";
 	// std::string	content;
 	std::string parsePing = token.substr(token.find(ping));
 	// std::cout << "parsePing : " << parsePing << std::endl;
 	// send(clientSocket, parsePing.c_str(), parsePing.size(), 0);
+	std::cout << "parsePing : " << parsePing << std::endl;
 	sendMsg(parsePing, clientSocket);
+	// sendMsg(msg, clientSocket);
 	// return parsePing;
 	return ping;
 }
 
+void	Server::welcomeMsg(char *buf, int fd) {
+	if (strstr(buf, "USER :\r\n") != 0) {
+		std::string	msg = " 001 Verena Hi ! Welcome to this awesome IRC server !, @ Verena\r\n";
+		sendMsg(msg, fd);
+	}
+}
+
 void Server::sendMsg(std::string message, int fd)
 {
-	std::cout << "RESPONSE IS <" << message << ">" << std::endl;
+	std::cout << "REPONSE BUFFER IS <" << message << ">" << std::endl;
 	send(fd, message.append(END_SEQUENCE).c_str(), message.size(), 0);
+	// message.clear();
+	// std::cout << "RESPONSE 2 IS <" << message << ">" << std::endl;
 }
 
 // void Server::recvMsg();
 
-void	Server::inputClient(char *buf)
+void	Server::inputClient(char *buf, int fd) // retourner une veleur ? un string ? return buff
 {
 	std::string ping = "PING\r\n";
 	std::cout << "buf iCAv: " << buf << std::endl;
 	// recv(Server::getSocket(), buf, sizeof(buf), 0);
 	// std::cout << "buf iCAp: " << buf << std::endl;
-	if (strstr(buf, "pong :\r\n") != 0 || strstr(buf, "PONG :\r\n") != 0) {
-		std::cout << "envouer un ping du client au serveur ?\n" << std::endl;
-		sendMsg(ping, Server::getSocket());
-		recv(Server::getSocket(), buf, sizeof(buf), 0);//comment recuperer le ping client ?
+	// bool	checkPong = true;
+	// if (strstr(buf, "PONG :\r\n") != 0 && checkPong == true) {
+	// 	std::cout << "envoyer un ping du client au serveur ici ligne 239?\n" << std::endl;
+	// 	// buf = NULL;
+	// 	checkPong = false;
+	// 	// sendMsg(ping, Server::getSocket());
+	// 	// recv(Server::getSocket(), buf, sizeof(buf), 0);//comment recuperer le ping client ?
+	// }
+
+	// if (strstr(buf, "CAP LS") == 0) {
+	if (static_cast<std::string>(buf).find("CAP LS") == 0) {
+		// sendMsg("cap ls fait \r\n", fd);
+		welcomeMsg(buf, fd);
 	}
-	if (strstr(buf, "ping\r\n") != 0 || strstr(buf, "PING\r\n") != 0) {
+	else if (strstr(buf, "ping\r\n") != 0 || strstr(buf, "PING\r\n") != 0) {
 		std::cout << "Ca rentre dans la gestion du ping InputClient\n" << std::endl;
 	}
 	else if (buf[0] == '/')
@@ -257,10 +281,10 @@ bool	Server::addClient(int fd)
 	//comment gerer une nouvelle connexion ? un nouveau client avec un nouvel fd ?
 	Client client(fd);
 	_clients.push_back(client);
-	std::cout << "new client added : " << client.getFd() << std::endl; //DEBUG ONLY
+	// std::cout << "new client added : " << client.getFd() << std::endl; //DEBUG ONLY
 	// int newFD = client.getFd();
 	// capOrNOt(newFD);
-	std::cout << "fd client APRES : " << client.getFd() << std::endl; //DEBUG ONLY
+	// std::cout << "fd client APRES : " << client.getFd() << std::endl; //DEBUG ONLY
 	return true;
 }
 
@@ -330,6 +354,9 @@ void	Server::setPassword(std::string pass)  {
 		std::cerr <<  "other connexion detected"  << std::endl;
 		// return 1;
 		parsePing("PING\n", clientSocket);
+		// if (strstr(buf, "USER :\r\n") != 0) {
+		// 	sendMsg(" 001 Verena Hi ! Welcome to this awesome IRC server !, @ Verena\r\n", Server::getSocket());
+		// }
 		// std::string servCommand = "PONG " + nickname + ":" + nickname + "\r\n";
 		// send(clientSocket, servCommand.c_str(), servCommand.size(), 0);
 		// std::cout << "PONG : " << parsePing("PING\n", clientSocket) << std::endl;
@@ -393,7 +420,7 @@ void	Server::setPassword(std::string pass)  {
 				std::string line;
 				while (std::getline(responseStream, line)) {
 					std::cout << "Server response: " << line << std::endl;
-					inputClient(buffer);
+					// inputClient(buffer);
 					// // Vérification des capacités renvoyées
 					// if (line.find("CAP") != std::string::npos && line.find("LS") != std::string::npos) {
 					// 	//gerer ici les commandes !
@@ -403,13 +430,13 @@ void	Server::setPassword(std::string pass)  {
 
 				serverResponse.clear();
 			}
-			std::cout << "CLIENT SOCKET 1: " << clientSocket << std::endl;
+			// std::cout << "CLIENT SOCKET 1: " << clientSocket << std::endl;
 		}
-		std::cout << "CLIENT SOCKET 2: " << clientSocket << std::endl;
+		// std::cout << "CLIENT SOCKET 2: " << clientSocket << std::endl;
 	}
 	// Fermeture du socket
 	close(clientSocket);
-	std::cout << "CLIENT SOCKET 3: " << clientSocket << std::endl;
+	// std::cout << "CLIENT SOCKET 3: " << clientSocket << std::endl;
 
 	// return 0;
 }

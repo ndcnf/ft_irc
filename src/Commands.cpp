@@ -16,6 +16,9 @@ void	Server::cmdSelection(char *buf)
 		return ;
 	}
 
+	// if (strstr(buf, "USER :\r\n") != 0) {
+	// 	sendMsg(" 001 Verena Hi ! Welcome to this awesome IRC server !, @ Verena\r\n", Server::getSocket());
+	// }
 	// enum commands
 	// {
 	// 	JOIN,
@@ -87,9 +90,9 @@ void	Server::cmdSelection(char *buf)
 			}
 		}
 		// else if (token.size() != 0 && content.size() == 0) {
-		
-		//ca ne rentre pas dedant. Faire une fonction par commande et comparer a chaque fois comme pour le CAP LS ? @Verena
-		else if (token.size() != 0 && content.size() == 0) {
+
+		//ca ne rentre pas dedant ???? @Verena
+		else if (token.size() != 0 && content.size() == 0) {			
 			std::cout << "I am in" << std::endl;
 			if (token == "JOIN")
 				std::cout << "join us on : " << content << std::endl;
