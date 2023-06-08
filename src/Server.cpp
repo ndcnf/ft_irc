@@ -1,5 +1,5 @@
 #include "../inc/Server.hpp"
-// #include "Client.hpp"
+#include "../inc/Client.hpp"
 
 
 Server::Server():	_socket(0),
@@ -149,9 +149,9 @@ bool	Server::connection()
 						// New client
 						addClient(clientSock); // new way to handle client via Client class
 						//////////////////////////
-						std::cout << "buf after addClient : " << buf << std::endl;
+
 						std::cout << "Bonjour, " << inet_ntoa(_addr.sin_addr) << ":" << ntohs(_addr.sin_port) << std::endl;
-						// capOrNOt(clientSock);
+						capOrNOt(clientSock);
 						// doit renvoyer le CAP au client comme ceci 
 						/* CAP LS
 							NICK n1t4r4
@@ -167,17 +167,12 @@ bool	Server::connection()
 					int	bytesNbr = recv(_pfds[i].fd, buf, sizeof(buf), 0);
 					for (std::vector<Client>::iterator	it = _clients.begin(); it != _clients.end(); it++)
 					{
-						if ((*it).getFd() == _pfds[i].fd) {
+						if ((*it).getFd() == _pfds[i].fd)
 							std::cout << "I'm the " << _pfds[i].fd << std::endl;
-							std::string pingMessage = "PING"; //@Verena
-                            std::vector<char> pingData(pingMessage.begin(), pingMessage.end());//ajout PING @Verena
-						}
 					}
 					int	sender = _pfds[i].fd;
 					inputClient(buf);
-					std::cout << "buf after iC : " << buf << std::endl;
-					parsePing("PING");
-					// fonction qui redefini buff (buff = newValeurs) et bytesNbr pour tester 
+
 					if (bytesNbr <= 0)
 					{
 						if (bytesNbr == 0)
@@ -203,7 +198,7 @@ bool	Server::connection()
 							if (dest != _socket && dest != sender)
 							{
 								// VERIFIER QUE CE N'EST PAS UNE COMMANDE MAIS DU TEXTE A ENVOYER
-								if (send(dest, buf, bytesNbr, 0) == ERROR) //renvoi le seul send authorisé
+								if (send(dest, buf, bytesNbr, 0) == ERROR)
 									std::cout << ERRMSG << strerror(errno) << (*it).fd << std::endl;
 							}
 						}
@@ -214,41 +209,22 @@ bool	Server::connection()
 	}
 }
 
-std::string	Server::parsePing(std::string token) {
+std::string	Server::parsePing(std::string token, int clientSocket) {
 	std::string ping = "PING";
 	std::string pong = "PONG";
 	// std::string	content;
 	std::string parsePing = token.substr(token.find(ping));
 	std::cout << "parsePing : " << parsePing << std::endl;
-	// send(clientSocket, parsePing.c_str(), parsePing.size(), 0);
+	send(clientSocket, parsePing.c_str(), parsePing.size(), 0);
 	return parsePing;
 }
 
-
-
 void	Server::inputClient(char *buf)
 {
-	std::cout << "buf iC: " << buf << std::endl;
-	if (strstr(buf, "cap ls\r\n") != 0 || strstr(buf, "CAP LS\r\n") != 0) {
-		std::cout << "Ca rentre dans la gestion du cap ls InputClient\n" << std::endl;
-		// capOrNOt(atoi(buf));
-		// doit renvoyer le CAP au client comme ceci 
-		/* CAP LS
-		NICK n1t4r4
-		USER n1t4r4 n1t4r4 localhost :Verena Ferraro*/
-		//gestion du CAP LS 
-		// buf = "PONG\r\n";
-		// parsePing(buf);
-	} // renvoi un pong : (premier ping de la part du serveur)
-	else if (buf[0] == '/')
+	if (buf[0] == '/')
 	{
 		std::cout << "Votre demande est une commande." << std::endl;
 		cmdSelection(buf);
-	}
-	else if (strcmp(buf, "ping\r\n") == 0 || strcmp(buf, "PING\r\n") == 0) { //@Verena ajout d un input ping check de l apart du client
-		// PONG : + truc qui vient apres
-		std::cout << "Ca rentre dans la gestion du ping InputClient\n" << std::endl;
-
 	}
 	else
 		std::cout << "Juste du texte." << std::endl;
@@ -256,7 +232,7 @@ void	Server::inputClient(char *buf)
 
 bool	Server::addClient(int fd)
 {
-	//comment gerer une nouvelle connexion ? un nouveau client avec un nouvel fd 
+	//comment gerer une nouvelle connexion ? un nouveau client avec un nouvel fd ?
 	Client client(fd);
 	_clients.push_back(client);
 	std::cout << "new client added : " << client.getFd() << std::endl; //DEBUG ONLY
@@ -331,8 +307,8 @@ void	Server::setPassword(std::string pass)  {
 	if (connect(clientSocket, (struct sockaddr*)&_addr, sizeof(_addr)) < 0) {
 		std::cerr <<  "other connexion detected"  << std::endl;
 		// return 1;
-		parsePing("PING\n");
-		std::string servCommand = "PONG " + nickname + ":" + nickname + "\r\n";
+		parsePing("PING\n", clientSocket);
+		// std::string servCommand = "PONG " + nickname + ":" + nickname + "\r\n";
 		// send(clientSocket, servCommand.c_str(), servCommand.size(), 0);
 		// std::cout << "PONG : " << parsePing("PING\n", clientSocket) << std::endl;
 		return;
@@ -353,13 +329,13 @@ void	Server::setPassword(std::string pass)  {
 	std::string userCommand = "USER " + nickname + " 0 * :" + nickname + "\r\n";
 	send(clientSocket, userCommand.c_str(), userCommand.size(), 0);
 
-	// send(clientSocket, (" 001 Verena Hi ! Welcome to this awesome IRC server !, Verena\r\n"), 100, 0);
-	// send(clientSocket, (" 002 Your host is 127.0.0.1 running version 4.20\r\n"), 100, 0);
-	// send(clientSocket, (" 003 This server was created Verena\r\n"), 100, 0);
-	// send(clientSocket, (" 004 Verena 127.0.0.1 4.20  none none.\r\n"), 100, 0); // 100 faire un strlen de la string
+	send(clientSocket, (" 001 Verena Hi ! Welcome to this awesome IRC server !, Verena\r\n"), 100, 0);
+	send(clientSocket, (" 002 Your host is 127.0.0.1 running version 4.20\r\n"), 100, 0);
+	send(clientSocket, (" 003 This server was created Verena\r\n"), 100, 0);
+	send(clientSocket, (" 004 Verena 127.0.0.1 4.20  none none.\r\n"), 100, 0); // 100 faire un strlen de la string
 	// PASS
 
-	parsePing("PING\n");
+	parsePing("PING\n", clientSocket);
 	std::string servCommand = "PONG " + nickname + ":" + nickname + "\r\n";
 	send(clientSocket, servCommand.c_str(), servCommand.size(), 0);
 
@@ -435,42 +411,3 @@ std::vector<std::string> Server::getCap() {
 
 	return capabilities;
 }
-
-// // Connexion au serveur IRC
-// 	if (connect(_socket, reinterpret_cast<sockaddr*>(&_addr), sizeof(_addr)) < 0) {
-// 		std::cerr << "Connexion au serveur échouée." << std::endl;
-// 		return 1;
-// 	}
-
-// 	// Envoi de la commande NICK
-// 	std::string nickCommand = "NICK " + std::string(_nick) + "\r\n";
-// 	send(_socket, nickCommand.c_str(), nickCommand.length(), 0);
-
-// 	// Envoi de la commande USER
-// 	std::string userCommand = "USER " + std::string(_nick) + " 0 * :" + std::string(_nick) + "\r\n";
-// 	send(_socket, userCommand.c_str(), userCommand.length(), 0);
-
-// 	// Envoi de la commande JOIN
-// 	std::string joinCommand = "JOIN " + std::string(_channel) + "\r\n";
-// 	send(_socket, joinCommand.c_str(), joinCommand.length(), 0);
-
-// 	// Envoi de la commande CAP LS
-// 	std::string capLSCommand = "CAP LS\r\n";
-// 	send(_socket, capLSCommand.c_str(), capLSCommand.length(), 0);
-
-// 	// Réception des réponses du serveur
-// 	char buffer[BUFFER_SIZE];
-// 	std::string serverResponse;
-// 	while (true) {
-// 		memset(buffer, 0, sizeof(buffer));
-// 		ssize_t bytesRead = recv(_socket, buffer, sizeof(buffer) - 1, 0);
-// 		if (bytesRead <= 0) {
-// 			break;
-// 		}
-// 		serverResponse += buffer;
-
-// 		// la logique de traitement des réponses du serveur IRC ici
-// 	}
-// }
-
-//Capabilities supported: End of CAP LS negotiation

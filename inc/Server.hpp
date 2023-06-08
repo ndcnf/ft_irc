@@ -48,7 +48,7 @@ class Server
 		void	cmdSelection(char *buf);
 		//@Verena CAP LS
 		void		capOrNOt(int clientSocket);
-		std::vector<std::string> getCap(); //pas forcemment utile .... 
+		std::vector<std::string> getCap();
 		// bool	selectConnection();
 		void	allSockets();					// useless at the moment
 		// void	errorminator();					// TBD
@@ -60,8 +60,7 @@ class Server
 		void		setPassword(std::string pass) ;
 
 		//COMMNANDS
-		// std::string	parsePing(std::string token, int clientSocket);
-		std::string	parsePing(std::string token);
+		std::string	parsePing(std::string token, int clientSocket);
 
 		class ServException : public std::exception {
 			public:
