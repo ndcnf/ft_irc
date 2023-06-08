@@ -382,8 +382,8 @@ void	Server::addClient(int fd)
 	Client client(fd);
 	_clients.push_back(client);
 	std::cout << "new client added : " << client.getFd() << std::endl; //DEBUG ONLY
-	int newFD = client.getFd();
-	capOrNOt(newFD);
+//	int newFD = client.getFd();
+//	capOrNOt(newFD);
 	std::cout << "fd client APRES : " << client.getFd() << std::endl; //DEBUG ONLY
 }
 
@@ -518,25 +518,25 @@ void	Server::setPassword(std::string pass)  {
 	// return 0;
 }
 
-std::vector<std::string> Server::getCap() {
-	std::vector<std::string> capabilities;
+// std::vector<std::string> Server::getCap() {
+// 	std::vector<std::string> capabilities;
 
-	// Ajoutez le code nécessaire pour récupérer les capacités (CAP LS)
-	capabilities.push_back("CAPABILITY1");
-	capabilities.push_back("CAPABILITY2");
-	capabilities.push_back("CAPABILITY3");
-	// ...
+// 	// Ajoutez le code nécessaire pour récupérer les capacités (CAP LS)
+// 	capabilities.push_back("CAPABILITY1");
+// 	capabilities.push_back("CAPABILITY2");
+// 	capabilities.push_back("CAPABILITY3");
+// 	// ...
 
-	std::cout << "Capabilities supported:";
-	for (std::vector<std::string>::const_iterator it = capabilities.begin(); it != capabilities.end(); ++it)
-	{
-		const std::string& capability = *it;
-		std::cout << " " << capability;
-	}
-	std::cout << std::endl;
+// 	std::cout << "Capabilities supported:";
+// 	for (std::vector<std::string>::const_iterator it = capabilities.begin(); it != capabilities.end(); ++it)
+// 	{
+// 		const std::string& capability = *it;
+// 		std::cout << " " << capability;
+// 	}
+// 	std::cout << std::endl;
 
-	return capabilities;
-}
+// 	return capabilities;
+// }
 
 // // Connexion au serveur IRC
 // 	if (connect(_socket, reinterpret_cast<sockaddr*>(&_addr), sizeof(_addr)) < 0) {
