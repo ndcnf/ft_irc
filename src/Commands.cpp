@@ -111,15 +111,15 @@ void	Server::cmdSelection(char *buf)
 				std::cout << "topic : " << std::endl;
 			else if (token == "MODE")
 				std::cout << "mode (+ i, t, k, o or l) : " << std::endl;
-			// else if (token.compare("PONG")) {
+			// else if (token.compare("PONG :")) {
 			// 	std::cout << "pong ? : " << std::endl;
 			// 	return ;
 			// }
 			// else if (token.compare("PING")) {
 			// // recuperer ce qui a apres le ping et le renvoyer apres le pong parsePing
-			// std::cout << "PONG : " << parsePing(token, ) << std::endl;
+			// std::cout << "PONG : " << buf << std::endl;
 			// return ;
-			}
+			// }
 			else
 				std::cout << "I don't understand this command." << std::endl;
 		}
@@ -147,5 +147,4 @@ void	Server::cmdSelection(char *buf)
 	// 	default		: std::cout << "I don't understand you." << std::endl;	break;
 	// }
 
-// }
-
+}

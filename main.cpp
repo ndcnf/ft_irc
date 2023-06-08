@@ -77,7 +77,7 @@ int	main(int argc, char *argv[])
 	// 	int	current_size = 0;
 	// 	int	i;
 	// 	int	j;
-	// 	// int	timeout;
+	// 	int	timeout;
 	// 	int	rc;
 	// 	int	end_server = 0;
 	// 	int	new_sd = -1;

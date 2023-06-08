@@ -31,7 +31,7 @@
 # define TIMEOUT_YES (3 * 60 * 1000)	// 3 minutes
 # define MAX_FD 200						// Number of maximum fds / may be replaced by a vector
 # define ERRMSG RED"Error: "
-
+# define END_SEQUENCE "\r\n"
 
 class Server
 {
@@ -48,7 +48,7 @@ class Server
 		void	cmdSelection(char *buf);
 		//@Verena CAP LS
 		void		capOrNOt(int clientSocket);
-		std::vector<std::string> getCap(); //pas forcemment utile .... 
+		std::vector<std::string> getCap();
 		// bool	selectConnection();
 		void	allSockets();					// useless at the moment
 		// void	errorminator();					// TBD
@@ -60,8 +60,8 @@ class Server
 		void		setPassword(std::string pass) ;
 
 		//COMMNANDS
-		// std::string	parsePing(std::string token, int clientSocket);
-		std::string	parsePing(std::string token);
+		std::string	parsePing(std::string token, int clientSocket);
+		void sendMsg(std::string message, int fd);
 
 		class ServException : public std::exception {
 			public:
