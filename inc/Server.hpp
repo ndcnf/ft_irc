@@ -31,7 +31,7 @@
 # define TIMEOUT_YES (3 * 60 * 1000)	// 3 minutes
 # define MAX_FD 200						// Number of maximum fds / may be replaced by a vector
 # define ERRMSG RED"Error: "
-
+# define END_SEQUENCE "\r\n"
 
 class Server
 {
@@ -61,6 +61,7 @@ class Server
 
 		//COMMNANDS
 		std::string	parsePing(std::string token, int clientSocket);
+		void sendMsg(std::string message, int fd);
 
 		class ServException : public std::exception {
 			public:

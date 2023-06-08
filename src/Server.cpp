@@ -214,9 +214,16 @@ std::string	Server::parsePing(std::string token, int clientSocket) {
 	std::string pong = "PONG";
 	// std::string	content;
 	std::string parsePing = token.substr(token.find(ping));
-	std::cout << "parsePing : " << parsePing << std::endl;
-	send(clientSocket, parsePing.c_str(), parsePing.size(), 0);
+	// std::cout << "parsePing : " << parsePing << std::endl;
+	// send(clientSocket, parsePing.c_str(), parsePing.size(), 0);
+	sendMsg(parsePing, clientSocket);
 	return parsePing;
+}
+
+void Server::sendMsg(std::string message, int fd)
+{
+	std::cout << "RESPONSE IS <" << message << ">" << std::endl;
+	send(fd, message.append(END_SEQUENCE).c_str(), message.size(), 0);
 }
 
 void	Server::inputClient(char *buf)
