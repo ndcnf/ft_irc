@@ -217,7 +217,8 @@ std::string	Server::parsePing(std::string token, int clientSocket) {
 	// std::cout << "parsePing : " << parsePing << std::endl;
 	// send(clientSocket, parsePing.c_str(), parsePing.size(), 0);
 	sendMsg(parsePing, clientSocket);
-	return parsePing;
+	// return parsePing;
+	return ping;
 }
 
 void Server::sendMsg(std::string message, int fd)
@@ -226,9 +227,23 @@ void Server::sendMsg(std::string message, int fd)
 	send(fd, message.append(END_SEQUENCE).c_str(), message.size(), 0);
 }
 
+// void Server::recvMsg();
+
 void	Server::inputClient(char *buf)
 {
-	if (buf[0] == '/')
+	std::string ping = "PING\r\n";
+	std::cout << "buf iCAv: " << buf << std::endl;
+	// recv(Server::getSocket(), buf, sizeof(buf), 0);
+	// std::cout << "buf iCAp: " << buf << std::endl;
+	if (strstr(buf, "pong :\r\n") != 0 || strstr(buf, "PONG :\r\n") != 0) {
+		std::cout << "envouer un ping du client au serveur ?\n" << std::endl;
+		sendMsg(ping, Server::getSocket());
+		recv(Server::getSocket(), buf, sizeof(buf), 0);//comment recuperer le ping client ?
+	}
+	if (strstr(buf, "ping\r\n") != 0 || strstr(buf, "PING\r\n") != 0) {
+		std::cout << "Ca rentre dans la gestion du ping InputClient\n" << std::endl;
+	}
+	else if (buf[0] == '/')
 	{
 		std::cout << "Votre demande est une commande." << std::endl;
 		cmdSelection(buf);
@@ -328,7 +343,7 @@ void	Server::setPassword(std::string pass)  {
 
 	// Envoi des commandes d'authentification
 	std::string authCommand = "NICK " + nickname + "\r\n";
-	send(clientSocket, authCommand.c_str(), authCommand.size(), 0);
+	sendMsg(authCommand, clientSocket);
 
 	std::string passCommand = "PASS " + _password + "\r\n";
 	send(clientSocket, passCommand.c_str(), authCommand.size(), 0);
@@ -342,9 +357,9 @@ void	Server::setPassword(std::string pass)  {
 	send(clientSocket, (" 004 Verena 127.0.0.1 4.20  none none.\r\n"), 100, 0); // 100 faire un strlen de la string
 	// PASS
 
-	parsePing("PING\n", clientSocket);
-	std::string servCommand = "PONG " + nickname + ":" + nickname + "\r\n";
-	send(clientSocket, servCommand.c_str(), servCommand.size(), 0);
+	// parsePing("PING\n", clientSocket);
+	// std::string servCommand = "PONG " + nickname + ":" + nickname + "\r\n";
+	// send(clientSocket, servCommand.c_str(), servCommand.size(), 0);
 
 
 	// Préparation des structures pour la fonction poll()
