@@ -131,23 +131,4 @@ void	Server::cmdSelection(char *buf)
 		}
 	// else
 	// 	throw Server::ServException(ERRMSG"pas content");
-
-	// commands	cmd;
-	// cmd = JOIN;
-
-	// for (int i = 0; i < NUM_COMMANDS; i++)
-	// {
-	// 	if (token == "JOIN")
-	// 		std::cout << "join us..."<< std::endl;
-	// 	std::cout << "fooooor"<< std::endl;
-	// }
-
-	// std::cout << cmd << std::endl;
-	// switch(cmd)
-	// {
-	// 	case join	: std::cout << "join us..."<< std::endl;	break;
-	// 	case nick	: std::cout << "nice nickname..." << std::endl;	break;
-	// 	default		: std::cout << "I don't understand you." << std::endl;	break;
-	// }
-
 }

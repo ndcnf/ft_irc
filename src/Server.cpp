@@ -53,13 +53,10 @@ bool	Server::createSocket()
 	_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_socket == ERROR)
 		throw (Server::ServException(ERRMSG"socket stream"));
-		// throw (std::exception("Socket error"));
-		// throw (errno); // verifier
 
 	validity = setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
 	if (validity == ERROR)
 		throw (Server::ServException(ERRMSG"unable to free the socket"));
-		// throw (std::exception("Unable to free the socket"));
 
 	validity = fcntl(_socket, F_SETFL, O_NONBLOCK);
 	if (_socket == ERROR)
@@ -212,6 +209,10 @@ bool	Server::connection()
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// VERENA
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 std::string	Server::parsePing(std::string token, int clientSocket) {
 	std::string ping = "PING";
 	std::string pong = "PONG";
@@ -288,10 +289,6 @@ bool	Server::addClient(int fd)
 	return true;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// VERENA
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 std::string	Server::getPassword() {
 	return _password;
 } //@Verena to print the password entered
@@ -299,20 +296,6 @@ std::string	Server::getPassword() {
 void	Server::setPassword(std::string pass)  {
 	_password = pass;
 }
-
-
-// void	Server::capOrNOt() {
-// 	std::string capabilities = "CAP LS done\n";
-// 	for (std::vector<pollfd>::iterator it = _pfds.begin(); it != _pfds.end(); it++) {
-// 		int dest = (*it).fd;
-// 		if (dest != _socket) {
-// 			if (send(dest, capabilities.c_str(), capabilities.size(), 0) == ERROR)
-// 				std::cout << ERRMSG << strerror(errno) << std::endl;
-// 		}
-// 	getCap();
-// 	}
-// 	// std::cout << "Capabilities supported: " << Server::getCap() << std::endl; // envoyer la liste de commandes a imprimer (note de @Verena)
-// }
 
  void	Server::capOrNOt(int clientSocket) {
 	Client	cl;
@@ -324,14 +307,7 @@ void	Server::setPassword(std::string pass)  {
 	std::string channel = "#mychannel";
 
 	//print clientNumber (socket)
-	std::cout << "NEW CLIENT : " << clientSocket << std::endl;
-	// // Création du socket
-	// int clientSocket = socket(AF_INET, SOCK_STREAM, 0);
-	// if (clientSocket == -1) {
-	// 	std::cerr << "Erreur lors de la création du socket" << std::endl;
-	// 	// return 1;
-	// 	return;
-	// }
+	std::cout << "NEW CLIENT : " << clientSocket << std::endl; // check and debug only
 
 	// Obtention de l'adresse IP du serveur
 	char ipAddress[INET_ADDRSTRLEN];
@@ -420,19 +396,11 @@ void	Server::setPassword(std::string pass)  {
 				std::string line;
 				while (std::getline(responseStream, line)) {
 					std::cout << "Server response: " << line << std::endl;
-					// inputClient(buffer);
-					// // Vérification des capacités renvoyées
-					// if (line.find("CAP") != std::string::npos && line.find("LS") != std::string::npos) {
-					// 	//gerer ici les commandes !
-					// 	getCap();
-					// }
 				}
 
 				serverResponse.clear();
 			}
-			// std::cout << "CLIENT SOCKET 1: " << clientSocket << std::endl;
 		}
-		// std::cout << "CLIENT SOCKET 2: " << clientSocket << std::endl;
 	}
 	// Fermeture du socket
 	close(clientSocket);
