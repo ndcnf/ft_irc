@@ -114,21 +114,75 @@ void	Server::cmdSelection(char *buf)
 				std::cout << "topic : " << std::endl;
 			else if (token == "MODE")
 				std::cout << "mode (+ i, t, k, o or l) : " << std::endl;
-			// else if (token.compare("PONG :")) {
-			// 	std::cout << "pong ? : " << std::endl;
-			// 	return ;
-			// }
-			// else if (token.compare("PING")) {
-			// // recuperer ce qui a apres le ping et le renvoyer apres le pong parsePing
-			// std::cout << "PONG : " << buf << std::endl;
-			// return ;
-			// }
+			else if (token.compare("PONG :")) {
+				std::cout << "pong ? : " << std::endl;
+				return ;
+			}
+			else if (token.compare("PING")) {
+			// recuperer ce qui a apres le ping et le renvoyer apres le pong parsePing
+			std::cout << "PONG : " << buf << std::endl;
+			return ;
+			}
 			else
 				std::cout << "I don't understand this command." << std::endl;
 		}
 		else if (token.size() != 0 && content.size() != 0)
 			std::cout << "I need a working content to handle" << std::endl;
 		}
+	// else
+	// 	throw Server::ServException(ERRMSG"pas content");
+}
+
+void	Server::sendFromClient(char *buf, int fdClient)
+{
+	std::string	token(buf);
+	std::string	splitStr;
+	std::string	command;
+
+	if (token.size() <= 0)
+	{
+		std::cout << "ERREUR, pas de donnee" << std::endl; // NEEDS IMPROVEMENT
+		return ;
+	}
+
+	welcomeMsg(buf, fdClient);
+
+
+	std::cout << "TOKEN CLIENT: " << token << std::endl; // DEBUG ONLY
+		
+	std::cout << "I am in" << std::endl;
+	if (token == "JOIN")
+		std::cout << "join us on : " << std::endl;
+	else if (token == "NICK")
+		std::cout << "nickname : " << std::endl;
+	else if (token == "USER")
+		std::cout << "user name : " << std::endl;
+	else if (token == "PART")
+		std::cout << "part + arg ? : " << std::endl;
+	else if (token == "PRIVMSG")
+		std::cout << "private msg : " << std::endl;
+	else if (token == "NOTICE")
+		std::cout << "notice (private msg also) : " << std::endl;
+	else if (token == "KICK")
+		std::cout << "kick : " << std::endl;
+	else if (token == "INVITE")
+		std::cout << "invite : " << std::endl;
+	else if (token == "TOPIC")
+		std::cout << "topic : " << std::endl;
+	else if (token == "MODE")
+		std::cout << "mode (+ i, t, k, o or l) : " << std::endl;
+	else if (token.compare("PONG :")) {
+		std::cout << "pong ? : " << std::endl;
+		// sendMsg("PING", fdClient);
+		return ;
+	}
+	else if (token.compare("PING")) {
+	// recuperer ce qui a apres le ping et le renvoyer apres le pong parsePing
+	std::cout << "PONG : " << buf << std::endl;
+	return ;
+	}
+	else
+		std::cout << "I don't understand this command." << std::endl;
 	// else
 	// 	throw Server::ServException(ERRMSG"pas content");
 }

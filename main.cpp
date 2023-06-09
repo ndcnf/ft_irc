@@ -24,6 +24,7 @@ int	main(int argc, char *argv[])
 
 		// struct sockaddr_in	addr;
 		Server				srv;
+		Client				cl;
 
 		if (argc < 3)
 			throw (Server::ServException(ERRMSG"bad argument. Please respect this format ./ircserv <port> <password>")); // usage ./ircserv <port> <password> a afficher
