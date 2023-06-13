@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: vferraro <vferraror@student.42lausanne.    +#+  +:+       +#+         #
+#    By: vferraro <vferraro@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/05/23 15:18:37 by vferraro          #+#    #+#              #
-#    Updated: 2023/06/09 12:47:28 by vferraro         ###   ########.fr        #
+#    Updated: 2023/06/13 09:55:44 by vferraro         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -73,7 +73,7 @@ ${NAME}:			${OBJS}
 					@echo "$(CYAN)$(NAME) Compiled !  ✅ \033[39m(\033[31m๑\033[39m╹◡╹\033[31m๑\033[39m)"
 					@echo ""
 					@echo "$(RUN_C)****************************************************************"
-					@echo "$(RUN_C)* Now you can run the program with ./ircserv <port> <passwort> *"
+					@echo "$(RUN_C)* Now you can run the program with ./ircserv <port> <password> *"
 					@echo "$(RUN_C)****************************************************************\033[0m"
 
 

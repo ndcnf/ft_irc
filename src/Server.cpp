@@ -123,8 +123,8 @@ bool	Server::connection()
 
 	while (true)
 	{
-		getCapLs(buf);
-		getPing(buf, _socket);
+		// getCapLs(buf); // @Verena DEBUG a deplacer hors debut de boucle
+		// getPing(buf, _socket); // @Verena DEBUG a deplacer hors debut de boucle
 		pollCounter = poll(_pfds.data(), _pfds.size(), TIMEOUT_NO_P);
 
 		if (pollCounter == ERROR)
@@ -149,10 +149,9 @@ bool	Server::connection()
 						addClient(clientSock); // new way to handle client via Client class
 						//////////////////////////
 						// getPing(buf, clientSock);
+						// getClient(&_clients.back());
 						std::cout << "Bonjour, " << inet_ntoa(_addr.sin_addr) << ":" << ntohs(_addr.sin_port) << std::endl;
 						capOrNOt(buf, clientSock);
-						welcomeMsg(buf, clientSock);
-						parseNick(buf, clientSock);
 						// doit renvoyer le CAP au client comme ceci 
 						/* CAP LS
 							NICK n1t4r4
@@ -217,17 +216,17 @@ bool	Server::connection()
 // VERENA
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void	Server::getCapLs(char *buf) {
-	if (strstr(buf, "CAP LS") != 0) {
-		std::string str(buf);
-		std::size_t colonPos = str.find(':');
-		if (colonPos != std::string::npos) {
-			std::string UserContent = str.substr(colonPos + 1);
-			std::string	msg = " 001" + UserContent + "Hi ! Welcome to this awesome IRC server !, @" + END_SEQUENCE;
-			// sendMsg(msg, fd);
-		}
-	}
-}
+// void	Server::getCapLs(char *buf) {
+// 	if (strstr(buf, "CAP LS") != 0) {
+// 		std::string str(buf);
+// 		std::size_t colonPos = str.find(':');
+// 		if (colonPos != std::string::npos) {
+// 			std::string UserContent = str.substr(colonPos + 1);
+// 			std::string	msg = "001" + UserContent + "Hi ! Welcome to this awesome IRC server !, @" + END_SEQUENCE;
+// 			// sendMsg(msg, fd);
+// 		}
+// 	}
+// }
 
 void	Server::parsePing(std::string token, int clientSocket) {
 	std::string ping = "PING";
@@ -247,14 +246,13 @@ void	Server::parsePing(std::string token, int clientSocket) {
 
 void	Server::parseNick(char *buf, int fd) {
 	if (strstr(buf, "NICK") != 0) {
-		Client	cl;
 		std::string str(buf);
 		std::size_t colonPos = str.find(' ');
 		if (colonPos != std::string::npos) {
 			std::string nickname = str.substr(colonPos + 1);
 			std::string	msg = "NICK " + nickname + END_SEQUENCE;
 			sendMsg(msg, fd);
-			cl.setNick(nickname, buf);
+			// setNick(nickname, buf); pas utilisable tant qu on a pas de lien avec la classe client !!!!!! @Verena
 			std::cout << "NICKNAME : " << nickname << std::endl;
 			std::string authCommand = "NICK " + nickname + END_SEQUENCE;
 			sendMsg(authCommand, fd);
@@ -268,10 +266,10 @@ void	Server::welcomeMsg(char *buf, int fd) {
 		std::size_t colonPos = str.find(':');
 		if (colonPos != std::string::npos) {
 			std::string UserContent = str.substr(colonPos + 1);
-			std::string	msg = " 001" + UserContent + "Hi ! Welcome to this awesome IRC server !, @" + END_SEQUENCE;
+			std::string	msg = "001" + UserContent + "Hi! " + UserContent + " Welcome to this awesome IRC server !, @" + UserContent + END_SEQUENCE;
+			// _username = UserContent;
 			sendMsg(msg, fd);
 		}
-		
 	}
 }
 
@@ -287,7 +285,6 @@ void Server::sendMsg(std::string message, int fd)
 // void Server::recvMsg();
 
 void	Server::getPing(char *buf, int fd) {
-		Server sv;
 		if (static_cast<std::string>(buf).find("PING") == 0) {
 		// Extraire le contenu du message PING (après le token "PING")
 		std::string	str(buf);
@@ -351,11 +348,25 @@ void	Server::setPassword(std::string pass)  {
 	_password = pass;
 }
 
+
+void    Server::getClient(Client *client)
+{
+	// std::vector<ASpell*>::iterator    it;
+	// for(it = _spells.begin(); it != _spells.end(); it++)
+	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
+	{
+		if ((*it).getFd() == client->getFd()) {
+			std::cout << "get client 1 : " << (*it).getFd() << std::endl;
+			std::cout << "get client 2 : " << client->getFd() << std::endl;
+			return ;
+		}
+	}
+}
+
  void	Server::capOrNOt(char *buf, int clientSocket) {
-	Client	cl;
 	// std::string serverAddress = _addr.str_c();
 	int serverPort = Server::getPort();
-	std::string nickname = cl.getNick();
+	// std::string nickname = getNick(); // @Verena pas utilisable sans lien entre les classe !!!!!!
 	std::string version = "2.0";
 	// std::string clientNumber = cl.getFd();
 	std::string channel = "#mychannel";
@@ -384,7 +395,7 @@ void	Server::setPassword(std::string pass)  {
 		std::cerr <<  "other connexion detected"  << std::endl;
 		// return 1;
 		parsePing("PING", clientSocket);
-		parseNick(buf, clientSocket);
+		parseNick(buf, clientSocket); // ici ?apparement pas
 		// parsePing("PONG", clientSocket);
 		return;
 	}

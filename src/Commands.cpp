@@ -141,15 +141,18 @@ void	Server::sendFromClient(char *buf, int fdClient)
 
 	if (token.size() <= 0)
 	{
-		std::cout << "ERREUR, pas de donnee" << std::endl; // NEEDS IMPROVEMENT
+		std::cout << "ERREUR, pas de donnee buff = : " << buf << std::endl; // NEEDS IMPROVEMENT
 		return ;
 	}
 
-	welcomeMsg(buf, fdClient);
+	// welcomeMsg(buf, fdClient);
 
 
 	std::cout << "TOKEN CLIENT: " << token << std::endl; // DEBUG ONLY
-		
+	if (strstr(buf, "NICK") != 0) {
+		std::cout << "nickname : " << std::endl;
+		parseNick(buf, fdClient);
+	}	
 	std::cout << "I am in" << std::endl;
 	if (token == "JOIN")
 		std::cout << "join us on : " << std::endl;
