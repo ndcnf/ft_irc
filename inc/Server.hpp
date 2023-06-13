@@ -41,9 +41,11 @@ class Server
 		Server	&operator=(Server const &rhs);
 		~Server();
 
+		Client		*currentClient;
+
 		bool	createSocket();
 		bool	connection();
-		bool	addClient(int fd);
+		Client*	addClient(int fd);
 		int		inputClient(char *buf, int fd);
 		void	cmdSelection(char *buf);
 		//@Verena CAP LS
@@ -58,8 +60,7 @@ class Server
 		void		setPort(int port);
 		std::string	getPassword();//@Verena to print the password entered
 		void		setPassword(std::string pass);
-		// void		getClient(Client *client);
-		void		getClient(Client *client);
+		Client		getClient(Client *client);
 
 		//COMMNANDS
 		void		parsePing(std::string token, int clientSocket);

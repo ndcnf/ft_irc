@@ -146,10 +146,10 @@ bool	Server::connection()
 						_pfds.push_back(pfd);
 
 						// New client
-						addClient(clientSock); // new way to handle client via Client class
-						//////////////////////////
-						// getPing(buf, clientSock);
-						// getClient(&_clients.back());
+						currentClient = addClient(clientSock); // new way to handle client via Client class
+						// currentClient->setNick("n1t4r4", buf); // pour tester, suggestion de pressentation
+						// std::cout << "CURRENT CLIENT NICKE !!! " << currentClient->getNick();
+						
 						std::cout << "Bonjour, " << inet_ntoa(_addr.sin_addr) << ":" << ntohs(_addr.sin_port) << std::endl;
 						capOrNOt(buf, clientSock);
 						// doit renvoyer le CAP au client comme ceci 
@@ -333,13 +333,21 @@ int	Server::inputClient(char *buf, int fd) // retourner une veleur ? un string ?
 	return 0;
 }
 
-bool	Server::addClient(int fd)
+Client* Server::addClient(int fd)
 {
-	Client client(fd);
-	_clients.push_back(client);
-	getClient(&client);
-	return true;
+	Client* client = new Client(fd); // Allouer dynamiquement un nouvel objet Client
+	_clients.push_back(*client);
+	// getClient(client);
+	return client;
 }
+
+// Client*	Server::addClient(int fd)
+// {
+// 	Client client(fd);
+// 	_clients.push_back(client);
+// 	getClient(&client);
+// 	return (*client);
+// }
 
 std::string	Server::getPassword() {
 	return _password;
@@ -350,7 +358,7 @@ void	Server::setPassword(std::string pass)  {
 }
 
 
-void	Server::getClient(Client *client)
+Client	Server::getClient(Client *client)
 {
 	// std::vector<ASpell*>::iterator    it;
 	// for(it = _spells.begin(); it != _spells.end(); it++)
@@ -363,9 +371,10 @@ void	Server::getClient(Client *client)
 			// parseNick(buf, client->getFd());
 			std::cout << "\n[get nick 1 : " << (*it).getNick() << std::endl;
 			std::cout << "get nick 2 : " << client->getNick() << "]\n" << std::endl;
-			return ;
+			return (*it);
 		}
 	}
+	return NULL;
 }
 
  void	Server::capOrNOt(char *buf, int clientSocket) {
