@@ -57,7 +57,8 @@ class Server
 		int			getSocket();
 		void		setPort(int port);
 		std::string	getPassword();//@Verena to print the password entered
-		void		setPassword(std::string pass) ;
+		void		setPassword(std::string pass);
+		// void		getClient(Client *client);
 		void		getClient(Client *client);
 
 		//COMMNANDS

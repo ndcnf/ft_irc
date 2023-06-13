@@ -252,7 +252,7 @@ void	Server::parseNick(char *buf, int fd) {
 			std::string nickname = str.substr(colonPos + 1);
 			std::string	msg = "NICK " + nickname + END_SEQUENCE;
 			sendMsg(msg, fd);
-			// setNick(nickname, buf); pas utilisable tant qu on a pas de lien avec la classe client !!!!!! @Verena
+			// setNick(nickname, _clients); //pas utilisable tant qu on a pas de lien avec la classe client !!!!!! @Verena
 			std::cout << "NICKNAME : " << nickname << std::endl;
 			std::string authCommand = "NICK " + nickname + END_SEQUENCE;
 			sendMsg(authCommand, fd);
@@ -337,6 +337,7 @@ bool	Server::addClient(int fd)
 {
 	Client client(fd);
 	_clients.push_back(client);
+	getClient(&client);
 	return true;
 }
 
@@ -349,15 +350,19 @@ void	Server::setPassword(std::string pass)  {
 }
 
 
-void    Server::getClient(Client *client)
+void	Server::getClient(Client *client)
 {
 	// std::vector<ASpell*>::iterator    it;
 	// for(it = _spells.begin(); it != _spells.end(); it++)
 	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
 	{
 		if ((*it).getFd() == client->getFd()) {
-			std::cout << "get client 1 : " << (*it).getFd() << std::endl;
-			std::cout << "get client 2 : " << client->getFd() << std::endl;
+			std::cout << "\n[get client 1 : " << (*it).getFd() << "]" << std::endl;
+			std::cout << "[get client 2 : " << client->getFd() << "]\n" << std::endl;
+			// setNick((*it).getNick(), client->getNick());
+			// parseNick(buf, client->getFd());
+			std::cout << "\n[get nick 1 : " << (*it).getNick() << std::endl;
+			std::cout << "get nick 2 : " << client->getNick() << "]\n" << std::endl;
 			return ;
 		}
 	}
@@ -365,36 +370,36 @@ void    Server::getClient(Client *client)
 
  void	Server::capOrNOt(char *buf, int clientSocket) {
 	// std::string serverAddress = _addr.str_c();
-	int serverPort = Server::getPort();
+	// int serverPort = Server::getPort();
 	// std::string nickname = getNick(); // @Verena pas utilisable sans lien entre les classe !!!!!!
-	std::string version = "2.0";
 	// std::string clientNumber = cl.getFd();
+	std::string version = "2.0";
 	std::string channel = "#mychannel";
 
 	//print clientNumber (socket)
 	std::cout << "NEW CLIENT : " << clientSocket << std::endl; // check and debug only
 
 	// Obtention de l'adresse IP du serveur
-	char ipAddress[INET_ADDRSTRLEN];
-	inet_ntop(AF_INET, &(_addr.sin_addr), ipAddress, INET_ADDRSTRLEN);
-	std::cout << "IP adresse server : " << ipAddress << std::endl;
-	std::string serverAddress = ipAddress;
+	// char ipAddress[INET_ADDRSTRLEN];
+	// inet_ntop(AF_INET, &(_addr.sin_addr), ipAddress, INET_ADDRSTRLEN);
+	// std::cout << "IP adresse server : " << ipAddress << std::endl;
+	// std::string serverAddress = ipAddress;
 
-	// Préparation des informations de connexion du serveur
-	// sockaddr_in serverAddr{};//_addr
-	_addr.sin_family = AF_INET;
-	_addr.sin_port = htons(serverPort);
-	if (inet_pton(AF_INET, serverAddress.c_str(), &(_addr.sin_addr)) <= 0) {
-		std::cerr << "Unvalid IP adresse server" << std::endl;
-		// return 1;
-		return;
-	}
+	// // Préparation des informations de connexion du serveur
+	// // sockaddr_in serverAddr{};//_addr
+	// _addr.sin_family = AF_INET;
+	// _addr.sin_port = htons(serverPort);
+	// if (inet_pton(AF_INET, serverAddress.c_str(), &(_addr.sin_addr)) <= 0) {
+	// 	std::cerr << "Unvalid IP adresse server" << std::endl;
+	// 	// return 1;
+	// 	return;
+	// }
 
 	// // Connexion au serveur
 	if (connect(clientSocket, (struct sockaddr*)&_addr, sizeof(_addr)) < 0) {
 		std::cerr <<  "other connexion detected"  << std::endl;
 		// return 1;
-		parsePing("PING", clientSocket);
+		sendMsg("PING", clientSocket);
 		parseNick(buf, clientSocket); // ici ?apparement pas
 		// parsePing("PONG", clientSocket);
 		return;
@@ -464,7 +469,7 @@ void    Server::getClient(Client *client)
 	// 	}
 	// }
 	// Fermeture du socket
-	close(clientSocket);
+	// close(clientSocket);
 	// std::cout << "CLIENT SOCKET 3: " << clientSocket << std::endl;
 
 	// return 0;
