@@ -46,10 +46,11 @@ class Server
 		bool	createSocket();
 		bool	connection();
 		Client*	addClient(int fd);
-		int		inputClient(char *buf, int fd);
+		int		inputClient(char *buf, Client *client);
 		void	cmdSelection(char *buf);
 		//@Verena CAP LS
-		void	capOrNOt(char *buf, int clientSocket);
+		// void	capOrNOt(char *buf, int clientSocket);
+		void	capOrNOt(Client *client);
 		std::vector<std::string> getCap();
 		// bool	selectConnection();
 		void	allSockets();					// useless at the moment
@@ -64,12 +65,12 @@ class Server
 
 		//COMMNANDS
 		void		parsePing(std::string token, int clientSocket);
-		void		parseNick(char *buf, int fd);
+		void		parseNick(char *buf, Client *client);
 		void		sendMsg(std::string message, int fd);
 		void		welcomeMsg(char *buf, int fd);
 		void		getCapLs(char *buf);
 		void		getPing(char *buf, int fd);
-		void		sendFromClient(char *buf, int fdClient);
+		void		sendFromClient(char *buf, Client *client);
 
 		class ServException : public std::exception {
 			public:
