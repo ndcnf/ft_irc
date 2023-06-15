@@ -44,12 +44,17 @@ class Client
 		bool		isConnected();
 		void		setUser(std::string user, char *buf);
 		std::string	getUser();
-
+		std::string	getUsername();
+		std::string	getFullname();
+		std::string	getHostname();
+		int 		setInfos(std::vector <std::string> infos);
 
 	private:
 		int			_fd;
 		std::string	_nick;
 		std::string	_username;
+		std::string _fullname;
+		std::string _hostname;
 		std::string	_channel;
 		bool		_connected; // is the client successfully connected or not?
 

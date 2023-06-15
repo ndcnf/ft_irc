@@ -68,7 +68,7 @@ class Server
 		//COMMNANDS
 		void		parsePing(std::string token, int clientSocket);
 		void		parseNick(char *buf, Client *client);
-		void		sendMsg(std::string message, int fd);
+		void		sendMsg(std::string message, Client *client);
 		void		welcomeMsg(char *buf, int fd);
 		void		getCapLs(char *buf);
 		void		getPing(char *buf, int fd);

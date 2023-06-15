@@ -253,15 +253,17 @@ void Server::parseNick(char *buf, Client *client) {
 }
 
 
-void	Server::welcomeMsg(char *buf, int fd) {
+void	Server::welcomeMsg(char *buf, Client *client) {
 	if (strstr(buf, "USER") != 0) {
 		std::string str(buf);
 		std::size_t colonPos = str.find(':');
 		if (colonPos != std::string::npos) {
 			std::string UserContent = str.substr(colonPos + 1);
 			std::string	msg = "001" + UserContent + "Hi! " + UserContent + " Welcome to this awesome IRC server !, @" + UserContent + END_SEQUENCE;
-			// _username = UserContent;
-			sendMsg(msg, fd);
+			client->setUser(UserContent);
+			std::cout << "USERCONTENT : " << UserContent << std::endl;
+			std::cout << "USERNAME : " << client->getUser() << std::endl;
+			sendMsg(msg, client->getFd());
 		}
 	}
 }
