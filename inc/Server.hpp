@@ -69,9 +69,10 @@ class Server
 		void		parsePing(std::string token, int clientSocket);
 		void		parseNick(char *buf, Client *client);
 		void		sendMsg(std::string message, int fd);
-		void		welcomeMsg(char *buf, Client *client);
+		void		parseUser(char *buf, Client *client);
+		// void		welcomeMsg(char *buf, Client *client);
 		void		getCapLs(char *buf);
-		void		getPing(char *buf, int fd);
+		void		getPing(char *buf);
 		void		sendFromClient(char *buf, Client *client);
 		void		first_message(Client *client);
 		// std::string	first_message(char *buf, Client *client);

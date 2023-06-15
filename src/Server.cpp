@@ -32,7 +32,7 @@ Server	&Server::operator=(Server const &rhs)
 
 Server::~Server()
 {
-
+	delete currentClient;
 }
 
 void	Server::setPort(int port)
@@ -147,15 +147,9 @@ bool	Server::connection()
 
 						// New client
 						currentClient = addClient(clientSock); // new way to handle client via Client class
-						// currentClient->setNick("n1t4r4", buf); // pour tester, suggestion de pressentation
-						// std::cout << "CURRENT CLIENT NICKE !!! " << currentClient->getNick();
-						
 						std::cout << "Bonjour, " << inet_ntoa(_addr.sin_addr) << ":" << ntohs(_addr.sin_port) << std::endl;
-						capOrNOt(currentClient);
-						// doit renvoyer le CAP au client comme ceci 
-						/* CAP LS
-							NICK n1t4r4
-							USER n1t4r4 n1t4r4 localhost :Verena Ferraro*/
+						capOrNOt(currentClient); // CAP LS NICK USER
+						// getPing(buf, currentClient->getFd()); // PING PONG
 					}
 					else
 						std::cout << ERRMSG << strerror(errno) << std::endl;
@@ -171,7 +165,7 @@ bool	Server::connection()
 							std::cout << "I'm the " << _pfds[i].fd << std::endl;
 					}
 					int	sender = _pfds[i].fd;
-					getPing(buf, sender); // ?????? caca ou pas ?
+					getPing(buf);
 					inputClient(buf, currentClient);
 
 					if (bytesNbr <= 0)
@@ -210,6 +204,7 @@ bool	Server::connection()
 			}
 		}
 	}
+	// getPing(buf, currentClient->getFd()); // PING PONG
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -228,14 +223,18 @@ bool	Server::connection()
 // 	}
 // }
 
-void	Server::parsePing(std::string token, int clientSocket) {
-	std::string ping = "PING";
-	std::string pong = "PONG";
-	std::string parsePing = token.substr(token.find(ping));
-	sendMsg(parsePing, clientSocket);
-	return;
+void Server::sendMsg(std::string message, int fd)
+{
+	std::cout << "REPONSE BUFFER IS <" << message << ">" << std::endl;
+	send(fd, message.append(END_SEQUENCE).c_str(), message.size(), 0);
 }
 
+void	Server::parsePing(std::string token, int clientSocket) {
+	std::string ping = "PING";
+	// std::string pong = "PONG";
+	std::string parsePing = token.substr(token.find(ping));
+	sendMsg(parsePing, clientSocket);
+}
 
 void Server::parseNick(char *buf, Client *client) {
 	// std::string str(buf);
@@ -266,51 +265,74 @@ void Server::parseNick(char *buf, Client *client) {
 }
 
 
-void	Server::welcomeMsg(char *buf, Client *client) {
+void	Server::parseUser(char *buf, Client *client) {
 	if (strstr(buf, "USER") != 0) {
 		std::string str(buf);
 		std::size_t colonPos = str.find(':');
 		if (colonPos != std::string::npos) {
 			std::string UserContent = str.substr(colonPos + 1);
-			std::string	msg = "001" + UserContent + "Hi! " + UserContent + " Welcome to this awesome IRC server !, @" + UserContent + END_SEQUENCE;
+			std::string	msg = "USER : " + UserContent + END_SEQUENCE;
 			client->setUser(UserContent);
-			std::cout << "USERCONTENT : " << UserContent << std::endl;
-			std::cout << "USERNAME : " << client->getUser() << std::endl;
-			sendMsg(msg, client->getFd());
+			std::cout << "USERCONTENT : " << UserContent << std::endl; // DEBUG ONLY
+			std::cout << "USERNAME : " << client->getUser() << std::endl; // DEBUG ONLY
+			// sendMsg(msg, client->getFd()); // DEBUG ONLY pas necessaire a priori (pas dans freenode)
 		}
 	}
 }
 
-void Server::sendMsg(std::string message, int fd)
-{
-	std::cout << "REPONSE BUFFER IS <" << message << ">" << std::endl;
-	send(fd, message.append(END_SEQUENCE).c_str(), message.size(), 0);
-	// std::cout << "fd : " << fd << "mess : " << message << std::endl;
-	// message.clear();
-	// std::cout << "RESPONSE 2 IS <" << message << ">" << std::endl;
-}
+// void	Server::welcomeMsg(char *buf, Client *client) {
+// 	// if (strstr(buf, "USER") != 0) {
+// 		std::string str(buf);
+// 		std::size_t colonPos = str.find(':');
+// 		if (colonPos != std::string::npos) {
+// 			std::string UserContent = str.substr(colonPos + 1);
+// 			std::string	msg = "001" + UserContent + "Hi! " + UserContent + " Welcome to this awesome IRC server !, @" + UserContent + END_SEQUENCE;
+// 			client->setUser(UserContent);
+// 			std::cout << "USERCONTENT : " << UserContent << std::endl;
+// 			std::cout << "USERNAME : " << client->getUser() << std::endl;
+// 			sendMsg(msg, client->getFd());
+// 		}
+// 	}
+// // }
+
 
 // void Server::recvMsg();
 
-void	Server::getPing(char *buf, int fd) {
+void	Server::getPing(char *buf) {
 		if (static_cast<std::string>(buf).find("PING") == 0) {
 		// Extraire le contenu du message PING (après le token "PING")
 		std::string	str(buf);
-		std::size_t colonPos = str.find(':');
+		std::size_t colonPos = str.find(' ');
 		if (colonPos != std::string::npos) {
 			std::string pingContent = str.substr(colonPos + 1);
 			// Construire la réponse PONG avec le même contenu que le message PING
 			std::string pongResponse = "PONG " + pingContent + END_SEQUENCE;
 			// Envoyer la réponse PONG au client
-			sendMsg(pongResponse, fd);
+			// sendMsg(pongResponse, fd);
+			// return;
 		}
 	}
 }
+// void	Server::getPing(char *buf, int fd) {
+// 		if (static_cast<std::string>(buf).find("PING") == 0) {
+// 		// Extraire le contenu du message PING (après le token "PING")
+// 		std::string	str(buf);
+// 		std::size_t colonPos = str.find(' ');
+// 		if (colonPos != std::string::npos) {
+// 			std::string pingContent = str.substr(colonPos + 1);
+// 			// Construire la réponse PONG avec le même contenu que le message PING
+// 			std::string pongResponse = "PONG " + pingContent + END_SEQUENCE;
+// 			// Envoyer la réponse PONG au client
+// 			sendMsg(pongResponse, fd);
+// 			return;
+// 		}
+// 	}
+// }
 
 void	Server::first_message( Client *client) {
 
 	// std::string	msg = ":"+ client->getHostname() + "001 " + client->getUser() + " : " + "\033[34mWelcome on the MoIRes Connection Server " + client->getUser() + "!~" + client->getUser() + "@" + client->getHostname() + "\r\n" + RES;
-	std::string	msg = "001 " + client->getUser() + " : " + "\033[34mWelcome on the MoIRes Connection Server " + client->getUser() + "!~" + client->getUser() + "@" + client->getHostname() + "\r\n" + RES;
+	std::string	msg = "001 " + client->getUser() + "*: " + "\033[34mWelcome on the MoIRes Connection Server " + client->getUser() + "!~" + client->getUser() + "@" + client->getHostname() + "NICK " + client->getNick() + END_SEQUENCE + RES;
 	sendMsg(msg, client->getFd());
 }
 
@@ -327,23 +349,24 @@ std::string	Server::inputClient(char *buf, Client *client) // retourner une vele
 	std::cout << "buf iCAv: " << buf << std::endl;
 	if (static_cast<std::string>(buf).find("CAP LS") == 0) {
 		parseNick(buf, client); 
+		parseUser(buf, client);
 		first_message(client);
-		welcomeMsg(buf, client);
+		// welcomeMsg(buf, client);
 		return buf;
 	}
-	else if (static_cast<std::string>(buf).find("PING") == 0) {
-		// Extraire le contenu du message PING (après le token "PING")
-		std::string	str(buf);
-		std::size_t colonPos = str.find(':');
-		if (colonPos != std::string::npos) {
-			std::string pingContent = str.substr(colonPos + 1);
-			// Construire la réponse PONG avec le même contenu que le message PING
-			std::string pongResponse = "PONG " + pingContent + "\r\n";
-			// Envoyer la réponse PONG au client
-			sendMsg(pongResponse, client->getFd());
-			return buf;
-		}
-	}
+	// else if (static_cast<std::string>(buf).find("PING") == 0) {
+	// 	// Extraire le contenu du message PING (après le token "PING")
+	// 	std::string	str(buf);
+	// 	std::size_t colonPos = str.find(':');
+	// 	if (colonPos != std::string::npos) {
+	// 		std::string pingContent = str.substr(colonPos + 1);
+	// 		// Construire la réponse PONG avec le même contenu que le message PING
+	// 		std::string pongResponse = "PONG " + pingContent + END_SEQUENCE;
+	// 		// Envoyer la réponse PONG au client
+	// 		sendMsg(pongResponse, client->getFd());
+	// 		return buf;
+	// 	}
+	// }
 	else if (buf[0] == '/')
 	{
 		std::cout << "Votre demande est une commande." << std::endl;
@@ -365,14 +388,6 @@ Client* Server::addClient(int fd)
 	// getClient(client);
 	return client;
 }
-
-// Client*	Server::addClient(int fd)
-// {
-// 	Client client(fd);
-// 	_clients.push_back(client);
-// 	getClient(&client);
-// 	return (*client);
-// }
 
 std::string	Server::getPassword() {
 	return _password;
@@ -417,7 +432,8 @@ Client	Server::getClient(Client *client) // heu ou ?
 	if (connect(client->getFd(), (struct sockaddr*)&_addr, sizeof(_addr)) < 0) {
 		std::cerr <<  "other connexion detected"  << std::endl;
 		// return 1;
-		sendMsg("PING", client->getFd());
+		sendMsg("PING", client->getFd()); // a voir si utile et necessaire
+		// parsePing("PING", client->getFd());
 		return;
 	}
 
