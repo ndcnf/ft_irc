@@ -171,7 +171,7 @@ bool	Server::connection()
 							std::cout << "I'm the " << _pfds[i].fd << std::endl;
 					}
 					int	sender = _pfds[i].fd;
-					getPing(buf, sender);
+					getPing(buf, sender); // ?????? caca ou pas ?
 					inputClient(buf, currentClient);
 
 					if (bytesNbr <= 0)
@@ -247,6 +247,7 @@ void Server::parseNick(char *buf, Client *client) {
 			std::string msg = "NICK " + nickname + END_SEQUENCE;
 			sendMsg(msg, client->getFd());
 			std::cout << "NICKNAME: " << nickname << std::endl;
+			client->setNick(nickname);
 		}
 	}
 }
@@ -316,11 +317,12 @@ int	Server::inputClient(char *buf, Client *client) // retourner une veleur ? un 
 	else if (buf[0] == '/')
 	{
 		std::cout << "Votre demande est une commande." << std::endl;
-		cmdSelection(buf);
+		cmdSelection(buf, client);
+		// sendFromClient(buf, client);
 	}
 	else {
 		std::cout << "Juste du texte." << std::endl;
-		sendFromClient(buf, client);
+		// sendFromClient(buf, client);
 		return 0;
 	}
 	return 0;
@@ -351,7 +353,7 @@ void	Server::setPassword(std::string pass)  {
 }
 
 
-Client	Server::getClient(Client *client)
+Client	Server::getClient(Client *client) // heu ou ?
 {
 	// std::vector<ASpell*>::iterator    it;
 	// for(it = _spells.begin(); it != _spells.end(); it++)
