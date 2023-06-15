@@ -238,12 +238,13 @@ void	Server::parsePing(std::string token, int clientSocket) {
 
 
 void Server::parseNick(char *buf, Client *client) {
-	std::string str(buf);
-	std::size_t nickPos = str.find("NICK ");
+	// std::string str(buf);
+	std:: string	s_buf = static_cast<std::string>(buf); // je crois qie c est pareil en fait @Verena
+	std::size_t nickPos = s_buf.find("NICK ");
 	if (nickPos != std::string::npos) {
-		std::size_t spacePos = str.find('\n', nickPos + 5);
+		std::size_t spacePos = s_buf.find('\n', nickPos + 5);
 		if (spacePos != std::string::npos) {
-			std::string nickname = str.substr(nickPos + 5, spacePos - nickPos - 5);
+			std::string nickname = s_buf.substr(nickPos + 5, spacePos - nickPos - 5);
 			std::string msg = "NICK " + nickname + END_SEQUENCE;
 			sendMsg(msg, client->getFd());
 			std::cout << "NICKNAME: " << nickname << std::endl;
@@ -253,15 +254,17 @@ void Server::parseNick(char *buf, Client *client) {
 }
 
 
-void	Server::welcomeMsg(char *buf, int fd) {
+void	Server::welcomeMsg(char *buf, Client *client) {
 	if (strstr(buf, "USER") != 0) {
 		std::string str(buf);
 		std::size_t colonPos = str.find(':');
 		if (colonPos != std::string::npos) {
 			std::string UserContent = str.substr(colonPos + 1);
 			std::string	msg = "001" + UserContent + "Hi! " + UserContent + " Welcome to this awesome IRC server !, @" + UserContent + END_SEQUENCE;
-			// _username = UserContent;
-			sendMsg(msg, fd);
+			client->setUser(UserContent);
+			std::cout << "USERCONTENT : " << UserContent << std::endl;
+			std::cout << "USERNAME : " << client->getUser() << std::endl;
+			sendMsg(msg, client->getFd());
 		}
 	}
 }
@@ -297,7 +300,7 @@ int	Server::inputClient(char *buf, Client *client) // retourner une veleur ? un 
 	std::string ping = "PING";
 	std::cout << "buf iCAv: " << buf << std::endl;
 	if (static_cast<std::string>(buf).find("CAP LS") == 0) {
-		welcomeMsg(buf, client->getFd());
+		welcomeMsg(buf, client);
 		parseNick(buf, client); 
 		return 1;
 	}

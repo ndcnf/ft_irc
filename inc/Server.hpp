@@ -69,7 +69,7 @@ class Server
 		void		parsePing(std::string token, int clientSocket);
 		void		parseNick(char *buf, Client *client);
 		void		sendMsg(std::string message, int fd);
-		void		welcomeMsg(char *buf, int fd);
+		void		welcomeMsg(char *buf, Client *client);
 		void		getCapLs(char *buf);
 		void		getPing(char *buf, int fd);
 		void		sendFromClient(char *buf, Client *client);
