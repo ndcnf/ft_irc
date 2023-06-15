@@ -41,13 +41,15 @@ class Server
 		Server	&operator=(Server const &rhs);
 		~Server();
 
-		Client		*currentClient;
+		Client						*currentClient;
+		std::string					token; //@Verena to have the token
+		std::string					command; //@Verena ... to arrete de se faire chier
 
 		bool	createSocket();
 		bool	connection();
 		Client*	addClient(int fd);
 		int		inputClient(char *buf, Client *client);
-		void	cmdSelection(char *buf);
+		void	cmdSelection(char *buf, Client *client);
 		//@Verena CAP LS
 		// void	capOrNOt(char *buf, int clientSocket);
 		void	capOrNOt(Client *client);
