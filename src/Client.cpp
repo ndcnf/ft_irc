@@ -68,3 +68,7 @@ void		Client::setUser(std::string user) {
 std::string	Client::getUser() {
 			return _username;
 		}
+
+std::string	Client::getHostname() {
+			return _hostname;
+		}

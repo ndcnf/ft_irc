@@ -45,6 +45,9 @@ class Client
 		void		setUser(std::string user);
 		std::string	getUser();
 
+		//CLAIRE
+		std::string	getHostname();
+
 
 	private:
 		int			_fd;
@@ -52,6 +55,9 @@ class Client
 		std::string	_username;
 		std::string	_channel;
 		bool		_connected; // is the client successfully connected or not?
+
+		//CLAIRE
+		std::string	_hostname; // a deplacer dans channel plus tard ?
 
 };
 

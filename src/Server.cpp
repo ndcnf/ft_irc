@@ -258,7 +258,6 @@ void Server::parseNick(char *buf, Client *client) {
 				std::string nickname = s_buf.substr(nickPos + 5, spacePos - nickPos - 5);
 				std::string msg = "NICK " + nickname + END_SEQUENCE;
 				sendMsg(msg, client->getFd());
-				std::cout << "nick ? 251 parsNick ?" << std::endl; // DEBUG ONLY to erase
 				std::cout << "NICKNAME: " << nickname << std::endl;
 				client->setNick(nickname);
 			}
@@ -308,14 +307,29 @@ void	Server::getPing(char *buf, int fd) {
 	}
 }
 
-int	Server::inputClient(char *buf, Client *client) // retourner une veleur ? un string ? return buff
+void	Server::first_message( Client *client) {
+
+	// std::string	msg = ":"+ client->getHostname() + "001 " + client->getUser() + " : " + "\033[34mWelcome on the MoIRes Connection Server " + client->getUser() + "!~" + client->getUser() + "@" + client->getHostname() + "\r\n" + RES;
+	std::string	msg = "001 " + client->getUser() + " : " + "\033[34mWelcome on the MoIRes Connection Server " + client->getUser() + "!~" + client->getUser() + "@" + client->getHostname() + "\r\n" + RES;
+	sendMsg(msg, client->getFd());
+}
+
+// std::string Server::first_message(char *buf, Client *client) {
+// 	std::string	str(buf);
+// 	std::string	msg = ":"+ client->getHostname() + "001 " + client->getUser() + " :" + "\033[34mWelcome on the MoIRes Connection Server" + client->getUser() + "!~" + client->getUser() + "@" + client->getHostname() + "\r\n";
+// 	static_cast<std::string>(buf) = msg;
+// 	return (msg);
+// }
+
+std::string	Server::inputClient(char *buf, Client *client) // retourner une veleur ? un string ? return buff
 {
 	std::string ping = "PING";
 	std::cout << "buf iCAv: " << buf << std::endl;
 	if (static_cast<std::string>(buf).find("CAP LS") == 0) {
-		welcomeMsg(buf, client);
 		parseNick(buf, client); 
-		return 1;
+		first_message(client);
+		welcomeMsg(buf, client);
+		return buf;
 	}
 	else if (static_cast<std::string>(buf).find("PING") == 0) {
 		// Extraire le contenu du message PING (après le token "PING")
@@ -327,7 +341,7 @@ int	Server::inputClient(char *buf, Client *client) // retourner une veleur ? un 
 			std::string pongResponse = "PONG " + pingContent + "\r\n";
 			// Envoyer la réponse PONG au client
 			sendMsg(pongResponse, client->getFd());
-			return 1;
+			return buf;
 		}
 	}
 	else if (buf[0] == '/')
@@ -339,9 +353,9 @@ int	Server::inputClient(char *buf, Client *client) // retourner une veleur ? un 
 	else {
 		std::cout << "Juste du texte." << std::endl;
 		// sendFromClient(buf, client);
-		return 0;
+		// return 0;
 	}
-	return 0;
+	return buf;
 }
 
 Client* Server::addClient(int fd)

@@ -48,7 +48,7 @@ class Server
 		bool	createSocket();
 		bool	connection();
 		Client*	addClient(int fd);
-		int		inputClient(char *buf, Client *client);
+		std::string		inputClient(char *buf, Client *client);
 		void	cmdSelection(char *buf, Client *client);
 		//@Verena CAP LS
 		// void	capOrNOt(char *buf, int clientSocket);
@@ -73,6 +73,8 @@ class Server
 		void		getCapLs(char *buf);
 		void		getPing(char *buf, int fd);
 		void		sendFromClient(char *buf, Client *client);
+		void		first_message(Client *client);
+		// std::string	first_message(char *buf, Client *client);
 
 		class ServException : public std::exception {
 			public:
