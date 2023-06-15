@@ -33,14 +33,16 @@ class Client
 		Client	&operator=(Client const &rhs);
 		~Client();
 
-		int		getFd();
+		int			getFd();
 		//autres fonctions probablement necessaires @Verena :
 		std::string	getNick();
-		void	setNick(std::string nick, char *buf);
-		void	logIn();
-		void	applyNick();
-		void	defineUsername();
-		bool	isConnected();
+		void		setNick(std::string nick, char *buf);
+		void		logIn();
+		void		applyNick();
+		void		defineUsername();
+		bool		isConnected();
+		void		setUser(std::string user, char *buf);
+		std::string	getUser();
 
 
 	private:

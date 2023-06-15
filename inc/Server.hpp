@@ -58,6 +58,7 @@ class Server
 		void		setPort(int port);
 		std::string	getPassword();//@Verena to print the password entered
 		void		setPassword(std::string pass) ;
+		void		getClient(Client *client);
 
 		//COMMNANDS
 		void		parsePing(std::string token, int clientSocket);
@@ -86,7 +87,7 @@ class Server
 		struct sockaddr_in			_addr;
 		std::vector<int>			_sockets;	// maybe useless
 		std::vector<pollfd>			_pfds;
-		std::vector<Client>			_clients;	// useless at the moment, maybe now?
+		std::vector<Client>			_clients;	// vecteur clients pour faire le lien entre les classes ? @Verena
 		// bool						_quit;		// useless at the moment
 		std::string					_password; //@Verena to get the password
 };
