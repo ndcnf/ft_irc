@@ -236,27 +236,21 @@ void	Server::parsePing(std::string token, int clientSocket) {
 	return;
 }
 
-// void	Server::parseNick(std::string token, int clientSocket) {
-// 		Client	cl;
-// 		cl.setNick(nickname, buf);
-// 		std::cout << "NICKNAME : " << nickname << std::endl;
-// 		std::string authCommand = "NICK " + nickname + END_SEQUENCE;
-// 		sendMsg(authCommand, clientSocket);
-// }
 
-void	Server::parseNick(char *buf, Client *client) {
-	if (strstr(buf, "NICK") != 0) {
-		std::string str(buf);
-		std::size_t colonPos = str.find(' ');
-		if (colonPos != std::string::npos) {
-			std::string nickname = str.substr(colonPos + 1);
-			std::string	msg = "NICK " + nickname + END_SEQUENCE;
+void Server::parseNick(char *buf, Client *client) {
+	std::string str(buf);
+	std::size_t nickPos = str.find("NICK ");
+	if (nickPos != std::string::npos) {
+		std::size_t spacePos = str.find('\n', nickPos + 5);
+		if (spacePos != std::string::npos) {
+			std::string nickname = str.substr(nickPos + 5, spacePos - nickPos - 5);
+			std::string msg = "NICK " + nickname + END_SEQUENCE;
 			sendMsg(msg, client->getFd());
-			// setNick(nickname, _clients); //pas utilisable tant qu on a pas de lien avec la classe client !!!!!! @Verena
-			std::cout << "NICKNAME : " << nickname << std::endl;
+			std::cout << "NICKNAME: " << nickname << std::endl;
 		}
 	}
 }
+
 
 void	Server::welcomeMsg(char *buf, int fd) {
 	if (strstr(buf, "USER") != 0) {
