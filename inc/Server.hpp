@@ -74,6 +74,11 @@ class Server
 		void		getPing(char *buf, int fd);
 		void		sendFromClient(char *buf, Client *client);
 
+		//MESSAGES
+		void		welcome_msg_server();
+		std::string	welcome_msg_client(int fd);
+
+
 		class ServException : public std::exception {
 			public:
 				ServException(const char* msg) : _msg(msg) {}

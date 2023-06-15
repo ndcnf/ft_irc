@@ -15,11 +15,12 @@ void	Server::cmdSelection(char *buf, Client *client)
 		std::cout << "ERREUR, pas de commande donnee" << std::endl; // NEEDS IMPROVEMENT
 		return ;
 	}
-
+	
 	str = str.substr(1, str.size() - 2);
 	token = str.substr(0, str.find(' '));
 	//  token = strtok(splitStr, " ");
 
+	//@Claire : inserer message num 2
 		for (unsigned int i = 0; i < token.size(); i++)
 		token[i] = toupper(token[i]);
 
