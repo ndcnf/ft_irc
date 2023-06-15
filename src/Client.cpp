@@ -6,7 +6,7 @@ Client::Client():	_fd(0),
 {
 	_nick = "";
 	_username = "";
-	_hostname - "";
+	_hostname = "";
 }
 
 Client::Client(int fd):	_fd(fd),
@@ -63,55 +63,9 @@ void	Client::setNick(std::string nick) {
 // 	_nick = nick;
 // }
 
-std::string Client::getUsername()
-{
-	return _username;
-}
-
-std::string Client::getFullname()
-{
-	return _fullname;
-}
-
-std::string Client::getHostname()
-{
-	return _hostname;
-}
-
-int Client::setInfos(std::vector <std::string> infos)
-{
-    std::vector <std::string> ::iterator    itr;
-
-    if (!getNick().empty() && !getUsername().empty()
-        && !getFullname().empty() && !getHostname().empty())
-    {
-        for (itr = infos.begin(); itr != infos.end(); itr++)
-        {
-            if (itr == infos.begin() + 1)
-                _nick = *itr;
-            if (itr == infos.begin() + 2)
-                _username = *itr;
-            if (itr == infos.begin() + 3)
-                _fullname = *itr;
-        }
-    }
-	std::cout << "_nick" << _nick << std::endl;
-	std::cout << "_username" << _username << std::endl;
-	std::cout << "_hostname" << _hostname << std::endl;
-	return (0);
-}
-
-	void		Client::setUser(std::string user, char *buf) {
-		if (strstr(buf, "USER") != 0) {
-			std::string str(buf);
-			std::size_t colonPos = str.find('R');
-			if (colonPos != std::string::npos) {
-				user = str.substr(colonPos + 2);
-				_username = user;
-			}
+void		Client::setUser(std::string user) {
+			_username = user;
 		}
-		_username = user;
-	}
 
 std::string	Client::getUser() {
 			return _username;

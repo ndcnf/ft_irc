@@ -42,7 +42,7 @@ class Client
 		void		applyNick();
 		void		defineUsername();
 		bool		isConnected();
-		void		setUser(std::string user, char *buf);
+		void		setUser(std::string user);
 		std::string	getUser();
 		std::string	getUsername();
 		std::string	getFullname();

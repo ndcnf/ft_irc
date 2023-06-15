@@ -32,39 +32,50 @@ void	Server::cmdSelection(char *buf, Client *client)
 		return ;
 	}
 
+	std::cout << "COMMAND 1 : " << command << "TOKEN : " << token << "CONTENT : " << content << std::endl; // DEBUG ONLY
+
 	if (token.size() != 0) {
-		std::cout << "Commandes avec token ici" << std::endl;
-		sendFromClient(buf, client);
-	}
-
-	splitStr = str.substr(token.size(), str.find('\n'));
-	if (splitStr.size() != 0) {
-		content = str.substr(splitStr.size() + 2);
-		 for (unsigned int i = 0; i < content.size(); i++)
-		 content[i] = toupper(content[i]);
-		 if (token.size() < 4)
-		 content = str.substr(splitStr.size() + 1);
-		 for (unsigned int i = 0; i < content.size(); i++)
-		 content[i] = toupper(content[i]);
-
-		std::cout << "CONTENT : [" << content << "]" << std::endl; // DEBUG ONLY
-
-		//FORET de IF attention a modifier le try and catch risque d arreet du prog
-		if (token.size() != 0 && content.size() != 0) {
-			if ((token.compare("CAP") == 0) && (content.compare("LS") == 0)) {
-				std::cout << "CAP LS start" << std::endl;
-			}
-			else if ((token.compare("CAP") == 0) && (content.compare("LS") != 0)) {
-				std::cerr << ERRMSG << RES << content << RED << " is not an accepted command" << RES << std::endl;
-				return;
-			}
-		}
-
-		if (command.size() != 0) {
+		if (command.size() != 0) { // maybe useless @VERENA
+			// if (command.size() > 2) {
+			// 	static_cast<std::string>(buf) = content.c_str();
+			// 	std::cout << "Commandes avec  token et infos ici" << std::endl;
+			// 	sendFromClient(buf, client);
+			// }
 			// sendFromClient(buf, client);
 			std::cout << "Commandes avec command ici" << std::endl;
 		}
+		else {
+			std::cout << "Commandes avec juste token ici" << std::endl;
+			sendFromClient(buf, client);
+		}
 	}
+	std::cout << "COMMAND 2 : " << command << "TOKEN : " << token << "CONTENT : " << content << std::endl; // DEBUG ONLY
+
+	// splitStr = str.substr(token.size(), str.find('\n'));
+	// if (splitStr.size() != 0) {
+	// 	content = str.substr(splitStr.size() + 2);
+	// 	 for (unsigned int i = 0; i < content.size(); i++)
+	// 	 content[i] = toupper(content[i]);
+	// 	 if (token.size() < 4)
+	// 	 content = str.substr(splitStr.size() + 1);
+	// 	 for (unsigned int i = 0; i < content.size(); i++)
+	// 	 content[i] = toupper(content[i]);
+
+	// 	std::cout << "CONTENT : [" << content << "]" << std::endl; // DEBUG ONLY
+
+	// std::cout << "COMMAND 3 : " << command << "TOKEN : " << token << "CONTENT : " << content << std::endl; // DEBUG ONLY
+
+	// 	//FORET de IF attention a modifier le try and catch risque d arreet du prog
+	// 	if (token.size() != 0 && content.size() != 0) {
+	// 		if ((token.compare("CAP") == 0) && (content.compare("LS") == 0)) {
+	// 			std::cout << "CAP LS start" << std::endl;
+	// 		}
+	// 		else if ((token.compare("CAP") == 0) && (content.compare("LS") != 0)) {
+	// 			std::cerr << ERRMSG << RES << content << RED << " is not an accepted command" << RES << std::endl;
+	// 			return;
+	// 		}
+	// 	}
+	// }
 }
 
 // void	Server::cmdSelection(char *buf)
@@ -202,7 +213,7 @@ void	Server::sendFromClient(char *buf, Client *client)
 {
 	// std::string	token(buf);
 	std::string	splitStr;
-	std::string	command;
+	// std::string	command;
 
 	if (token.size() <= 0)
 	{
@@ -226,11 +237,12 @@ void	Server::sendFromClient(char *buf, Client *client)
 	std::cout << "I am in 251" << std::endl;
 	if (token == "JOIN")
 		std::cout << "join us on : " << std::endl;
-	if (token.compare("NICK")) {
+	if (token.compare("NICK") || token.compare("nick")) {
 		parseNick(buf, client);
 		std::cout << "nickname : " << client->getNick() << std::endl;
 		// verifier si le nickname existe deja dans le channel si on est dans un channel sinon
-		// client->getNick() = token;
+		client->getNick() = token;
+		std::cout << "nickname : " << client->getNick() << std::endl;
 	}
 
 	if (token == "USER")
