@@ -73,10 +73,8 @@ class Server
 		void		getCapLs(char *buf);
 		void		getPing(char *buf, int fd);
 		void		sendFromClient(char *buf, Client *client);
-
-		//MESSAGES
-		void		welcome_msg_server();
-		std::string	welcome_msg_client(int fd);
+		void		first_message( Client *client);
+		void		parseUser(char *buf, Client *client);
 
 
 		class ServException : public std::exception {

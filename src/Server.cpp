@@ -258,7 +258,6 @@ void Server::parseNick(char *buf, Client *client) {
 				std::string nickname = s_buf.substr(nickPos + 5, spacePos - nickPos - 5);
 				std::string msg = "NICK " + nickname + END_SEQUENCE;
 				sendMsg(msg, client->getFd());
-				std::cout << "nick ? 251 parsNick ?" << std::endl; // DEBUG ONLY to erase
 				std::cout << "NICKNAME: " << nickname << std::endl;
 				client->setNick(nickname);
 			}
@@ -267,19 +266,19 @@ void Server::parseNick(char *buf, Client *client) {
 }
 
 
-void	Server::welcomeMsg(char *buf, Client *client) {
-	if (strstr(buf, "USER") != 0) {
-		std::string str(buf);
-		std::size_t colonPos = str.find(':');
-		if (colonPos != std::string::npos) {
-			std::string UserContent = str.substr(colonPos + 1);
-			std::string	msg = "001" + UserContent + "Hi! " + UserContent + " Welcome to this awesome IRC server !, @" + UserContent + END_SEQUENCE;
-			client->setUser(UserContent);
-			std::cout << "USERCONTENT : " << UserContent << std::endl;
-			std::cout << "USERNAME : " << client->getUser() << std::endl;
-			sendMsg(msg, client->getFd());
-		}
-	}
+void    Server::parseUser(char *buf, Client *client) {
+    if (strstr(buf, "USER") != 0) {
+        std::string str(buf);
+        std::size_t colonPos = str.find(':');
+        if (colonPos != std::string::npos) {
+            std::string UserContent = str.substr(colonPos + 1);
+            std::string    msg = "USER : " + UserContent + END_SEQUENCE;
+            client->setUser(UserContent);
+            std::cout << "USERCONTENT : " << UserContent << std::endl; // DEBUG ONLY
+            std::cout << "USERNAME : " << client->getUser() << std::endl; // DEBUG ONLY
+            // sendMsg(msg, client->getFd()); // DEBUG ONLY pas necessaire a priori (pas dans freenode)
+        }
+    }
 }
 
 void Server::sendMsg(std::string message, int fd)
@@ -308,14 +307,29 @@ void	Server::getPing(char *buf, int fd) {
 	}
 }
 
-int	Server::inputClient(char *buf, Client *client) // retourner une veleur ? un string ? return buff
+void	Server::first_message( Client *client) {
+
+	// std::string	msg = ":"+ client->getHostname() + "001 " + client->getUser() + " : " + "\033[34mWelcome on the MoIRes Connection Server " + client->getUser() + "!~" + client->getUser() + "@" + client->getHostname() + "\r\n" + RES;
+	std::string	msg = "001 " + client->getUser() + " : " + "\033[34mWelcome on the MoIRes Connection Server " + client->getUser() + "!~" + client->getUser() + "@" + client->getHostname() + "\r\n" + RES;
+	sendMsg(msg, client->getFd());
+}
+
+// std::string Server::first_message(char *buf, Client *client) {
+// 	std::string	str(buf);
+// 	std::string	msg = ":"+ client->getHostname() + "001 " + client->getUser() + " :" + "\033[34mWelcome on the MoIRes Connection Server" + client->getUser() + "!~" + client->getUser() + "@" + client->getHostname() + "\r\n";
+// 	static_cast<std::string>(buf) = msg;
+// 	return (msg);
+// }
+
+std::string	Server::inputClient(char *buf, Client *client) // retourner une veleur ? un string ? return buff
 {
 	std::string ping = "PING";
 	std::cout << "buf iCAv: " << buf << std::endl;
 	if (static_cast<std::string>(buf).find("CAP LS") == 0) {
-		welcomeMsg(buf, client);
 		parseNick(buf, client);
-		return 1;
+		parseUser(buf, client);
+		first_message(client);
+		return buf;
 	}
 	else if (static_cast<std::string>(buf).find("PING") == 0) {
 		// Extraire le contenu du message PING (après le token "PING")
@@ -327,7 +341,7 @@ int	Server::inputClient(char *buf, Client *client) // retourner une veleur ? un 
 			std::string pongResponse = "PONG " + pingContent + "\r\n";
 			// Envoyer la réponse PONG au client
 			sendMsg(pongResponse, client->getFd());
-			return 1;
+			return buf;
 		}
 	}
 	else if (buf[0] == '/')
@@ -339,9 +353,9 @@ int	Server::inputClient(char *buf, Client *client) // retourner une veleur ? un 
 	else {
 		std::cout << "Juste du texte." << std::endl;
 		// sendFromClient(buf, client);
-		return 0;
+		// return 0;
 	}
-	return 0;
+	return buf;
 }
 
 Client* Server::addClient(int fd)
