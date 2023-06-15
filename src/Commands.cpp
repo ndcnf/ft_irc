@@ -133,7 +133,7 @@ void	Server::cmdSelection(char *buf)
 	// 	throw Server::ServException(ERRMSG"pas content");
 }
 
-void	Server::sendFromClient(char *buf, int fdClient)
+void	Server::sendFromClient(char *buf, Client *client)
 {
 	std::string	token(buf);
 	std::string	splitStr;
@@ -150,8 +150,8 @@ void	Server::sendFromClient(char *buf, int fdClient)
 
 	std::cout << "TOKEN CLIENT: " << token << std::endl; // DEBUG ONLY
 	if (strstr(buf, "NICK") != 0) {
-		std::cout << "nickname : " << std::endl;
-		parseNick(buf, fdClient);
+		std::cout << "nickname token commands on peut faire un truc ici: " << std::endl;
+		parseNick(buf, client); //ou Server L.411
 	}
 	std::cout << "I am in" << std::endl;
 	if (token == "JOIN")

@@ -12,7 +12,7 @@
 # include <map>
 # include <fcntl.h>
 
-// #include "Server.hpp"
+// # include "Server.hpp"
 
 // # include <sys/poll.h>
 # define BUFFER_SIZE 4096
@@ -33,9 +33,12 @@ class Client
 		Client	&operator=(Client const &rhs);
 		~Client();
 
+		// Client(Server &s) : server(s) {} // @Verena; par reference mais ne fonctionne pas
+
 		int			getFd();
 		//autres fonctions probablement necessaires @Verena :
 		std::string	getNick();
+		// void		setNick(std::string nick, char *buf);
 		void		setNick(std::string nick, char *buf);
 		void		logIn();
 		void		applyNick();
@@ -51,6 +54,7 @@ class Client
 		std::string	_username;
 		std::string	_channel;
 		bool		_connected; // is the client successfully connected or not?
+		// Server		&server; // @Verena; par reference mais ne fonctionne pas
 
 };
 

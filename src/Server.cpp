@@ -146,12 +146,12 @@ bool	Server::connection()
 						_pfds.push_back(pfd);
 
 						// New client
-						addClient(clientSock); // new way to handle client via Client class
-						//////////////////////////
-						// getPing(buf, clientSock);
-						// getClient(&_clients.back());
+						currentClient = addClient(clientSock); // new way to handle client via Client class
+						// currentClient->setNick("n1t4r4", buf); // pour tester, suggestion de pressentation
+						// std::cout << "CURRENT CLIENT NICKE !!! " << currentClient->getNick();
+
 						std::cout << "Bonjour, " << inet_ntoa(_addr.sin_addr) << ":" << ntohs(_addr.sin_port) << std::endl;
-						capOrNOt(buf, clientSock);
+						capOrNOt(currentClient);
 						// doit renvoyer le CAP au client comme ceci
 						/* CAP LS
 							NICK n1t4r4
@@ -172,7 +172,7 @@ bool	Server::connection()
 					}
 					int	sender = _pfds[i].fd;
 					getPing(buf, sender);
-					inputClient(buf, sender);
+					inputClient(buf, currentClient);
 
 					if (bytesNbr <= 0)
 					{
@@ -244,18 +244,16 @@ void	Server::parsePing(std::string token, int clientSocket) {
 // 		sendMsg(authCommand, clientSocket);
 // }
 
-void	Server::parseNick(char *buf, int fd) {
+void	Server::parseNick(char *buf, Client *client) {
 	if (strstr(buf, "NICK") != 0) {
 		std::string str(buf);
 		std::size_t colonPos = str.find(' ');
 		if (colonPos != std::string::npos) {
 			std::string nickname = str.substr(colonPos + 1);
 			std::string	msg = "NICK " + nickname + END_SEQUENCE;
-			sendMsg(msg, fd);
-			// setNick(nickname, buf); pas utilisable tant qu on a pas de lien avec la classe client !!!!!! @Verena
+			sendMsg(msg, client->getFd());
+			// setNick(nickname, _clients); //pas utilisable tant qu on a pas de lien avec la classe client !!!!!! @Verena
 			std::cout << "NICKNAME : " << nickname << std::endl;
-			std::string authCommand = "NICK " + nickname + END_SEQUENCE;
-			sendMsg(authCommand, fd);
 		}
 	}
 }
@@ -299,12 +297,13 @@ void	Server::getPing(char *buf, int fd) {
 	}
 }
 
-int	Server::inputClient(char *buf, int fd) // retourner une veleur ? un string ? return buff
+int	Server::inputClient(char *buf, Client *client) // retourner une veleur ? un string ? return buff
 {
 	std::string ping = "PING";
 	std::cout << "buf iCAv: " << buf << std::endl;
 	if (static_cast<std::string>(buf).find("CAP LS") == 0) {
-		welcomeMsg(buf, fd);
+		welcomeMsg(buf, client->getFd());
+		parseNick(buf, client);
 		return 1;
 	}
 	else if (static_cast<std::string>(buf).find("PING") == 0) {
@@ -316,7 +315,7 @@ int	Server::inputClient(char *buf, int fd) // retourner une veleur ? un string ?
 			// Construire la réponse PONG avec le même contenu que le message PING
 			std::string pongResponse = "PONG " + pingContent + "\r\n";
 			// Envoyer la réponse PONG au client
-			sendMsg(pongResponse, fd);
+			sendMsg(pongResponse, client->getFd());
 			return 1;
 		}
 	}
@@ -327,18 +326,27 @@ int	Server::inputClient(char *buf, int fd) // retourner une veleur ? un string ?
 	}
 	else {
 		std::cout << "Juste du texte." << std::endl;
-		sendFromClient(buf, fd);
+		sendFromClient(buf, client);
 		return 0;
 	}
 	return 0;
 }
 
-bool	Server::addClient(int fd)
+Client* Server::addClient(int fd)
 {
-	Client client(fd);
-	_clients.push_back(client);
-	return true;
+	Client* client = new Client(fd); // Allouer dynamiquement un nouvel objet Client
+	_clients.push_back(*client);
+	// getClient(client);
+	return client;
 }
+
+// Client*	Server::addClient(int fd)
+// {
+// 	Client client(fd);
+// 	_clients.push_back(client);
+// 	getClient(&client);
+// 	return (*client);
+// }
 
 std::string	Server::getPassword() {
 	return _password;
@@ -349,54 +357,41 @@ void	Server::setPassword(std::string pass)  {
 }
 
 
-void    Server::getClient(Client *client)
+Client	Server::getClient(Client *client)
 {
 	// std::vector<ASpell*>::iterator    it;
 	// for(it = _spells.begin(); it != _spells.end(); it++)
 	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
 	{
 		if ((*it).getFd() == client->getFd()) {
-			std::cout << "get client 1 : " << (*it).getFd() << std::endl;
-			std::cout << "get client 2 : " << client->getFd() << std::endl;
-			return ;
+			std::cout << "\n[get client 1 : " << (*it).getFd() << "]" << std::endl;
+			std::cout << "[get client 2 : " << client->getFd() << "]\n" << std::endl;
+			// setNick((*it).getNick(), client->getNick());
+			// parseNick(buf, client->getFd());
+			std::cout << "\n[get nick 1 : " << (*it).getNick() << std::endl;
+			std::cout << "get nick 2 : " << client->getNick() << "]\n" << std::endl;
+			return (*it);
 		}
 	}
+	return NULL;
 }
 
- void	Server::capOrNOt(char *buf, int clientSocket) {
+ void	Server::capOrNOt(Client *client) {
 	// std::string serverAddress = _addr.str_c();
-	int serverPort = Server::getPort();
+	// int serverPort = Server::getPort();
 	// std::string nickname = getNick(); // @Verena pas utilisable sans lien entre les classe !!!!!!
-	std::string version = "2.0";
 	// std::string clientNumber = cl.getFd();
+	std::string version = "2.0";
 	std::string channel = "#mychannel";
 
 	//print clientNumber (socket)
-	std::cout << "NEW CLIENT : " << clientSocket << std::endl; // check and debug only
-
-	// Obtention de l'adresse IP du serveur
-	char ipAddress[INET_ADDRSTRLEN];
-	inet_ntop(AF_INET, &(_addr.sin_addr), ipAddress, INET_ADDRSTRLEN);
-	std::cout << "IP adresse server : " << ipAddress << std::endl;
-	std::string serverAddress = ipAddress;
-
-	// Préparation des informations de connexion du serveur
-	// sockaddr_in serverAddr{};//_addr
-	_addr.sin_family = AF_INET;
-	_addr.sin_port = htons(serverPort);
-	if (inet_pton(AF_INET, serverAddress.c_str(), &(_addr.sin_addr)) <= 0) {
-		std::cerr << "Unvalid IP adresse server" << std::endl;
-		// return 1;
-		return;
-	}
+	std::cout << "NEW CLIENT : " << client->getFd() << std::endl; // check and debug only
 
 	// // Connexion au serveur
-	if (connect(clientSocket, (struct sockaddr*)&_addr, sizeof(_addr)) < 0) {
-		std::cerr << "other connexion detected" << std::endl;
+	if (connect(client->getFd(), (struct sockaddr*)&_addr, sizeof(_addr)) < 0) {
+		std::cerr <<  "other connexion detected"  << std::endl;
 		// return 1;
-		parsePing("PING", clientSocket);
-		parseNick(buf, clientSocket); // ici ?apparement pas
-		// parsePing("PONG", clientSocket);
+		sendMsg("PING", client->getFd());
 		return;
 	}
 
@@ -464,7 +459,7 @@ void    Server::getClient(Client *client)
 	// 	}
 	// }
 	// Fermeture du socket
-	close(clientSocket);
+	// close(clientSocket);
 	// std::cout << "CLIENT SOCKET 3: " << clientSocket << std::endl;
 
 	// return 0;

@@ -41,13 +41,16 @@ class Server
 		Server	&operator=(Server const &rhs);
 		~Server();
 
+		Client		*currentClient;
+
 		bool	createSocket();
 		bool	connection();
-		bool	addClient(int fd);
-		int		inputClient(char *buf, int fd);
+		Client*	addClient(int fd);
+		int		inputClient(char *buf, Client *client);
 		void	cmdSelection(char *buf);
 		//@Verena CAP LS
-		void	capOrNOt(char *buf, int clientSocket);
+		// void	capOrNOt(char *buf, int clientSocket);
+		void	capOrNOt(Client *client);
 		std::vector<std::string> getCap();
 		// bool	selectConnection();
 		void	allSockets();					// useless at the moment
@@ -57,17 +60,17 @@ class Server
 		int			getSocket();
 		void		setPort(int port);
 		std::string	getPassword();//@Verena to print the password entered
-		void		setPassword(std::string pass) ;
-		void		getClient(Client *client);
+		void		setPassword(std::string pass);
+		Client		getClient(Client *client);
 
 		//COMMNANDS
 		void		parsePing(std::string token, int clientSocket);
-		void		parseNick(char *buf, int fd);
+		void		parseNick(char *buf, Client *client);
 		void		sendMsg(std::string message, int fd);
 		void		welcomeMsg(char *buf, int fd);
 		void		getCapLs(char *buf);
 		void		getPing(char *buf, int fd);
-		void		sendFromClient(char *buf, int fdClient);
+		void		sendFromClient(char *buf, Client *client);
 
 		class ServException : public std::exception {
 			public:
