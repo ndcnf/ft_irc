@@ -165,7 +165,7 @@ bool	Server::connection()
 							std::cout << "I'm the " << _pfds[i].fd << std::endl;
 					}
 					int	sender = _pfds[i].fd;
-					getPing(buf);
+					getPing(buf, currentClient);
 					inputClient(buf, currentClient);
 
 					if (bytesNbr <= 0)
@@ -280,54 +280,23 @@ void	Server::parseUser(char *buf, Client *client) {
 	}
 }
 
-// void	Server::welcomeMsg(char *buf, Client *client) {
-// 	// if (strstr(buf, "USER") != 0) {
-// 		std::string str(buf);
-// 		std::size_t colonPos = str.find(':');
-// 		if (colonPos != std::string::npos) {
-// 			std::string UserContent = str.substr(colonPos + 1);
-// 			std::string	msg = "001" + UserContent + "Hi! " + UserContent + " Welcome to this awesome IRC server !, @" + UserContent + END_SEQUENCE;
-// 			client->setUser(UserContent);
-// 			std::cout << "USERCONTENT : " << UserContent << std::endl;
-// 			std::cout << "USERNAME : " << client->getUser() << std::endl;
-// 			sendMsg(msg, client->getFd());
-// 		}
-// 	}
-// // }
-
-
-// void Server::recvMsg();
-
-void	Server::getPing(char *buf) {
-		if (static_cast<std::string>(buf).find("PING") == 0) {
-		// Extraire le contenu du message PING (après le token "PING")
-		std::string	str(buf);
-		std::size_t colonPos = str.find(' ');
-		if (colonPos != std::string::npos) {
-			std::string pingContent = str.substr(colonPos + 1);
-			// Construire la réponse PONG avec le même contenu que le message PING
-			std::string pongResponse = "PONG " + pingContent + END_SEQUENCE;
-			// Envoyer la réponse PONG au client
-			// sendMsg(pongResponse, fd);
-			// return;
-		}
+void	Server::getPing(char *buf, Client *client) {
+		// if (client->getIPAddress() == clientPingIP && client->getPort() == clientPingPort) { // solution ?
+			if (static_cast<std::string>(buf).find("PING") == 0) {
+			// Extraire le contenu du message PING (après le token "PING")
+			std::string	str(buf);
+			std::size_t colonPos = str.find(' ');
+			if (colonPos != std::string::npos) {
+				std::string pingContent = str.substr(colonPos + 1);
+				// Construire la réponse PONG avec le même contenu que le message PING
+				std::string pongResponse = "PONG " + pingContent + END_SEQUENCE;
+				// Envoyer la réponse PONG au client
+				sendMsg(pongResponse, client->getFd());
+				// return;
+			}
+		// }
 	}
 }
-// void	Server::getPing(char *buf, int fd) {
-// 		if (static_cast<std::string>(buf).find("PING") == 0) {
-// 		// Extraire le contenu du message PING (après le token "PING")
-// 		std::string	str(buf);
-// 		std::size_t colonPos = str.find(' ');
-// 		if (colonPos != std::string::npos) {
-// 			std::string pingContent = str.substr(colonPos + 1);
-// 			// Construire la réponse PONG avec le même contenu que le message PING
-// 			std::string pongResponse = "PONG " + pingContent + END_SEQUENCE;
-// 			// Envoyer la réponse PONG au client
-// 			sendMsg(pongResponse, fd);
-// 			return;
-// 		}
-// 	}
-// }
 
 void	Server::first_message( Client *client) {
 
@@ -336,12 +305,6 @@ void	Server::first_message( Client *client) {
 	sendMsg(msg, client->getFd());
 }
 
-// std::string Server::first_message(char *buf, Client *client) {
-// 	std::string	str(buf);
-// 	std::string	msg = ":"+ client->getHostname() + "001 " + client->getUser() + " :" + "\033[34mWelcome on the MoIRes Connection Server" + client->getUser() + "!~" + client->getUser() + "@" + client->getHostname() + "\r\n";
-// 	static_cast<std::string>(buf) = msg;
-// 	return (msg);
-// }
 
 std::string	Server::inputClient(char *buf, Client *client) // retourner une veleur ? un string ? return buff
 {
@@ -354,19 +317,6 @@ std::string	Server::inputClient(char *buf, Client *client) // retourner une vele
 		// welcomeMsg(buf, client);
 		return buf;
 	}
-	// else if (static_cast<std::string>(buf).find("PING") == 0) {
-	// 	// Extraire le contenu du message PING (après le token "PING")
-	// 	std::string	str(buf);
-	// 	std::size_t colonPos = str.find(':');
-	// 	if (colonPos != std::string::npos) {
-	// 		std::string pingContent = str.substr(colonPos + 1);
-	// 		// Construire la réponse PONG avec le même contenu que le message PING
-	// 		std::string pongResponse = "PONG " + pingContent + END_SEQUENCE;
-	// 		// Envoyer la réponse PONG au client
-	// 		sendMsg(pongResponse, client->getFd());
-	// 		return buf;
-	// 	}
-	// }
 	else if (buf[0] == '/')
 	{
 		std::cout << "Votre demande est une commande." << std::endl;
@@ -442,25 +392,14 @@ Client	Server::getClient(Client *client) // heu ou ?
 	// std::string capCommand = "CAP LS\r\n";
 	// send(clientSocket, capCommand.c_str(), capCommand.size(), 0);
 
-	// // Envoi des commandes d'authentification
-	// std::string authCommand = "NICK " + nickname + "\r\n";
-	// sendMsg(authCommand, clientSocket);
-
 	// std::string passCommand = "PASS " + _password + "\r\n";
 	// send(clientSocket, passCommand.c_str(), authCommand.size(), 0);
-
-	// std::string userCommand = "USER " + nickname + " 0 * :" + nickname + "\r\n";
-	// send(clientSocket, userCommand.c_str(), userCommand.size(), 0);
 
 	// send(clientSocket, (" 001 Verena Hi ! Welcome to this awesome IRC server !, Verena\r\n"), 100, 0);
 	// send(clientSocket, (" 002 Your host is 127.0.0.1 running version 4.20\r\n"), 100, 0);
 	// send(clientSocket, (" 003 This server was created Verena\r\n"), 100, 0);
 	// send(clientSocket, (" 004 Verena 127.0.0.1 4.20  none none.\r\n"), 100, 0); // 100 faire un strlen de la string
 	// // PASS
-
-	// parsePing("PING\n", clientSocket);
-	// std::string servCommand = "PONG " + nickname + ":" + nickname + "\r\n";
-	// send(clientSocket, servCommand.c_str(), servCommand.size(), 0);
 
 
 	// Préparation des structures pour la fonction poll()
@@ -525,4 +464,24 @@ std::vector<std::string> Server::getCap() {
 	std::cout << std::endl;
 
 	return capabilities;
+}
+
+// GESTION DES MESSAGES ENVOIS DU SERVEUR
+
+void	Server::sendMsgServer(Client *client) { // char *buff ?
+
+	Conditions en switch ou voir HARL avec les niveaux d erreur, ou autres...
+
+	msg == le message à renvoyer avec les getter necessaires.
+	sendMsg(msg, client->getFd())
+
+}
+
+void	Server::sendErrMsgServer(Client *client) {
+
+	Conditions en switch ou voir HARL avec les niveaux d erreur, ou autres...
+
+	msg == le message à renvoyer avec les getter necessaires.
+	sendMsg(msg, client->getFd())
+
 }

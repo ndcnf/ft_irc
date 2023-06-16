@@ -72,9 +72,11 @@ class Server
 		void		parseUser(char *buf, Client *client);
 		// void		welcomeMsg(char *buf, Client *client);
 		void		getCapLs(char *buf);
-		void		getPing(char *buf);
+		void		getPing(char *buf, Client *client);
 		void		sendFromClient(char *buf, Client *client);
 		void		first_message(Client *client);
+		void		sendMsgServer(Client *Client); // pas encore ecrite correctement donc ca ne compilera pas avec
+		void		sendErrMsgServer(Client *Client); // pas encore ecrite correctement donc ca ne compilera pas avec
 		// std::string	first_message(char *buf, Client *client);
 
 		class ServException : public std::exception {
