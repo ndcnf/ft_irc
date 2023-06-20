@@ -4,9 +4,10 @@
 Client::Client():	_fd(0),
 					_connected(false)
 {
-	_nick = "";
-	_username = "";
-	_hostname = "";
+		_username = "";
+		_nick = "";
+		_channel= "";
+		_hostname= "";
 }
 
 Client::Client(int fd):	_fd(fd),

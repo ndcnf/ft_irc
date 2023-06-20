@@ -264,7 +264,7 @@ void	Server::sendFromClient(char *buf, Client *client)
 		std::cout << "mode (+ i, t, k, o or l) : " << std::endl;
 	if (token.compare("PING")) {
 	// recuperer ce qui a apres le ping et le renvoyer apres le pong parsePing
-	std::cout << "PONG : " << buf << std::endl;
+	std::cout << "PING : c st moiiii 266" << buf << std::endl; // c est pas la que ca rentre
 	}
 	else
 		std::cout << "I don't understand this command." << std::endl;
