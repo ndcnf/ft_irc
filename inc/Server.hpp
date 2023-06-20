@@ -75,6 +75,7 @@ class Server
 		void		sendFromClient(char *buf, Client *client);
 		void		first_message(Client *client);
 		void		parseUser(char *buf, Client *client);
+		void		lastPingClient(Client *client);
 		// std::string	first_message(char *buf, Client *client);
 
 		class ServException : public std::exception {
@@ -98,6 +99,7 @@ class Server
 		std::vector<Client>			_clients;	// vecteur clients pour faire le lien entre les classes ? @Verena
 		// bool						_quit;		// useless at the moment
 		std::string					_password; //@Verena to get the password
+		int							_lastPing;
 };
 
 #endif

@@ -301,6 +301,7 @@ void	Server::getPing(char *buf, int fd) {
 			std::string pingContent = str.substr(colonPos + 1);
 			// Construire la réponse PONG avec le même contenu que le message PING
 			std::string pongResponse = "PONG " + pingContent + END_SEQUENCE;
+			_lastPing = time(NULL);
 			// Envoyer la réponse PONG au client
 			sendMsg(pongResponse, fd);
 		}
