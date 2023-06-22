@@ -10,7 +10,8 @@ void Server::sendMsg(std::string message, int fd)
 void	Server::first_message( Client *client) {
 
 	// std::string	msg = ":"+ client->getHostname() + "001 " + client->getUser() + " : " + "\033[34mWelcome on the MoIRes Connection Server " + client->getUser() + "!~" + client->getUser() + "@" + client->getHostname() + "\r\n" + RES;
-	std::string	msg = "001 " + client->getUser() + "*: " + "\033[34mWelcome on the MoIRes Connection Server " + client->getUser() + "!~" + client->getUser() + "@" + client->getHostname() + "NICK " + client->getNick() + END_SEQUENCE + RES;
+	//std::string	msg = "001 " + client->getUser() + "*: " + "\033[34mWelcome on the MoIRes Connection Server " + client->getUser() + "!~" + client->getUser() + "@" + client->getHostname() + "NICK " + client->getNick() + END_SEQUENCE + RES;
+	std::string	msg = "001 " + client->getUser() + "\033[34m*: " + "\033[34mWelcome on the MoIRes Connection Server " + "!~" + client->getUser() + "@" + client->getHostname() + client->getNick() + END_SEQUENCE + RES;
 	sendMsg(msg, client->getFd());
 }
 
