@@ -223,12 +223,6 @@ bool	Server::connection()
 // 	}
 // }
 
-void Server::sendMsg(std::string message, int fd)
-{
-	std::cout << "REPONSE BUFFER IS <" << message << ">" << std::endl;
-	send(fd, message.append(END_SEQUENCE).c_str(), message.size(), 0);
-}
-
 void	Server::parsePing(std::string token, int clientSocket) {
 	std::string ping = "PING";
 	// std::string pong = "PONG";
@@ -298,14 +292,6 @@ void	Server::getPing(char *buf, Client *client) {
 		// }
 	}
 }
-
-void	Server::first_message( Client *client) {
-
-	// std::string	msg = ":"+ client->getHostname() + "001 " + client->getUser() + " : " + "\033[34mWelcome on the MoIRes Connection Server " + client->getUser() + "!~" + client->getUser() + "@" + client->getHostname() + "\r\n" + RES;
-	std::string	msg = "001 " + client->getUser() + "*: " + "\033[34mWelcome on the MoIRes Connection Server " + client->getUser() + "!~" + client->getUser() + "@" + client->getHostname() + "NICK " + client->getNick() + END_SEQUENCE + RES;
-	sendMsg(msg, client->getFd());
-}
-
 
 std::string	Server::inputClient(char *buf, Client *client) // retourner une veleur ? un string ? return buff
 {

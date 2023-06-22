@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: vferraro <vferraro@student.42.fr>          +#+  +:+       +#+         #
+#    By: creyt <marvin@42lausanne.ch>               +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/05/23 15:18:37 by vferraro          #+#    #+#              #
-#    Updated: 2023/06/13 09:55:44 by vferraro         ###   ########.fr        #
+#    Updated: 2023/06/22 09:19:05 by creyt            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,7 +25,7 @@ RUN_C	= \033[0;32m
 
 NAME	= ircserv
 
-SRCS	= main.cpp $(addprefix src/, Server.cpp Client.cpp Commands.cpp)
+SRCS	= main.cpp $(addprefix src/, Server.cpp Client.cpp Commands.cpp Messages.cpp)
 MAIN	= main.cpp
 
 OBJS	= ${SRCS:.cpp=.o}
