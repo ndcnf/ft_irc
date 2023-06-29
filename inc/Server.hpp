@@ -66,11 +66,11 @@ class Server
 		Client		getClient(Client *client);
 
 		//COMMNANDS
-		void		parsePing(std::string token, int clientSocket);
+		//void		parsePing(std::string token, int clientSocket);
 		void		parseNick(char *buf, Client *client);
 		void		sendMsg(std::string message, int fd);
 		void		parseUser(char *buf, Client *client);
-		void	NICK(Client *client, std::vector<std::string> arg);
+		void		NICK(Client *client, std::vector<std::string> arg);
 		// void		welcomeMsg(char *buf, Client *client);
 		void		getCapLs(char *buf);
 		void		getPing(char *buf, Client *client);

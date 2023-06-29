@@ -244,6 +244,7 @@ void	Server::sendFromClient(char *buf, Client *client)
 		// verifier si le nickname existe deja dans le channel si on est dans un channel sinon
 		client->getNick() = token;
 		std::cout << "nickname : " << client->getNick() << std::endl;
+		//NICK(client, token);
 	}
 
 	if (token == "USER")

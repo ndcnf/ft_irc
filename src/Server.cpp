@@ -123,8 +123,6 @@ bool	Server::connection()
 
 	while (true)
 	{
-		// getCapLs(buf); // @Verena DEBUG a deplacer hors debut de boucle
-		// getPing(buf, _socket); // @Verena DEBUG a deplacer hors debut de boucle
 		pollCounter = poll(_pfds.data(), _pfds.size(), TIMEOUT_NO_P);
 
 		if (pollCounter == ERROR)
@@ -165,7 +163,7 @@ bool	Server::connection()
 							std::cout << "I'm the " << _pfds[i].fd << std::endl;
 					}
 					int	sender = _pfds[i].fd;
-					getPing(buf, currentClient);
+					//getPing(buf, currentClient);
 					inputClient(buf, currentClient);
 
 					if (bytesNbr <= 0)
@@ -223,12 +221,12 @@ bool	Server::connection()
 // 	}
 // }
 
-void	Server::parsePing(std::string token, int clientSocket) {
-	std::string ping = "PING";
-	// std::string pong = "PONG";
-	std::string parsePing = token.substr(token.find(ping));
-	sendMsg(parsePing, clientSocket);
-}
+// void	Server::parsePing(std::string token, int clientSocket) {
+// 	std::string ping = "PING";
+// 	// std::string pong = "PONG";
+// 	std::string parsePing = token.substr(token.find(ping));
+// 	sendMsg(parsePing, clientSocket);
+// }
 
 void Server::parseNick(char *buf, Client *client) {
 	// std::string str(buf);
@@ -295,7 +293,6 @@ void	Server::getPing(char *buf, Client *client) {
 
 std::string	Server::inputClient(char *buf, Client *client) // retourner une veleur ? un string ? return buff
 {
-	std::string ping = "PING";
 	std::cout << "buf iCAv: " << buf << std::endl;
 	if (static_cast<std::string>(buf).find("CAP LS") == 0) {
 		parseNick(buf, client);
@@ -303,6 +300,11 @@ std::string	Server::inputClient(char *buf, Client *client) // retourner une vele
 		first_message(client);
 		// welcomeMsg(buf, client);
 		return buf;
+	}
+	else if (static_cast<std::string>(buf).find("PING") == 0)
+	{
+		std::cout << "ping dans input client" << std::endl;
+		getPing(buf, client);
 	}
 	else if (buf[0] == '/')
 	{
