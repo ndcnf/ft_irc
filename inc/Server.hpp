@@ -67,6 +67,8 @@ class Server
 
 		//COMMNANDS
 		//void		parsePing(std::string token, int clientSocket);
+		void		cmdToken(Client *client);
+		void		cmdCommand(Client *client);
 		void		parseNick(char *buf, Client *client);
 		void		sendMsg(std::string message, int fd);
 		void		parseUser(char *buf, Client *client);
@@ -78,7 +80,7 @@ class Server
 		void		sendFromClient(char *buf, Client *client);
 		void		first_message(Client *client);
 		void		sendMsgServer(Client *Client); // pas encore ecrite correctement donc ca ne compilera pas avec
-		void		sendErrMsgServer(int errorCode, int fd, Client *client); // pas encore ecrite correctement donc ca ne compilera pas avec
+		void		sendErrMsgServer(int errorCode, Client *client); // pas encore ecrite correctement donc ca ne compilera pas avec
 		// std::string	first_message(char *buf, Client *client);
 
 		class ServException : public std::exception {

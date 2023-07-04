@@ -24,9 +24,8 @@ void	Server::first_message( Client *client) {
 //	msg == le message à renvoyer avec les getter necessaires.
 //	sendMsg(msg, client->getFd())
 
-void	Server::sendErrMsgServer(int errorCode, int fd, Client *client) {
+void	Server::sendErrMsgServer(int errorCode, Client *client) {
 
-	(void) client;
 	std::string	errorminator;
 
 	switch (errorCode)
@@ -56,7 +55,7 @@ void	Server::sendErrMsgServer(int errorCode, int fd, Client *client) {
 				errorminator = " NONICKNAMEGIVE : No nickname given";
 				break;
 		case 432:
-				errorminator = " ERRONEUSNICKNAME : Erroneous nickname";
+				errorminator = " ERRONEUSNICKNAME : Erroneous nickname\r\n";
 				break;
 		case 433:
 				errorminator = " NICKNAMEINUSE : Nickname is already in use";
@@ -105,7 +104,7 @@ void	Server::sendErrMsgServer(int errorCode, int fd, Client *client) {
 				break;
 	}
 
-	std::cout << errorminator << fd << std::endl;
+	std::cout << errorminator << client->getFd() << std::endl;
 
 	// @Claire : j'ai mis en parametre la classe client mais du coup, quand on appelle la fonction, le 3e
 	//           parametre est client, ce qui ne joue pas.... a voir comment manager differemment...

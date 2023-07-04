@@ -33,7 +33,10 @@ void	Server::cmdSelection(char *buf, Client *client)
 		return ;
 	}
 
-	std::cout << "COMMAND 1 : " << command << "TOKEN : " << token << "CONTENT : " << content << std::endl; // DEBUG ONLY
+	// parser la commande apres l espace apres le token == command, si rien ok.
+	// Parsing de la commande après l'espace (après le token)
+	command = str.substr(token.size() + 1);
+	std::cout << "Commande : [" << command << "]" << std::endl;
 
 	if (token.size() != 0) {
 		if (command.size() != 0) { // maybe useless @VERENA
@@ -43,14 +46,16 @@ void	Server::cmdSelection(char *buf, Client *client)
 			// 	sendFromClient(buf, client);
 			// }
 			// sendFromClient(buf, client);
-			std::cout << "Commandes avec command ici" << std::endl;
+			std::cout << "Commandes avec command ici" << std::endl; // /nick nana change le nickname
+			// sendFromClient(buf, client);
+			cmdCommand(client);
 		}
 		else {
-			std::cout << "Commandes avec juste token ici" << std::endl;
-			sendFromClient(buf, client);
+			std::cout << "Commandes avec juste token ici" << std::endl; // /nick par exemple renvoi le nick
+			// sendFromClient(buf, client);
+			cmdToken(client);
 		}
 	}
-	std::cout << "COMMAND 2 : " << command << "TOKEN : " << token << "CONTENT : " << content << std::endl; // DEBUG ONLY
 
 	// splitStr = str.substr(token.size(), str.find('\n'));
 	// if (splitStr.size() != 0) {
@@ -210,17 +215,35 @@ void	Server::cmdSelection(char *buf, Client *client)
 // 	// 	throw Server::ServException(ERRMSG"pas content");
 // }
 
+void	Server::cmdToken(Client *client) {
+	std::string	msg;
+	if (token.compare("NICK"))
+		msg = "Your nickname is " + client->getNick() + END_SEQUENCE;
+	if (token.compare("USER"))
+		msg = "Your username is " + client->getUser() + END_SEQUENCE;
+	sendMsg(msg, client->getFd());
+}
+
+void	Server::cmdCommand(Client *client) {
+	std::string	msg;
+	if (token.compare("NICK"))
+		client->setNick(command);
+	if (token.compare("USER"))
+		client->setUser(command);
+	std::cout << "command = " << command << std::endl; // DEBUG ONLY
+}
+
 void	Server::sendFromClient(char *buf, Client *client)
 {
-	// std::string	token(buf);
+	std::string	token(buf);
 	std::string	splitStr;
 	// std::string	command;
 
-	// if (token.size() <= 0)
-	// {
-	// 	std::cout << "ERREUR, pas de donnee buff = : " << buf << std::endl; // NEEDS IMPROVEMENT
-	// 	return ;
-	// }
+	if (token.size() <= 0)
+	{
+		std::cout << "ERREUR, pas de donnee buff = : " << buf << std::endl; // NEEDS IMPROVEMENT
+		return ;
+	}
 
 	// welcomeMsg(buf, fdClient);
 
@@ -234,18 +257,18 @@ void	Server::sendFromClient(char *buf, Client *client)
 	if (strstr(buf, "NICK") != 0) {
 		std::cout << "nickname token commands on peut faire un truc ici: " << std::endl;
 		parseNick(buf, client); //ou Server L.411
-		token = "NICK";
 	}
-	std::cout << "I am in 251" << std::endl;
+	std::cout << "I am ligne 239" << std::endl;
 	if (token == "JOIN")
 		std::cout << "join us on : " << std::endl;
 	if (token.compare("NICK") || token.compare("nick")) {
+		NICK(client);
 		parseNick(buf, client);
 		std::cout << "nickname : " << client->getNick() << std::endl;
 		// verifier si le nickname existe deja dans le channel si on est dans un channel sinon
-		client->getNick() = token;
-		std::string msg = "Your nickname is " + client->getNick() + END_SEQUENCE;
-		sendMsg(msg, client->getFd());
+		client->getNick() = command;
+		// std::string msg = "Your nickname is " + client->getNick() + END_SEQUENCE;
+		// sendMsg(msg, client->getFd());
 		//NICK(client, token);
 	}
 

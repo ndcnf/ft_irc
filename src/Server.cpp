@@ -17,6 +17,8 @@ Server::Server(Server const &src)
 
 Server	&Server::operator=(Server const &rhs)
 {
+	token = rhs.token;
+	command = rhs.command;
 	_socket = rhs._socket;
 	_validity = rhs._validity;
 	_port = rhs._port;
@@ -228,37 +230,67 @@ bool	Server::connection()
 // 	sendMsg(parsePing, clientSocket);
 // }
 
-void Server::parseNick(char *buf, Client *client) {
-	// std::string str(buf);
-	std:: string	s_buf = static_cast<std::string>(buf); // je crois qie c est pareil en fait @Verena
-	if (s_buf.find("nick")) {
-		std::size_t nickPos = s_buf.find("nick");
-		 if (nickPos != std::string::npos) {
-			std::string nickToUp = "NICK";
-			 for (std::size_t i = 0; i < nickToUp.length(); i++) {
-				nickToUp[i] = std::toupper(nickToUp[i]);
-			 }
-			 s_buf.replace(nickPos, nickToUp.length(), nickToUp);
-		 }
+// void Server::parseNick(char *buf, Client *client) { --> BUGGÉ
+// 	// std::string str(buf);
+// 	std:: string	s_buf = static_cast<std::string>(buf); // je crois qie c est pareil en fait @Verena
+// 	if (s_buf.find("nick")) {
+// 		std::size_t nickPos = s_buf.find("nick");
+// 		 if (nickPos != std::string::npos) {
+// 			std::string nickToUp = "NICK";
+// 			 for (std::size_t i = 0; i < nickToUp.length(); i++) {
+// 				nickToUp[i] = std::toupper(nickToUp[i]);
+// 			 }
+// 			 s_buf.replace(nickPos, nickToUp.length(), nickToUp);
+// 		 }
+// 	}
+// 	if (s_buf.find("NICK")) {
+// 		std::size_t nickPos = s_buf.find("NICK ");
+// 		if (nickPos != std::string::npos) {
+// 			std::size_t spacePos = s_buf.find('\n', nickPos + 5);
+// 			if (spacePos != std::string::npos) {
+// 				std::string nickname = s_buf.substr(nickPos + 5, spacePos - nickPos - 5);
+// 				if (nickname.empty()) {
+// 					// sendErrMsgServer(431, client->getFd(), client);
+// 					std::cout << "NICK " << client->getNick() << std::endl;
+// 				}
+// 				std::string msg = "NICK " + nickname + END_SEQUENCE;
+// 				sendMsg(msg, client->getFd());
+// 				std::cout << "NICKNAME: " << nickname << std::endl;
+// 				client->setNick(nickname);
+// 				// command.clear();
+// 			}
+// 		}
+// 	}
+// }
+
+void Server::parseNick(char* buf, Client* client) {
+	std::string s_buf(buf);
+
+	std::size_t nickPos = s_buf.find("nick");
+	if (nickPos != std::string::npos) {
+		std::string nickToUp = "NICK";
+		for (std::size_t i = 0; i < nickToUp.length(); i++) {
+			nickToUp[i] = std::toupper(nickToUp[i]);
+		}
+		s_buf.replace(nickPos, nickToUp.length(), nickToUp);
 	}
-	if (s_buf.find("NICK")) {
-		std::size_t nickPos = s_buf.find("NICK ");
-		if (nickPos != std::string::npos) {
-			std::size_t spacePos = s_buf.find('\n', nickPos + 5);
-			if (spacePos != std::string::npos) {
-				std::string nickname = s_buf.substr(nickPos + 5, spacePos - nickPos - 5);
-				if (nickname.empty()) {
-					// sendErrMsgServer(431, client->getFd(), client);
-					std::cout << "NICK " << client->getNick() << std::endl;
-				}
-				std::string msg = "NICK " + nickname + END_SEQUENCE;
-				sendMsg(msg, client->getFd());
-				std::cout << "NICKNAME: " << nickname << std::endl;
-				client->setNick(nickname);
+
+	nickPos = s_buf.find("NICK ");
+	if (nickPos != std::string::npos) {
+		std::size_t spacePos = s_buf.find(' ', nickPos + 5);
+		if (spacePos != std::string::npos) {
+			std::string nickname = s_buf.substr(nickPos + 5, spacePos - nickPos - 5);
+			if (nickname.empty()) {
+				std::cout << "NICK " << client->getNick() << std::endl;
 			}
+			std::string msg = "NICK " + nickname + END_SEQUENCE;
+			sendMsg(msg, client->getFd());
+			std::cout << "NICKNAME: " << nickname << std::endl;
+			client->setNick(nickname);
 		}
 	}
 }
+
 
 void	Server::parseUser(char *buf, Client *client) {
 	if (strstr(buf, "USER") != 0) {
