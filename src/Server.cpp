@@ -247,6 +247,10 @@ void Server::parseNick(char *buf, Client *client) {
 			std::size_t spacePos = s_buf.find('\n', nickPos + 5);
 			if (spacePos != std::string::npos) {
 				std::string nickname = s_buf.substr(nickPos + 5, spacePos - nickPos - 5);
+				if (nickname.empty()) {
+					// sendErrMsgServer(431, client->getFd(), client);
+					std::cout << "NICK " << client->getNick() << std::endl;
+				}
 				std::string msg = "NICK " + nickname + END_SEQUENCE;
 				sendMsg(msg, client->getFd());
 				std::cout << "NICKNAME: " << nickname << std::endl;
@@ -255,7 +259,6 @@ void Server::parseNick(char *buf, Client *client) {
 		}
 	}
 }
-
 
 void	Server::parseUser(char *buf, Client *client) {
 	if (strstr(buf, "USER") != 0) {
@@ -295,6 +298,7 @@ std::string	Server::inputClient(char *buf, Client *client) // retourner une vele
 {
 	std::cout << "buf iCAv: " << buf << std::endl;
 	if (static_cast<std::string>(buf).find("CAP LS") == 0) {
+		// std::cout << "CAP LS DONE" << std::endl;
 		parseNick(buf, client);
 		parseUser(buf, client);
 		first_message(client);
@@ -311,6 +315,9 @@ std::string	Server::inputClient(char *buf, Client *client) // retourner une vele
 		std::cout << "Votre demande est une commande." << std::endl;
 		cmdSelection(buf, client);
 		// sendFromClient(buf, client);
+	}
+	else if (buf != 0) {
+		sendFromClient(buf, client);
 	}
 	else {
 		std::cout << "Juste du texte." << std::endl;

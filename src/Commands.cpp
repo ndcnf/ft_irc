@@ -216,11 +216,11 @@ void	Server::sendFromClient(char *buf, Client *client)
 	std::string	splitStr;
 	// std::string	command;
 
-	if (token.size() <= 0)
-	{
-		std::cout << "ERREUR, pas de donnee buff = : " << buf << std::endl; // NEEDS IMPROVEMENT
-		return ;
-	}
+	// if (token.size() <= 0)
+	// {
+	// 	std::cout << "ERREUR, pas de donnee buff = : " << buf << std::endl; // NEEDS IMPROVEMENT
+	// 	return ;
+	// }
 
 	// welcomeMsg(buf, fdClient);
 
@@ -231,9 +231,10 @@ void	Server::sendFromClient(char *buf, Client *client)
 		token.clear();
 		// sendMsg("PING", fdClient);
 	}
-	if (strstr(buf, "PROUT") != 0) {
+	if (strstr(buf, "NICK") != 0) {
 		std::cout << "nickname token commands on peut faire un truc ici: " << std::endl;
 		parseNick(buf, client); //ou Server L.411
+		token = "NICK";
 	}
 	std::cout << "I am in 251" << std::endl;
 	if (token == "JOIN")
@@ -243,7 +244,8 @@ void	Server::sendFromClient(char *buf, Client *client)
 		std::cout << "nickname : " << client->getNick() << std::endl;
 		// verifier si le nickname existe deja dans le channel si on est dans un channel sinon
 		client->getNick() = token;
-		std::cout << "nickname : " << client->getNick() << std::endl;
+		std::string msg = "Your nickname is " + client->getNick() + END_SEQUENCE;
+		sendMsg(msg, client->getFd());
 		//NICK(client, token);
 	}
 
@@ -265,7 +267,7 @@ void	Server::sendFromClient(char *buf, Client *client)
 		std::cout << "mode (+ i, t, k, o or l) : " << std::endl;
 	if (token.compare("PING")) {
 	// recuperer ce qui a apres le ping et le renvoyer apres le pong parsePing
-	std::cout << "PING : c st moiiii 266" << buf << std::endl; // c est pas la que ca rentre
+	std::cout << "PING : c st moiiii 266" << buf << std::endl;
 	}
 	else
 		std::cout << "I don't understand this command." << std::endl;
