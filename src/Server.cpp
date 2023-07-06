@@ -186,19 +186,20 @@ bool	Server::connection()
 					}
 					else
 					{
-						for (std::vector<pollfd>::iterator it = _pfds.begin(); it != _pfds.end(); it++)
-						{
-							int	dest = (*it).fd;
+						continue;
+						// for (std::vector<pollfd>::iterator it = _pfds.begin(); it != _pfds.end(); it++)
+						// {
+						// 	int	dest = (*it).fd;
 
-							if (dest != _socket && dest != sender)
-							{
-								// VERIFIER QUE CE N'EST PAS UNE COMMANDE MAIS DU TEXTE A ENVOYER
-								if (send(dest, buf, bytesNbr, 0) == ERROR)
-									std::cout << ERRMSG << strerror(errno) << (*it).fd << std::endl;
-								// else
-								// 	sendMsg(buf, dest);//debug ONLY !!! to erase
-							}
-						}
+						// 	if (dest != _socket && dest != sender)
+						// 	{
+						// 		// VERIFIER QUE CE N'EST PAS UNE COMMANDE MAIS DU TEXTE A ENVOYER
+						// 		if (send(dest, buf, bytesNbr, 0) == ERROR)
+						// 			std::cout << ERRMSG << strerror(errno) << (*it).fd << std::endl;
+						// 		// else
+						// 		// 	sendMsg(buf, dest);//debug ONLY !!! to erase
+						// 	}
+						// }
 					}
 				}
 			}
