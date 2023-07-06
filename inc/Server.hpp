@@ -70,8 +70,9 @@ class Server
 		void		cmdToken(Client *client);
 		void		cmdCommand(Client *client);
 		void		parseNick(char *buf, Client *client);
-		void		sendMsg(std::string message, int fd);
 		void		parseUser(char *buf, Client *client);
+		void		parseCommand(char* buf);
+		void		sendMsg(std::string message, int fd);
 		void		NICK(Client *client);
 		// void		NICK(Client *client, std::vector<std::string> arg);
 		// void		welcomeMsg(char *buf, Client *client);

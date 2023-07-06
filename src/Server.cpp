@@ -284,8 +284,8 @@ void Server::parseNick(char* buf, Client* client) {
 			if (nickname.empty()) {
 				std::cout << "NICK " << client->getNick() << std::endl;
 			}
-			std::string msg = "NICK " + nickname + END_SEQUENCE;
-			sendMsg(msg, client->getFd());
+			// std::string msg = "NICK " + nickname + END_SEQUENCE;
+			// sendMsg(msg, client->getFd()); // fait buger ? ou pas ? @Verena
 			std::cout << "NICKNAME: " << nickname << std::endl;
 			client->setNick(nickname);
 		}
@@ -293,7 +293,7 @@ void Server::parseNick(char* buf, Client* client) {
 }
 
 
-void	Server::parseUser(char *buf, Client *client) {
+void	Server::parseUser(char *buf, Client *client) { // debug only ou utile ?
 	if (strstr(buf, "USER") != 0) {
 		std::string str(buf);
 		std::size_t colonPos = str.find(':');
@@ -327,6 +327,27 @@ void	Server::getPing(char *buf, Client *client) {
 	}
 }
 
+void Server::parseCommand(char* buf)
+{
+	std::string input(buf);
+	size_t spacePos = input.find(' ');
+
+	if (spacePos != std::string::npos)
+	{
+		token = input.substr(0, spacePos);
+		command = input.substr(spacePos + 1);
+	}
+	else
+	{
+		token = input;
+		command.clear();
+	}
+
+	// Affichage des résultats
+	std::cout << "Token: " << token << std::endl;
+	std::cout << "Command: " << command << std::endl;
+}
+
 std::string	Server::inputClient(char *buf, Client *client) // retourner une veleur ? un string ? return buff
 {
 	std::cout << "buf iCAv: " << buf << std::endl;
@@ -345,11 +366,12 @@ std::string	Server::inputClient(char *buf, Client *client) // retourner une vele
 	}
 	else if (buf != 0)
 	{
+		parseCommand(buf);
 		bool found = false;
 		for (size_t i = 0; i < sizeof(_cmdArray) / sizeof(_cmdArray[0]); i++)
 		{
 			const std::string& cmd = _cmdArray[i];
-			if (buf == cmd)
+			if (token.compare(cmd) == 0)
 			{
 				found = true;
 				break;
