@@ -39,7 +39,7 @@ void	Server::cmdSelection(char *buf, Client *client)
 	std::cout << "Commande : [" << command << "]" << std::endl;
 
 	if (token.size() != 0) {
-		if (command.size() != 0) { // maybe useless @VERENA
+		if (command.size() != 0) {
 			// if (command.size() > 2) {
 			// 	static_cast<std::string>(buf) = content.c_str();
 			// 	std::cout << "Commandes avec  token et infos ici" << std::endl;

@@ -83,6 +83,9 @@ class Server
 		void		sendErrMsgServer(int errorCode, Client *client); // pas encore ecrite correctement donc ca ne compilera pas avec
 		// std::string	first_message(char *buf, Client *client);
 
+		//COMMANDS CALL
+		void	commands(std::string cmd);
+
 		class ServException : public std::exception {
 			public:
 				ServException(const char* msg) : _msg(msg) {}
@@ -105,6 +108,21 @@ class Server
 		// bool						_quit;		// useless at the moment
 		std::string					_password; //@Verena to get the password
 		int							_lastPing;
+
+		void	NICK();
+		void	USER();
+		void	JOIN();
+		void	MODE();
+		void	PRIVMSG();
+		void	NOTICE();
+		void	TOPIC();
+		void	PART();
+		void	KICK();
+		void	INVITE();
+		void	PASS();
+		void	QUIT();
+
+		std::string _cmdArray[12];
 };
 
 #endif

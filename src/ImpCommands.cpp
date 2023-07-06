@@ -38,3 +38,78 @@ void	Server::NICK(Client *client){
 // 	client->setNick(arg[1]);
 // 	first_message(client);
 // }
+
+void	Server::commands(std::string cmd) {
+		
+	std::string _cmdArray[12] = {"NICK", "USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
+
+	void	(Server::*functionPtr[])(void) = {
+		&Server::NICK,
+		&Server::USER,
+		&Server::JOIN,
+		&Server::MODE,
+		&Server::PRIVMSG,
+		&Server::NOTICE,
+		&Server::TOPIC,
+		&Server::PART,
+		&Server::KICK,
+		&Server::INVITE,
+		&Server::PASS,
+		&Server::QUIT
+	};
+
+	for (int i = 0; i < 12; i++) {
+		if (cmd.compare(_cmdArray[i]) == 0) {
+			(this->*functionPtr[i])();
+			return;
+		}
+	}
+}
+
+void	Server::NICK() {
+	std::cout << "cmd nick" << std::endl;
+}
+
+void	Server::USER() {
+	std::cout << "cmd user" << std::endl;
+}
+
+void	Server::JOIN() {
+	std::cout << "cmd join" << std::endl;
+}
+
+void	Server::MODE() {
+	std::cout << "cmd mode" << std::endl;
+}
+
+void	Server::PRIVMSG() {
+	std::cout << "cmd privmsg" << std::endl;
+}
+
+void	Server::NOTICE() {
+	std::cout << "cmd notice" << std::endl;
+}
+
+void	Server::TOPIC() {
+	std::cout << "cmd topic" << std::endl;
+}
+
+void	Server::PART() {
+	std::cout << "cmd part" << std::endl;
+}
+
+void	Server::KICK() {
+	std::cout << "cmd Kick" << std::endl;
+}
+
+void	Server::INVITE() {
+	std::cout << "cmd invite" << std::endl;
+}
+
+void	Server::PASS() {
+	std::cout << "cmd pass" << std::endl;
+}
+
+void	Server::QUIT() {
+	std::cout << "cmd quit" << std::endl;
+}
