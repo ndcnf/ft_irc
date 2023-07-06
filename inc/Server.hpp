@@ -45,17 +45,17 @@ class Server
 		std::string					token; //@Verena to have the token
 		std::string					command; //@Verena ... to arrete de se faire chier
 
-		bool	createSocket();
-		bool	connection();
-		Client*	addClient(int fd);
-		std::string		inputClient(char *buf, Client *client);
-		void	cmdSelection(char *buf, Client *client);
+		bool		createSocket();
+		bool		connection();
+		Client*		addClient(int fd);
+		void		inputClient(char *buf, Client *client);
+		void		cmdSelection(char *buf, Client *client);
 		//@Verena CAP LS
 		// void	capOrNOt(char *buf, int clientSocket);
-		void	capOrNOt(Client *client);
+		void		capOrNOt(Client *client);
 		std::vector<std::string> getCap();
 		// bool	selectConnection();
-		void	allSockets();					// useless at the moment
+		void		allSockets();					// useless at the moment
 		// void	errorminator();					// TBD
 
 		int			getPort();
@@ -73,7 +73,6 @@ class Server
 		void		parseUser(char *buf, Client *client);
 		void		parseCommand(char* buf);
 		void		sendMsg(std::string message, int fd);
-		void		NICK(Client *client);
 		// void		NICK(Client *client, std::vector<std::string> arg);
 		// void		welcomeMsg(char *buf, Client *client);
 		void		getCapLs(char *buf);
@@ -85,7 +84,7 @@ class Server
 		// std::string	first_message(char *buf, Client *client);
 
 		//COMMANDS CALL
-		void	commands(std::string cmd);
+		void	commands(std::string cmd, Client *client);
 
 		class ServException : public std::exception {
 			public:
@@ -110,18 +109,18 @@ class Server
 		std::string					_password; //@Verena to get the password
 		int							_lastPing;
 
-		void	NICK();
-		void	USER();
-		void	JOIN();
-		void	MODE();
-		void	PRIVMSG();
-		void	NOTICE();
-		void	TOPIC();
-		void	PART();
-		void	KICK();
-		void	INVITE();
-		void	PASS();
-		void	QUIT();
+		void	NICK(Client *client);
+		void	USER(Client *client);
+		void	JOIN(Client *client);
+		void	MODE(Client *client);
+		void	PRIVMSG(Client *client);
+		void	NOTICE(Client *client);
+		void	TOPIC(Client *client);
+		void	PART(Client *client);
+		void	KICK(Client *client);
+		void	INVITE(Client *client);
+		void	PASS(Client *client);
+		void	QUIT(Client *client);
 
 		std::string _cmdArray[12];
 };

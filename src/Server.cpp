@@ -231,7 +231,7 @@ bool	Server::connection()
 // 	sendMsg(parsePing, clientSocket);
 // }
 
-// void Server::parseNick(char *buf, Client *client) { --> BUGGÉ
+// void Server::parseNick(char *buf, Client *client) { //--> BUGGÉ 1
 // 	// std::string str(buf);
 // 	std:: string	s_buf = static_cast<std::string>(buf); // je crois qie c est pareil en fait @Verena
 // 	if (s_buf.find("nick")) {
@@ -251,7 +251,7 @@ bool	Server::connection()
 // 			if (spacePos != std::string::npos) {
 // 				std::string nickname = s_buf.substr(nickPos + 5, spacePos - nickPos - 5);
 // 				if (nickname.empty()) {
-// 					// sendErrMsgServer(431, client->getFd(), client);
+// 					sendErrMsgServer(431, client);
 // 					std::cout << "NICK " << client->getNick() << std::endl;
 // 				}
 // 				std::string msg = "NICK " + nickname + END_SEQUENCE;
@@ -264,9 +264,38 @@ bool	Server::connection()
 // 	}
 // }
 
-void Server::parseNick(char* buf, Client* client) {
+// void Server::parseNick(char* buf, Client* client) { mieux mais buggé USER
+// 	std::string s_buf(buf);
+
+// 	std::cout << "DEBUG PARSE NIKC " << buf << std::endl;
+// 	std::size_t nickPos = s_buf.find("nick");
+// 	if (nickPos != std::string::npos) {
+// 		std::string nickToUp = "NICK";
+// 		for (std::size_t i = 0; i < nickToUp.length(); i++) {
+// 			nickToUp[i] = std::toupper(nickToUp[i]);
+// 		}
+// 		s_buf.replace(nickPos, nickToUp.length(), nickToUp);
+// 	}
+// 	nickPos = s_buf.find("NICK ");
+// 	if (nickPos != std::string::npos) {
+// 		std::size_t spacePos = s_buf.find(' ', nickPos + 5);
+// 		if (spacePos != std::string::npos) {
+// 			std::string nickname = s_buf.substr(nickPos + 5, spacePos - nickPos - 5);
+// 			if (nickname.empty()) {
+// 				std::cout << "NICK " << client->getNick() << std::endl;
+// 			}
+// 			// std::string msg = "NICK " + nickname + END_SEQUENCE;
+// 			// sendMsg(msg, client->getFd()); // fait buger ? ou pas ? @Verena
+// 			std::cout << "NICKNAME: " << nickname << std::endl;
+// 			client->setNick(nickname);
+// 		}
+// 	}
+// }
+
+void Server::parseNick(char* buf, Client* client) { // pas de USER mais mal parser, a voir
 	std::string s_buf(buf);
 
+	std::cout << "DEBUG PARSE NIKC " << buf << std::endl;
 	std::size_t nickPos = s_buf.find("nick");
 	if (nickPos != std::string::npos) {
 		std::string nickToUp = "NICK";
@@ -275,12 +304,11 @@ void Server::parseNick(char* buf, Client* client) {
 		}
 		s_buf.replace(nickPos, nickToUp.length(), nickToUp);
 	}
-
 	nickPos = s_buf.find("NICK ");
 	if (nickPos != std::string::npos) {
-		std::size_t spacePos = s_buf.find(' ', nickPos + 5);
-		if (spacePos != std::string::npos) {
-			std::string nickname = s_buf.substr(nickPos + 5, spacePos - nickPos - 5);
+		std::size_t newlinePos = s_buf.find('\n', nickPos);
+		if (newlinePos != std::string::npos) {
+			std::string nickname = s_buf.substr(nickPos + 5, newlinePos - nickPos - 5);
 			if (nickname.empty()) {
 				std::cout << "NICK " << client->getNick() << std::endl;
 			}
@@ -291,6 +319,7 @@ void Server::parseNick(char* buf, Client* client) {
 		}
 	}
 }
+
 
 
 void	Server::parseUser(char *buf, Client *client) { // debug only ou utile ?
@@ -327,15 +356,39 @@ void	Server::getPing(char *buf, Client *client) {
 	}
 }
 
+// void Server::parseCommand(char* buf)
+// {
+// 	std::string input(buf);
+// 	size_t spacePos = input.find(' ');
+
+// 	if (spacePos != std::string::npos)
+// 	{
+// 		token = input.substr(0, spacePos);
+// 		command = input.substr(spacePos + 1);
+// 	}
+// 	else
+// 	{
+// 		token = input;
+// 		command.clear();
+// 	}
+
+// 	// Affichage des résultats
+// 	std::cout << "Token: " << token << std::endl;
+// 	std::cout << "Command: " << command << std::endl;
+// }
+
 void Server::parseCommand(char* buf)
 {
 	std::string input(buf);
 	size_t spacePos = input.find(' ');
 
-	if (spacePos != std::string::npos)
+	// Trouver le retour à la ligne
+	size_t newlinePos = input.find('\n');
+
+	if (spacePos != std::string::npos && newlinePos != std::string::npos && spacePos < newlinePos)
 	{
 		token = input.substr(0, spacePos);
-		command = input.substr(spacePos + 1);
+		command = input.substr(spacePos + 1, newlinePos - spacePos - 1);
 	}
 	else
 	{
@@ -348,16 +401,17 @@ void Server::parseCommand(char* buf)
 	std::cout << "Command: " << command << std::endl;
 }
 
-std::string	Server::inputClient(char *buf, Client *client) // retourner une veleur ? un string ? return buff
+
+void	Server::inputClient(char *buf, Client *client) // retourner une veleur ? un string ? return buff
 {
 	std::cout << "buf iCAv: " << buf << std::endl;
-	if (static_cast<std::string>(buf).find("CAP LS") == 0) {
+
+	if (static_cast<std::string>(buf).find("CAP LS") == 0) { // a sortir de la boucle ???
 		// std::cout << "CAP LS DONE" << std::endl;
 		parseNick(buf, client);
 		parseUser(buf, client);
 		first_message(client);
 		// welcomeMsg(buf, client);
-		return buf;
 	}
 	else if (static_cast<std::string>(buf).find("PING") == 0)
 	{
@@ -367,32 +421,32 @@ std::string	Server::inputClient(char *buf, Client *client) // retourner une vele
 	else if (buf != 0)
 	{
 		parseCommand(buf);
-		bool found = false;
-		for (size_t i = 0; i < sizeof(_cmdArray) / sizeof(_cmdArray[0]); i++)
-		{
-			const std::string& cmd = _cmdArray[i];
-			if (token.compare(cmd) == 0)
-			{
-				found = true;
-				break;
-			}
-		}
+		commands(token, client);
+		// bool found = false;
+		// for (size_t i = 0; i < sizeof(_cmdArray) / sizeof(_cmdArray[0]); i++)
+		// {
+		// 	const std::string& cmd = _cmdArray[i];
+		// 	if (token.compare(cmd) == 0)
+		// 	{
+		// 		found = true;
+		// 		break;
+		// 	}
+		// }
 
-		if (found)
-		{
-			std::cout << "Votre demande est une commande." << std::endl;
-			cmdSelection(buf, client);
-		}
-		else
-		{
-			std::cout << "Juste du texte." << std::endl;
-			// Traitement pour du texte non commandé
-		}
+		// if (found)
+		// {
+		// 	std::cout << "Votre demande est une commande." << std::endl;
+		// 	cmdSelection(buf, client);
+		// }
+		// else
+		// {
+		// 	std::cout << "Juste du texte." << std::endl;
+		// 	// Traitement pour du texte non commandé
+		// }
 	}
-	else if (buf != 0) {
-		sendFromClient(buf, client);
-	}
-	return buf;
+	// else if (buf != 0) {
+	// 	sendFromClient(buf, client);
+	// }
 }
 
 Client* Server::addClient(int fd)
@@ -412,7 +466,7 @@ void	Server::setPassword(std::string pass)  {
 }
 
 
-Client	Server::getClient(Client *client) // heu ou ?
+Client	Server::getClient(Client *client) //pas utiliser pour le moment
 {
 	// std::vector<ASpell*>::iterator    it;
 	// for(it = _spells.begin(); it != _spells.end(); it++)
