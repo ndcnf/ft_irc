@@ -28,6 +28,7 @@ Client	&Client::operator=(Client const &rhs)
 	_username = rhs._username;
 	_channel = rhs._channel;
 	_connected = rhs._connected;
+	_hostname = rhs._hostname;
 
 	return (*this);
 }
@@ -72,6 +73,14 @@ std::string	Client::getUser() {
 			return _username;
 		}
 
-std::string	Client::getHostname() {
-			return _hostname;
-		}
+// std::string	Client::getHostname() {
+// 			return _hostname;
+// 		}
+
+std::string Client::getHostname() {
+    char hostname[256];
+    if (gethostname(hostname, sizeof(hostname)) == 0) {
+        return std::string(hostname);
+    }
+    return "";
+}
