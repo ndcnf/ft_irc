@@ -93,28 +93,6 @@ void	Server::PASS(Client *client) {
 	(void)client;
 }
 
-// void	Server::QUIT(Client *client) {
-// 	std::cout << "Client " << client->getNick() << " has quit." << std::endl;
-
-// 	// Envoyer un message de départ aux autres clients si nécessaire
-// 	std::string quitMessage = "Client " + client->getNick() + " has quit.";
-// 	std::vector<Client>::iterator it;
-// 	for (it = _clients.begin(); it != _clients.end(); ++it) {
-// 		const Client& otherClient = *it;
-// 		if (otherClient.getFd() != client->getFd()) {
-// 			sendMsg(quitMessage, otherClient.getFd());
-// 		}
-// 	}
-
-// 	// Fermer la connexion du client + detruire l'objet (pfds)
-// 	int clientSocket = client->getFd();
-// 	close(clientSocket);
-
-// 	//Envoyer un message au client ? Pas utile car deconnecter du coup...
-// 	// std::string msg = token + command + END_SEQUENCE;
-// 	// sendMsg(msg, client->getFd());
-// }
-
 void Server::QUIT(Client *client) {
 	std::cout << "Client " << client->getNick() << " has quit." << std::endl;
 
