@@ -53,17 +53,6 @@ void	Client::setNick(std::string nick) {
 	//_username = nick;// pas sure de ca
 	_nick = nick;
 }
-// void	Client::setNick(std::string nick, char *buf) {
-// 	if (strstr(buf, "NICK") != 0) {
-// 		std::string str(buf);
-// 		std::size_t colonPos = str.find('K');
-// 		if (colonPos != std::string::npos) {
-// 			nick = str.substr(colonPos + 2);
-// 			_username = nick;
-// 		}
-// 	}
-// 	_nick = nick;
-// }
 
 void		Client::setUser(std::string user) {
 			_username = user;

@@ -66,22 +66,15 @@ class Server
 		Client		getClient(Client *client);
 
 		//COMMNANDS
-		//void		parsePing(std::string token, int clientSocket);
-		void		cmdToken(Client *client);
-		void		cmdCommand(Client *client);
 		void		parseNick(char *buf, Client *client);
 		void		parseUser(char *buf, Client *client);
 		void		parseCommand(char* buf);
 		void		sendMsg(std::string message, int fd);
-		// void		NICK(Client *client, std::vector<std::string> arg);
-		// void		welcomeMsg(char *buf, Client *client);
 		void		getCapLs(char *buf);
 		void		getPing(char *buf, Client *client);
-		void		sendFromClient(char *buf, Client *client);
 		void		first_message(Client *client);
 		void		sendMsgServer(Client *Client); // pas encore ecrite correctement donc ca ne compilera pas avec
 		void		sendErrMsgServer(int errorCode, Client *client); // pas encore ecrite correctement donc ca ne compilera pas avec
-		// std::string	first_message(char *buf, Client *client);
 
 		//COMMANDS CALL
 		void	commands(std::string cmd, Client *client);

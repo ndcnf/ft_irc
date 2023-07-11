@@ -212,86 +212,6 @@ bool	Server::connection()
 // VERENA
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// void	Server::getCapLs(char *buf) {
-// 	if (strstr(buf, "CAP LS") != 0) {
-// 		std::string str(buf);
-// 		std::size_t colonPos = str.find(':');
-// 		if (colonPos != std::string::npos) {
-// 			std::string UserContent = str.substr(colonPos + 1);
-// 			std::string	msg = "001" + UserContent + "Hi ! Welcome to this awesome IRC server !, @" + END_SEQUENCE;
-// 			// sendMsg(msg, fd);
-// 		}
-// 	}
-// }
-
-// void	Server::parsePing(std::string token, int clientSocket) {
-// 	std::string ping = "PING";
-// 	// std::string pong = "PONG";
-// 	std::string parsePing = token.substr(token.find(ping));
-// 	sendMsg(parsePing, clientSocket);
-// }
-
-// void Server::parseNick(char *buf, Client *client) { //--> BUGGÉ 1
-// 	// std::string str(buf);
-// 	std:: string	s_buf = static_cast<std::string>(buf); // je crois qie c est pareil en fait @Verena
-// 	if (s_buf.find("nick")) {
-// 		std::size_t nickPos = s_buf.find("nick");
-// 		 if (nickPos != std::string::npos) {
-// 			std::string nickToUp = "NICK";
-// 			 for (std::size_t i = 0; i < nickToUp.length(); i++) {
-// 				nickToUp[i] = std::toupper(nickToUp[i]);
-// 			 }
-// 			 s_buf.replace(nickPos, nickToUp.length(), nickToUp);
-// 		 }
-// 	}
-// 	if (s_buf.find("NICK")) {
-// 		std::size_t nickPos = s_buf.find("NICK ");
-// 		if (nickPos != std::string::npos) {
-// 			std::size_t spacePos = s_buf.find('\n', nickPos + 5);
-// 			if (spacePos != std::string::npos) {
-// 				std::string nickname = s_buf.substr(nickPos + 5, spacePos - nickPos - 5);
-// 				if (nickname.empty()) {
-// 					sendErrMsgServer(431, client);
-// 					std::cout << "NICK " << client->getNick() << std::endl;
-// 				}
-// 				std::string msg = "NICK " + nickname + END_SEQUENCE;
-// 				sendMsg(msg, client->getFd());
-// 				std::cout << "NICKNAME: " << nickname << std::endl;
-// 				client->setNick(nickname);
-// 				// command.clear();
-// 			}
-// 		}
-// 	}
-// }
-
-// void Server::parseNick(char* buf, Client* client) { mieux mais buggé USER
-// 	std::string s_buf(buf);
-
-// 	std::cout << "DEBUG PARSE NIKC " << buf << std::endl;
-// 	std::size_t nickPos = s_buf.find("nick");
-// 	if (nickPos != std::string::npos) {
-// 		std::string nickToUp = "NICK";
-// 		for (std::size_t i = 0; i < nickToUp.length(); i++) {
-// 			nickToUp[i] = std::toupper(nickToUp[i]);
-// 		}
-// 		s_buf.replace(nickPos, nickToUp.length(), nickToUp);
-// 	}
-// 	nickPos = s_buf.find("NICK ");
-// 	if (nickPos != std::string::npos) {
-// 		std::size_t spacePos = s_buf.find(' ', nickPos + 5);
-// 		if (spacePos != std::string::npos) {
-// 			std::string nickname = s_buf.substr(nickPos + 5, spacePos - nickPos - 5);
-// 			if (nickname.empty()) {
-// 				std::cout << "NICK " << client->getNick() << std::endl;
-// 			}
-// 			// std::string msg = "NICK " + nickname + END_SEQUENCE;
-// 			// sendMsg(msg, client->getFd()); // fait buger ? ou pas ? @Verena
-// 			std::cout << "NICKNAME: " << nickname << std::endl;
-// 			client->setNick(nickname);
-// 		}
-// 	}
-// }
-
 void Server::parseNick(char* buf, Client* client) { // pas de USER mais mal parser, a voir
 	std::string s_buf(buf);
 
@@ -306,7 +226,7 @@ void Server::parseNick(char* buf, Client* client) { // pas de USER mais mal pars
 	}
 	nickPos = s_buf.find("NICK ");
 	if (nickPos != std::string::npos) {
-		std::size_t newlinePos = s_buf.find('\n', nickPos);
+		std::size_t newlinePos = s_buf.find('\n', nickPos); // ou find('', nickPos) ?
 		if (newlinePos != std::string::npos) {
 			std::string nickname = s_buf.substr(nickPos + 5, newlinePos - nickPos - 5 - 1);
 			if (nickname.empty()) {
@@ -316,11 +236,10 @@ void Server::parseNick(char* buf, Client* client) { // pas de USER mais mal pars
 			// sendMsg(msg, client->getFd()); // fait buger ? ou pas ? @Verena
 			std::cout << "NICKNAME: " << nickname << std::endl;
 			client->setNick(nickname);
+			// command.clear(); ??
 		}
 	}
 }
-
-
 
 void	Server::parseUser(char *buf, Client *client) { // debug only ou utile ?
 	if (strstr(buf, "USER") != 0) {
@@ -350,32 +269,9 @@ void	Server::getPing(char *buf, Client *client) {
 				_lastPing = time(NULL);
 				// Envoyer la réponse PONG au client
 				sendMsg(pongResponse, client->getFd());
-				// return;
 			}
-		// }
 	}
 }
-
-// void Server::parseCommand(char* buf)
-// {
-// 	std::string input(buf);
-// 	size_t spacePos = input.find(' ');
-
-// 	if (spacePos != std::string::npos)
-// 	{
-// 		token = input.substr(0, spacePos);
-// 		command = input.substr(spacePos + 1);
-// 	}
-// 	else
-// 	{
-// 		token = input;
-// 		command.clear();
-// 	}
-
-// 	// Affichage des résultats
-// 	std::cout << "Token: " << token << std::endl;
-// 	std::cout << "Command: " << command << std::endl;
-// }
 
 void Server::parseCommand(char* buf)
 {
@@ -407,11 +303,9 @@ void	Server::inputClient(char *buf, Client *client) // retourner une veleur ? un
 	std::cout << "buf iCAv: " << buf << std::endl;
 
 	if (static_cast<std::string>(buf).find("CAP LS") == 0) { // a sortir de la boucle ???
-		// std::cout << "CAP LS DONE" << std::endl;
 		parseNick(buf, client);
 		parseUser(buf, client);
 		first_message(client);
-		// welcomeMsg(buf, client);
 	}
 	else if (static_cast<std::string>(buf).find("PING") == 0)
 	{
@@ -422,38 +316,13 @@ void	Server::inputClient(char *buf, Client *client) // retourner une veleur ? un
 	{
 		parseCommand(buf);
 		commands(token, client);
-		// bool found = false;
-		// for (size_t i = 0; i < sizeof(_cmdArray) / sizeof(_cmdArray[0]); i++)
-		// {
-		// 	const std::string& cmd = _cmdArray[i];
-		// 	if (token.compare(cmd) == 0)
-		// 	{
-		// 		found = true;
-		// 		break;
-		// 	}
-		// }
-
-		// if (found)
-		// {
-		// 	std::cout << "Votre demande est une commande." << std::endl;
-		// 	cmdSelection(buf, client);
-		// }
-		// else
-		// {
-		// 	std::cout << "Juste du texte." << std::endl;
-		// 	// Traitement pour du texte non commandé
-		// }
 	}
-	// else if (buf != 0) {
-	// 	sendFromClient(buf, client);
-	// }
 }
 
 Client* Server::addClient(int fd)
 {
 	Client* client = new Client(fd); // Allouer dynamiquement un nouvel objet Client
 	_clients.push_back(*client);
-	// getClient(client);
 	return client;
 }
 
@@ -465,31 +334,7 @@ void	Server::setPassword(std::string pass)  {
 	_password = pass;
 }
 
-
-Client	Server::getClient(Client *client) //pas utiliser pour le moment
-{
-	// std::vector<ASpell*>::iterator    it;
-	// for(it = _spells.begin(); it != _spells.end(); it++)
-	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
-	{
-		if ((*it).getFd() == client->getFd()) {
-			std::cout << "\n[get client 1 : " << (*it).getFd() << "]" << std::endl;
-			std::cout << "[get client 2 : " << client->getFd() << "]\n" << std::endl;
-			// setNick((*it).getNick(), client->getNick());
-			// parseNick(buf, client->getFd());
-			std::cout << "\n[get nick 1 : " << (*it).getNick() << std::endl;
-			std::cout << "get nick 2 : " << client->getNick() << "]\n" << std::endl;
-			return (*it);
-		}
-	}
-	return NULL;
-}
-
  void	Server::capOrNOt(Client *client) {
-	// std::string serverAddress = _addr.str_c();
-	// int serverPort = Server::getPort();
-	// std::string nickname = getNick(); // @Verena pas utilisable sans lien entre les classe !!!!!!
-	// std::string clientNumber = cl.getFd();
 	std::string version = "2.0";
 	std::string channel = "#mychannel";
 
@@ -499,107 +344,8 @@ Client	Server::getClient(Client *client) //pas utiliser pour le moment
 	// // Connexion au serveur
 	if (connect(client->getFd(), (struct sockaddr*)&_addr, sizeof(_addr)) < 0) {
 		std::cerr <<  "other connexion detected"  << std::endl;
-		// return 1;
 		sendMsg("PING", client->getFd()); // a voir si utile et necessaire
-		// parsePing("PING", client->getFd());
 		return;
 	}
-
-	// std::cout << "coucou" << std::endl;
-	// // Envoi de la commande pour demander les capacités du serveur
-	// std::string capCommand = "CAP LS\r\n";
-	// send(clientSocket, capCommand.c_str(), capCommand.size(), 0);
-
-	// std::string passCommand = "PASS " + _password + "\r\n";
-	// send(clientSocket, passCommand.c_str(), authCommand.size(), 0);
-
-	// send(clientSocket, (" 001 Verena Hi ! Welcome to this awesome IRC server !, Verena\r\n"), 100, 0);
-	// send(clientSocket, (" 002 Your host is 127.0.0.1 running version 4.20\r\n"), 100, 0);
-	// send(clientSocket, (" 003 This server was created Verena\r\n"), 100, 0);
-	// send(clientSocket, (" 004 Verena 127.0.0.1 4.20  none none.\r\n"), 100, 0); // 100 faire un strlen de la string
-	// // PASS
-
-
-	// Préparation des structures pour la fonction poll()
-	// struct pollfd fds[1];
-	// fds[0].fd = clientSocket;
-	// fds[0].events = POLLIN;
-
-	// // Réception et traitement des réponses du serveur
-	// char buffer[BUFFER_SIZE];
-	// std::string serverResponse = "CAP LS";
-	// while (true) {
-	// // std::cout << "ca bug la !" << std::endl;
-	// 	int result = poll(fds, 1, -1);
-	// 	if (result == -1) {
-	// 		std::cerr << "Erreur lors de l'appel à poll()" << std::endl;
-	// 		break;
-	// 	}
-
-	// 	if (result > 0) {
-	// 		if (fds[0].revents & POLLIN) {
-	// 			memset(buffer, 0, sizeof(buffer));
-	// 			int bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
-	// 			if (bytesRead <= 0) {
-	// 				break;
-	// 			}
-
-	// 			serverResponse += buffer;
-
-	// 			// Vérification si la réponse complète a été reçue
-	// 			std::stringstream responseStream(serverResponse);
-	// 			std::string line;
-	// 			while (std::getline(responseStream, line)) {
-	// 				std::cout << "Server response: " << line << std::endl;
-	// 			}
-
-	// 			serverResponse.clear();
-	// 		}
-	// 	}
-	// }
-	// Fermeture du socket
-	// close(clientSocket);
-	// std::cout << "CLIENT SOCKET 3: " << clientSocket << std::endl;
-
-	// return 0;
 }
 
-// std::vector<std::string> Server::getCap() {
-// 	std::vector<std::string> capabilities;
-
-// 	// Ajoutez le code nécessaire pour récupérer les capacités (CAP LS)
-// 	capabilities.push_back("CAPABILITY1");
-// 	capabilities.push_back("CAPABILITY2");
-// 	capabilities.push_back("CAPABILITY3");
-// 	// ...
-
-// 	std::cout << "Capabilities supported:";
-// 	for (std::vector<std::string>::const_iterator it = capabilities.begin(); it != capabilities.end(); ++it)
-// 	{
-// 		const std::string& capability = *it;
-// 		std::cout << " " << capability;
-// 	}
-// 	std::cout << std::endl;
-
-// 	return capabilities;
-// }
-
-// // GESTION DES MESSAGES ENVOIS DU SERVEUR
-
-// void	Server::sendMsgServer(Client *client) { // char *buff ?
-
-// 	Conditions en switch ou voir HARL avec les niveaux d erreur, ou autres...
-
-// 	msg == le message à renvoyer avec les getter necessaires.
-// 	sendMsg(msg, client->getFd())
-
-// }
-
-// void	Server::sendErrMsgServer(Client *client) {
-
-// 	Conditions en switch ou voir HARL avec les niveaux d erreur, ou autres...
-
-// 	msg == le message à renvoyer avec les getter necessaires.
-// 	sendMsg(msg, client->getFd())
-
-// }
