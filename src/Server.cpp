@@ -185,8 +185,20 @@ bool	Server::connection()
 						else
 							std::cout << ERRMSG << strerror(errno) << std::endl;
 
+						for (std::vector<Client>::iterator	it = _clients.begin(); it != _clients.end(); it++)
+						{
+							if ((*it).getFd() == _pfds[i].fd)
+							{
+								std::cout << "Ready to destroy " << _pfds[i].fd << " aka " << (*it).getFd() << std::endl;
+								_clients.erase(it);
+								delete &(*it);
+								break;
+							}
+						}
+
 						close(_pfds[i].fd);
 						_pfds.erase(_pfds.begin() + i);
+
 						i--;
 					}
 					else
