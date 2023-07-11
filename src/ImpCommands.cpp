@@ -36,6 +36,7 @@ void	Server::NICK(Client *client) {
 	std::string oldNick = client->getNick();
 	client->setNick(command);
 	std::string newNick = client->getNick();
+	client->setIsAuthenticated(true);
 	std::cout << "Votre nick est : " << newNick << std::endl;
 	// std::string msg = "You're now known as " + client->getNick() + END_SEQUENCE;
 	std::string msg = ":" + oldNick + " " + token + " " + newNick + END_SEQUENCE;
@@ -89,8 +90,18 @@ void	Server::INVITE(Client *client) {
 }
 
 void	Server::PASS(Client *client) {
-	std::cout << "cmd pass" << std::endl;
-	(void)client;
+	if (client->isAuthenticated()){
+		sendErrMsgServer(462, client);
+	}
+
+	if (_password != getPassword()){
+		sendErrMsgServer(464, client);
+	}
+	if (_password.empty()){
+		sendErrMsgServer(461, client);
+	}
+	client->setIsAuthenticated(true);
+	first_message(client);
 }
 
 // void	Server::QUIT(Client *client) {
