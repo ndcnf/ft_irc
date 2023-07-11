@@ -8,6 +8,7 @@ Client::Client():	_fd(0),
 		_nick = "";
 		_channel= "";
 		_hostname= "";
+		_isAuthenticated = false;
 }
 
 Client::Client(int fd):	_fd(fd),
@@ -29,6 +30,7 @@ Client	&Client::operator=(Client const &rhs)
 	_channel = rhs._channel;
 	_connected = rhs._connected;
 	_hostname = rhs._hostname;
+	_isAuthenticated = rhs._isAuthenticated;
 
 	return (*this);
 }
@@ -72,4 +74,16 @@ std::string Client::getHostname() {
         return std::string(hostname);
     }
     return "";
+}
+
+bool Client::isAuthenticated(){
+	return _isAuthenticated;
+}
+
+void Client::setIsAuthenticated(bool authenticated) {
+        _isAuthenticated = authenticated;
+}
+
+bool Client::isConnected(){
+	return _connected;
 }
