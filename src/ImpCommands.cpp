@@ -45,7 +45,8 @@ void	Server::NICK(Client *client) {
 
 void	Server::USER(Client *client) {
 	std::cout << "cmd user" << std::endl;
-	client->setUser(command);
+	client->setUser(command); //userhost
+	std::cout << client->getNick() + client->getHostname() + SERVNAME + ":" + client->getUser() + END_SEQUENCE << std::endl;
 }
 
 void	Server::JOIN(Client *client) {

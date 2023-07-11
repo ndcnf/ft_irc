@@ -32,6 +32,7 @@
 # define MAX_FD 200						// Number of maximum fds / may be replaced by a vector
 # define ERRMSG RED"Error: "
 # define END_SEQUENCE "\r\n"
+# define SERVNAME "The MoIRes Connection Server"
 
 class Server
 {
