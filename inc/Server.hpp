@@ -30,8 +30,10 @@
 # define TIMEOUT_NO_S NULL				// Specifying a negative value in timeout means an infinite timeout (for select())
 # define TIMEOUT_YES (3 * 60 * 1000)	// 3 minutes
 # define MAX_FD 200						// Number of maximum fds / may be replaced by a vector
-# define ERRMSG RED"Error: "
-# define END_SEQUENCE "\r\n"
+# define ERRMSG RED"Error: " //parce que c est joli
+# define END_SEQUENCE "\r\n" //pour temriner les phrases
+# define SERVNAME "The MoIRes Connection Server" //nom du serveur
+# define CMDNBR 12 //tableau de commandes si besoin de le modifier en terme de nombre
 
 class Server
 {
@@ -115,7 +117,7 @@ class Server
 		void	PASS(Client *client);
 		void	QUIT(Client *client);
 
-		std::string _cmdArray[12];
+		std::string _cmdArray[CMDNBR];
 };
 
 #endif

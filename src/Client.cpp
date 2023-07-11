@@ -38,7 +38,7 @@ Client::~Client()
 
 }
 
-int		Client::getFd()
+int		Client::getFd() const
 {
 	return (_fd);
 }

@@ -33,7 +33,7 @@ class Client
 		Client	&operator=(Client const &rhs);
 		~Client();
 
-		int			getFd();
+		int			getFd()const;
 		//autres fonctions probablement necessaires @Verena :
 		std::string	getNick();
 		// void		setNick(std::string nick, char *buf);
