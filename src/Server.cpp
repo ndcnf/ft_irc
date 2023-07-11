@@ -243,9 +243,9 @@ void Server::parseNick(char* buf, Client* client) { // pas de USER mais mal pars
 	}
 	nickPos = s_buf.find("NICK ");
 	if (nickPos != std::string::npos) {
-		std::size_t newlinePos = s_buf.find(' ', nickPos); // ou find('', nickPos) ?
+		std::size_t newlinePos = s_buf.find(' ', nickPos); // ou find(\n, nickPos) ?
 		if (newlinePos != std::string::npos) {
-			std::string nickname = s_buf.substr(nickPos + 5, newlinePos - nickPos - 5 - 1);
+			std::string nickname = s_buf.substr(nickPos + 5, newlinePos - nickPos - 6);
 			if (nickname.empty()) {
 				std::cout << "NICK " << client->getNick() << std::endl;
 			}

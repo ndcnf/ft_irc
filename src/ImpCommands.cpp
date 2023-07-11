@@ -40,7 +40,8 @@ void	Server::NICK(Client *client) {
 	std::cout << "Votre nick est : " << newNick << std::endl;
 	// std::string msg = "You're now known as " + client->getNick() + END_SEQUENCE;
 	// std::string msg = ":" + oldNick + " " + token + " " + newNick + END_SEQUENCE;
-	std::string msg = ":n1t4r4 " + token + " " + newNick + END_SEQUENCE;
+	std::string msg = ":" + oldNick + " " + token + " " + newNick + END_SEQUENCE;
+	// std::string msg = ":n1t4r4 " + token + " " + newNick + END_SEQUENCE;
 	sendMsg(msg, client->getFd());
 }
 

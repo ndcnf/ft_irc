@@ -3,26 +3,17 @@
 
 void Server::sendMsg(std::string message, int fd)
 {
-	std::cout << "REPONSE BUFFER IS <" << message << ">" << std::endl;
+	std::cout << "REPONSE BUFFER IS <" << message << ">" << std::endl; //debug only
 	send(fd, message.append(END_SEQUENCE).c_str(), message.size(), 0);
 }
 
-void	Server::first_message(Client *client) {
+void    Server::first_message(Client *client) {
 
-	// std::string	msg = ":"+ client->getHostname() + "001 " + client->getUser() + " : " + "\033[34mWelcome on the MoIRes Connection Server " + client->getUser() + "!~" + client->getUser() + "@" + client->getHostname() + "\r\n" + RES;
-	//std::string	msg = "001 " + client->getUser() + "*: " + "\033[34mWelcome on the MoIRes Connection Server " + client->getUser() + "!~" + client->getUser() + "@" + client->getHostname() + "NICK " + client->getNick() + END_SEQUENCE + RES;
+	// std::string    msg = ":"+ client->getHostname() + "001 " + client->getUser() + " : " + "\033[34mWelcome on the MoIRes Connection Server " + client->getUser() + "!~" + client->getUser() + "@" + client->getHostname() + "\r\n" + RES;
+	//std::string    msg = "001 " + client->getUser() + ": " + "\033[34mWelcome on the MoIRes Connection Server " + client->getUser() + "!~" + client->getUser() + "@" + client->getHostname() + "NICK " + client->getNick() + END_SEQUENCE + RES;
 	std::string	msg = "001 " + client->getNick() + "\033[34m*: " + "\033[34mWelcome on the MoIRes Connection Server " + "!~" + client->getNick() + " @" + client->getHostname() + END_SEQUENCE + RES;
 	sendMsg(msg, client->getFd());
 }
-
-// GESTION DES MESSAGES ENVOIS DU SERVEUR
-
-//void	Server::sendMsgServer(Client *client) { // char *buff ?
-
-//	Conditions en switch ou voir HARL avec les niveaux d erreur, ou autres...
-
-//	msg == le message à renvoyer avec les getter necessaires.
-//	sendMsg(msg, client->getFd())
 
 void	Server::sendErrMsgServer(int errorCode, Client *client) {
 
