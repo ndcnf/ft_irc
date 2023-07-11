@@ -4,7 +4,7 @@
 
 void	Server::commands(std::string cmd, Client *client) {
 		
-	std::string _cmdArray[12] = {"NICK", "USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
+	std::string _cmdArray[CMDNBR] = {"NICK", "USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
 
 	void	(Server::*functionPtr[])(Client *client) = {
 		&Server::NICK,
@@ -21,7 +21,7 @@ void	Server::commands(std::string cmd, Client *client) {
 		&Server::QUIT
 	};
 
-	for (int i = 0; i < 12; i++) {
+	for (int i = 0; i < CMDNBR; i++) {
 		if (cmd.compare(_cmdArray[i]) == 0) {
 			(this->*functionPtr[i])(client);
 			return;
@@ -43,10 +43,9 @@ void	Server::NICK(Client *client) {
 	sendMsg(msg, client->getFd());
 }
 
-void	Server::USER(Client *client) {
-	std::cout << "cmd user" << std::endl;
-	client->setUser(command); //userhost
-	std::cout << client->getNick() + client->getHostname() + SERVNAME + ":" + client->getUser() + END_SEQUENCE << std::endl;
+void	Server::USER(Client *client) { // ne passe jamais dedant car pas besoin de le gerer mais je la laisse pour faire joli
+	(void)client;
+	std::cout << "cmd user" << std::endl; // est gerer directement avec le cap ls
 }
 
 void	Server::JOIN(Client *client) {
@@ -54,7 +53,7 @@ void	Server::JOIN(Client *client) {
 	(void)client;
 }
 
-void	Server::MODE(Client *client) {
+void	Server::MODE(Client *client) { // channel only ? auto gerer par le client lorqu on se connect
 	std::cout << "cmd mode" << std::endl;
 	(void)client;
 }
@@ -94,7 +93,48 @@ void	Server::PASS(Client *client) {
 	(void)client;
 }
 
-void	Server::QUIT(Client *client) {
-	std::cout << "cmd quit" << std::endl;
-	(void)client;
+// void	Server::QUIT(Client *client) {
+// 	std::cout << "Client " << client->getNick() << " has quit." << std::endl;
+
+// 	// Envoyer un message de départ aux autres clients si nécessaire
+// 	std::string quitMessage = "Client " + client->getNick() + " has quit.";
+// 	std::vector<Client>::iterator it;
+// 	for (it = _clients.begin(); it != _clients.end(); ++it) {
+// 		const Client& otherClient = *it;
+// 		if (otherClient.getFd() != client->getFd()) {
+// 			sendMsg(quitMessage, otherClient.getFd());
+// 		}
+// 	}
+
+// 	// Fermer la connexion du client + detruire l'objet (pfds)
+// 	int clientSocket = client->getFd();
+// 	close(clientSocket);
+
+// 	//Envoyer un message au client ? Pas utile car deconnecter du coup...
+// 	// std::string msg = token + command + END_SEQUENCE;
+// 	// sendMsg(msg, client->getFd());
+// }
+
+void Server::QUIT(Client *client) {
+	std::cout << "Client " << client->getNick() << " has quit." << std::endl;
+
+	// Envoyer un message de départ aux autres clients si nécessaire mais on peut l'enlever car pas demande apparement
+	std::string quitMessage = "Client " + client->getNick() + " has quit.";
+	for (size_t i = 0; i < _clients.size(); i++) {
+		if (_clients[i].getFd() != client->getFd()) {
+			sendMsg(quitMessage, _clients[i].getFd());
+		}
+	}
+
+	// Fermer la connexion du client
+	int clientSocket = client->getFd();
+	close(clientSocket);
+
+	// Supprimer l'objet Client du vecteur _clients
+	for (size_t i = 0; i < _clients.size(); i++) {
+		if (_clients[i].getFd() == clientSocket) {
+			_clients.erase(_clients.begin() + i);
+			break;
+		}
+	}
 }
