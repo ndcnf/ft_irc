@@ -35,11 +35,12 @@ void	Server::NICK(Client *client) {
 	// cmdSelection(buf, client);
 	std::string oldNick = client->getNick();
 	client->setNick(command);
+	std::cout << "DEBUG NICKNAME SET : " << client->getNick() << std::endl;
 	std::string newNick = client->getNick();
 	std::cout << "Votre nick est : " << newNick << std::endl;
 	// std::string msg = "You're now known as " + client->getNick() + END_SEQUENCE;
-	std::string msg = ":" + oldNick + " " + token + " " + newNick + END_SEQUENCE;
-	// std::string msg = ":vferraro " + token + " " + newNick + END_SEQUENCE;
+	// std::string msg = ":" + oldNick + " " + token + " " + newNick + END_SEQUENCE;
+	std::string msg = ":n1t4r4 " + token + " " + newNick + END_SEQUENCE;
 	sendMsg(msg, client->getFd());
 }
 
