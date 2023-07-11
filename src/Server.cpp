@@ -162,7 +162,12 @@ bool	Server::connection()
 					for (std::vector<Client>::iterator	it = _clients.begin(); it != _clients.end(); it++)
 					{
 						if ((*it).getFd() == _pfds[i].fd)
+						{
 							std::cout << "I'm the " << _pfds[i].fd << std::endl;
+							currentClient = &(*it);
+							// break;
+						}
+
 					}
 					int	sender = _pfds[i].fd;
 					//getPing(buf, currentClient);
