@@ -3,7 +3,6 @@
 
 void Server::sendMsg(std::string message, int fd)
 {
-	std::cout << "MESSAGE : " << message << std::endl; //debug only
 	send(fd, message.append(END_SEQUENCE).c_str(), message.size(), 0);
 }
 

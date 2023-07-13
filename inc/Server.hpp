@@ -82,7 +82,7 @@ class Server
 		void	commands(std::string cmd, Client *client);
 
 		//UTILS
-		// std::string trim(const std::string& str);
+		std::string	trim(const std::string& str);
 
 		class ServException : public std::exception {
 			public:

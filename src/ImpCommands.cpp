@@ -33,17 +33,6 @@ void Server::NICK(Client *client) {
 	std::cout << "Votre demande est une commande.: ";
 	std::cout << "cmd nick" << std::endl;
 
-	// Divise la commande pour obtenir le nouveau surnom
-    // std::size_t pos = command.find(' ');
-    // std::string newNick;
-    // if (pos != std::string::npos) {
-    //     newNick = command.substr(pos + 1);
-    //     std::cout << "Debug: newNick = '" << newNick << "'" << std::endl;
-    // } else {
-    //     std::cerr << "Error: No nickname provided." << std::endl;
-    //     return;
-    // }
-
 	std::string newNick = command;
 
 	// vérifie si le nouveau surnom dépasse 9 caractères

@@ -191,7 +191,7 @@ bool	Server::connection()
 							{
 								std::cout << "Ready to destroy " << _pfds[i].fd << " aka " << (*it).getFd() << std::endl;
 								_clients.erase(it);
-								delete &(*it);
+								// delete &(*it);
 								break;
 							}
 						}
@@ -293,15 +293,13 @@ void Server::parseNick(char* buf, Client* client) {
 		std::cout << "NICKNAAAAME DEBUUUG " << client->getNick() << std::endl;
 		if (newlinePos != std::string::npos) {
 			std::string nickname = s_buf.substr(nickPos + 5, newlinePos - (nickPos + 5));
-			if (!nickname.empty() && nickname[nickname.size() - 1] == '\n') {
-				nickname.erase(nickname.size() - 1);  // erase last character if it is '\n'
-			}
 			if (nickname.empty()) {
 				std::cout << "MESSAGE D ERREUR NEEDED" << std::endl;
 				std::cout << "NICK " << client->getNick() << std::endl;
 			}
 			std::cout << "NICKNAME: " << nickname << std::endl;
 			std::cout << "2 NICKNAAAAME DEBUUUG " << client->getNick() << std::endl;
+			nickname.erase(std::remove(nickname.begin(), nickname.end(), '\n'), nickname.end());
 			client->setNick(nickname);
 			std::cout << "3 NICKNAAAAME DEBUUUG " << client->getNick() << std::endl;
 			command.clear();
@@ -310,7 +308,6 @@ void Server::parseNick(char* buf, Client* client) {
 		}
 	}
 }
-
 
 
 void	Server::parseUser(char *buf, Client *client) { // debug only ou utile ?
