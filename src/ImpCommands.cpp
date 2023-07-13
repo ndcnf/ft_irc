@@ -29,21 +29,84 @@ void	Server::commands(std::string cmd, Client *client) {
 	}
 }
 
-void	Server::NICK(Client *client) {
+void Server::NICK(Client *client) {
 	std::cout << "Votre demande est une commande.: ";
 	std::cout << "cmd nick" << std::endl;
-	// cmdSelection(buf, client);
-	std::string oldNick = client->getNick();
-	client->setNick(command);
-	std::cout << "DEBUG NICKNAME SET : " << client->getNick() << std::endl;
-	std::string newNick = client->getNick();
-	std::cout << "Votre nick est : " << newNick << std::endl;
-	// std::string msg = "You're now known as " + client->getNick() + END_SEQUENCE;
-	// std::string msg = ":" + oldNick + " " + token + " " + newNick + END_SEQUENCE;
-	std::string msg = ":" + oldNick + " " + token + " " + newNick + END_SEQUENCE;
-	// std::string msg = ":n1t4r4 " + token + " " + newNick + END_SEQUENCE;
-	sendMsg(msg, client->getFd());
+
+	// Divise la commande pour obtenir le nouveau surnom
+    // std::size_t pos = command.find(' ');
+    // std::string newNick;
+    // if (pos != std::string::npos) {
+    //     newNick = command.substr(pos + 1);
+    //     std::cout << "Debug: newNick = '" << newNick << "'" << std::endl;
+    // } else {
+    //     std::cerr << "Error: No nickname provided." << std::endl;
+    //     return;
+    // }
+
+	std::string newNick = command;
+
+	// vérifie si le nouveau surnom dépasse 9 caractères
+	if(newNick.size() > 9) {
+		std::cerr << "Error: Nickname is longer than 9 characters." << std::endl;
+		return;  // quitte la fonction
+	}
+
+	// vérifie si le surnom existe déjà
+	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+		if (it->getNick() == newNick) {
+			std::cerr << "Error: Nickname already exists." << std::endl;
+			return;  // quitte la fonction
+		}
+	}
+
+	// continue avec le reste du code si les conditions sont remplies
+	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+		if (it->getFd() == client->getFd()) {
+			std::cout << "1 oldNick DEBUG IS : " << client->getNick() << std::endl;
+			std::string oldNick;
+			for (std::vector<Client>::iterator innerIt = _clients.begin(); innerIt != _clients.end(); ++innerIt) {
+				if (innerIt->getFd() == client->getFd()) {
+					oldNick = innerIt->getNick();
+					break;
+				}
+			}
+			// std::size_t pos = oldNick.find("\nNICK");
+			// if (pos != std::string::npos) {
+			// 	oldNick = oldNick.substr(0, pos);
+			// }
+			std::cout << "2 oldNick DEBUG IS : " << oldNick << std::endl;
+			it->setNick(newNick);
+			sleep(1); // Attendre 1 seconde
+			std::cout << "DEBUG NICKNAME SET : " << it->getNick() << std::endl; // nana
+			std::cout << "DEBUG NEWNICK SET : " << newNick << std::endl; // nana
+			std::cout << "TOKEN DEBUG IS : " << token << std::endl; // NICK
+			std::cout << "3 oldNick DEBUG IS : " << oldNick << std::endl;
+			std::string msg = ":" + oldNick + " NICK " + newNick + END_SEQUENCE;
+			std::cout << "MESS : " << msg << std::endl;
+			sendMsg(msg, client->getFd());
+			break;
+		}
+	}
 }
+
+
+
+// void	Server::NICK(Client *client) {
+// 	std::cout << "Votre demande est une commande.: ";
+// 	std::cout << "cmd nick" << std::endl;
+// 	// cmdSelection(buf, client);
+// 	std::string oldNick = client->getNick();
+// 	client->setNick(command);
+// 	std::cout << "DEBUG NICKNAME SET : " << client->getNick() << std::endl;
+// 	std::string newNick = client->getNick();
+// 	std::cout << "Votre nick est : " << newNick << std::endl;
+// 	// std::string msg = "You're now known as " + client->getNick() + END_SEQUENCE;
+// 	// std::string msg = ":" + oldNick + " " + token + " " + newNick + END_SEQUENCE;
+// 	std::string msg = ":" + oldNick + " " + token + " " + newNick + END_SEQUENCE;
+// 	// std::string msg = ":n1t4r4 " + token + " " + newNick + END_SEQUENCE;
+// 	sendMsg(msg, client->getFd());
+// }
 
 void	Server::USER(Client *client) { // ne passe jamais dedant car pas besoin de le gerer mais je la laisse pour faire joli
 	(void)client;

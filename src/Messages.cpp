@@ -3,9 +3,18 @@
 
 void Server::sendMsg(std::string message, int fd)
 {
-	std::cout << "REPONSE BUFFER IS <" << message << ">" << std::endl; //debug only
+	std::cout << "MESSAGE : " << message << std::endl; //debug only
 	send(fd, message.append(END_SEQUENCE).c_str(), message.size(), 0);
 }
+
+// void Server::sendMsg(std::string message, int fd)
+// {
+//     std::cout << "MESSAGE : " << message << std::endl; //debug only
+//     size_t messageSize = message.size() + strlen(END_SEQUENCE);
+//     message.append(END_SEQUENCE);
+//     send(fd, message.c_str(), messageSize, 0);
+// }
+
 
 void    Server::first_message(Client *client) {
 

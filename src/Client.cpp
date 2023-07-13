@@ -43,7 +43,7 @@ int		Client::getFd() const
 	return (_fd);
 }
 
-std::string	Client::getNick()
+std::string	Client::getNick() const
 {
 	return _nick;
 }
