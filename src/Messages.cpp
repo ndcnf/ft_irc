@@ -10,15 +10,10 @@ void	Server::first_message(Client *client) {
 
 	// std::string	msg = ":"+ client->getHostname() + "001 " + client->getUser() + " : " + "\033[34mWelcome on the MoIRes Connection Server " + client->getUser() + "!~" + client->getUser() + "@" + client->getHostname() + "\r\n" + RES;
 	//std::string	msg = "001 " + client->getUser() + "*: " + "\033[34mWelcome on the MoIRes Connection Server " + client->getUser() + "!~" + client->getUser() + "@" + client->getHostname() + "NICK " + client->getNick() + END_SEQUENCE + RES;
-	std::string	msg = "001 " + client->getNick() + "\033[34m*: " + "\033[34mWelcome on the MoIRes Connection Server " + "!~" + client->getNick() + " @" + client->getHostname() + END_SEQUENCE + RES;
+	std::string	msg = "001 " + client->getNick() + ":" + "\033[34mWelcome on the MoIRes Connection Server " + "!~" + client->getNick() + " @" + client->getHostname() + END_SEQUENCE + RES;
 	sendMsg(msg, client->getFd());
 }
 
-void	Server::sendMsgErr(std::string message, int fd)
-{
-	std::string messageToSend = message + END_SEQUENCE;
-    send(fd, messageToSend.c_str(), messageToSend.size(), 0);
-}
 // GESTION DES MESSAGES ENVOIS DU SERVEUR
 
 //void	Server::sendMsgServer(Client *client) { // char *buff ?
@@ -212,4 +207,40 @@ void Server::sendErrorMsg(int errorCode, int fd, std::string param1="", std::str
 	}
 	errorminator = ": " + errorminator + "\r\n" ;
 	sendMsg(errorminator, fd);
+}
+
+void	Server::rpl_msg(int msgCode, int fd, std::string param1="", std::string param2="", std::string param3="", std::string info="")
+{
+	std::stringstream ss;
+	ss << msgCode;
+	std::string	rplMsg = ss.str();
+
+	switch(msgCode)
+	{
+		case 324: // RPL_CHANNELMODEIS
+			rplMsg += param1 + " " + param2 + " :" + param3;
+			break;
+		case 331: // RPL_NOTOPIC
+			rplMsg += param1 + " :no topic is set";
+			break;
+		case 332: // RPL_TOPIC
+			rplMsg += param1 + " :" + param2;
+			break;
+		case 336: // RPL_INVITELIST
+			rplMsg += param1;
+			break;
+		case 341: // RPL_INVITING
+			rplMsg += param1 + " " + param2 + " :" + param3;
+			break;
+		case 346: // RPL_INVEXLIST
+			rplMsg += param1 + " " + param2;
+			break;
+		case 500:
+			rplMsg += param1 + " " + param2 + " :" + param3;
+			break;
+		default:
+			rplMsg += " default msg ";
+	}
+	rplMsg = ": " + rplMsg + "\r\n";
+	sendMsg(rplMsg, fd); 
 }

@@ -30,5 +30,4 @@
 # define ERR_NOTREGISTERED  "451 :You have not registered"
 # define ERR_USERONCHANNEL  "443 "
 
-
 #endif

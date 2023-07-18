@@ -79,6 +79,7 @@ class Server
 		void		sendMsgErr(std::string message, int fd);
 		void		sendErrorMsg(int errorCode, int fd, std::string param1="", std::string param2="", std::string param3="", std::string info="");
 		void		sendErrMsgServer(int errorCode, Client *client); // pas encore ecrite correctement donc ca ne compilera pas avec
+		void		rpl_msg(int msgCode, int fd, std::string param1="", std::string param2="", std::string param3="", std::string info="");
 
 		//COMMANDS CALL
 		void	commands(std::string cmd, Client *client);
