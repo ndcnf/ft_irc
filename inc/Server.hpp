@@ -78,7 +78,7 @@ class Server
 		void		first_message(Client *client);
 		void		sendMsgServer(Client *Client); // pas encore ecrite correctement donc ca ne compilera pas avec
 		void		sendErrMsgServer(int errorCode, Client *client); // pas encore ecrite correctement donc ca ne compilera pas avec
-
+		void 		sendErrorMsg(int errorCode, int fd, std::string param1, std::string param2, std::string param3, std::string info);
 		//COMMANDS CALL
 		void	commands(std::string cmd, Client *client);
 
