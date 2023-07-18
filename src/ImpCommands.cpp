@@ -46,6 +46,8 @@ void Server::NICK(Client *client) {
 	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
 		if (it->getNick() == newNick) {
 			std::cerr << "Error: Nickname already exists." << std::endl;// message d erreurs a gerer voir avec claire
+			std::string msg = "433 " + client->getNick() + " " + newNick + ":Nickname is already in use";
+			sendMsg(msg, client->getFd());
 			return;  // quitte la fonction
 		}
 	}
@@ -53,7 +55,8 @@ void Server::NICK(Client *client) {
 	// vérifie si le nouveau surnom respecte les règles
 	if (newNick.empty() || newNick[0] == '#' || newNick[0] == ':' || newNick.find_first_of(CHANTYPES) != std::string::npos || newNick.find(' ') != std::string::npos) {
 		std::cerr << "Error: Nickname contains invalid characters." << std::endl; // message d erreurs a gerer voir avec claire
-		return;  // quitte la fonction
+		//std::string msg = 
+		return ;  // quitte la fonction
 	}
 
 	// continue avec le reste du code si les conditions sont remplies
@@ -78,18 +81,12 @@ void Server::NICK(Client *client) {
 			std::cout << "DEBUG NEWNICK SET : " << newNick << std::endl; // nana
 			std::cout << "TOKEN DEBUG IS : " << token << std::endl; // NICK
 			std::cout << "3 oldNick DEBUG IS : " << oldNick << std::endl;
-		
-			for (unsigned long i = 0; i < client->getNick().length(); i++ ) {
-				std::cout << "i de getNick est : " << i << std::endl;
-			}
-			for (unsigned long o = 0; o < oldNick.length(); o++ ) {
-				std::cout << "oldNick est : " << o << std::endl;
-			}
-			for (unsigned long n = 0; n < newNick.length(); n++ ) {
-				std::cout << "newNick est : " << n << std::endl;
-			}
-
-			std::string msg = ":" + oldNick + " NICK " + newNick;
+			
+			std::string msg;
+			if (oldNick.empty())
+				msg = "NICK " + newNick;
+			else
+				msg = ":" + oldNick + " NICK " + newNick;
 			// std::string msg = ":n1t4r4 NICK nana";
 			std::cout << "MESS : " << msg << std::endl;
 			sendMsg(msg, client->getFd());
@@ -116,9 +113,20 @@ void Server::NICK(Client *client) {
 // 	sendMsg(msg, client->getFd());
 // }
 
-void	Server::USER(Client *client) { // ne passe jamais dedant car pas besoin de le gerer mais je la laisse pour faire joli
-	(void)client;
-	std::cout << "cmd user" << std::endl; // est gerer directement avec le cap ls
+void	Server::USER(Client *client) { // passe dedant ?
+	std::cout << "cmd user" << std::endl; // info only
+
+	std::cout << "TOKEN " << token << std::endl;
+	std::cout << "command " << command << std::endl;
+		std::size_t colonPos = command.find(':');
+		if (colonPos != std::string::npos) {
+			std::string UserContent = command.substr(colonPos + 1);
+			std::string	msg = "USER : " + UserContent + END_SEQUENCE;
+			client->setUser(UserContent);
+			std::cout << "USERCONTENT : " << UserContent << std::endl; // DEBUG ONLY
+			std::cout << "USERNAME : " << client->getUser() << std::endl; // DEBUG ONLY
+			first_message(client);
+		}
 }
 
 void	Server::JOIN(Client *client) {

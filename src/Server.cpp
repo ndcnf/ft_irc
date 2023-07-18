@@ -320,11 +320,9 @@ void	Server::parseUser(std::string buf, Client *client) { // debug only ou utile
 		std::size_t colonPos = str.find(':');
 		if (colonPos != std::string::npos) {
 			std::string UserContent = str.substr(colonPos + 1);
-			std::string	msg = "USER : " + UserContent + END_SEQUENCE;
 			client->setUser(UserContent);
 			std::cout << "USERCONTENT : " << UserContent << std::endl; // DEBUG ONLY
 			std::cout << "USERNAME : " << client->getUser() << std::endl; // DEBUG ONLY
-			// sendMsg(msg, client->getFd()); // DEBUG ONLY pas necessaire a priori (pas dans freenode)
 		}
 	}
 }
@@ -351,13 +349,10 @@ void Server::parseCommand(std::string buf)
 	std::string input(buf);
 	size_t spacePos = input.find(' ');
 
-	// Trouver le retour à la ligne
-	size_t newlinePos = input.find('\n');
-
-	if (spacePos != std::string::npos && newlinePos != std::string::npos && spacePos < newlinePos)
+	if (spacePos != std::string::npos)
 	{
 		token = input.substr(0, spacePos);
-		command = input.substr(spacePos + 1, newlinePos - spacePos - 1);
+		command = input.substr(spacePos + 1, input.size());
 	}
 	else
 	{
@@ -374,24 +369,21 @@ void Server::parseCommand(std::string buf)
 void	Server::inputClient(std::string buf, Client *client) // retourner une veleur ? un string ? return buff
 {
 	std::cout << "buf iCAv: " << buf << std::endl;
-	size_t pos;
+	size_t pos = buf.find(END_SEQUENCE);
 
-	while ((pos = buf.find(END_SEQUENCE)) != std::string::npos)
+	while (pos != std::string::npos)
 	{
 		std::string line = buf.substr(0, pos);
 		buf.erase(0, pos + 2);
+		pos = buf.find(END_SEQUENCE);
 
-		std::cout << "BUF: " << buf << std::endl;
 		std::cout << "RECIVED : " << line << std::endl;
-		std::cout << "POS : " << pos << std::endl;
-
 
 		if (line.find("CAP LS") != std::string::npos) { // a sortir de la boucle ???
 			sendMsg("CAP * LS :", client->getFd());
-			break;
-			//parseNick(buf, client);
-			//parseUser(buf, client);
-			//first_message(client);
+			//parseNick(buf, client); tout se fait dans nick a present
+			//parseUser(buf, client); a faire avec une commande USER
+			//first_message(client); on l-envoi quand du coup, a la fin de cette focntion _
 		}
 		else if (line.find("PING") != std::string::npos)
 		{
@@ -404,6 +396,8 @@ void	Server::inputClient(std::string buf, Client *client) // retourner une veleu
 			commands(token, client);
 		}
 	}
+	std::cout << "POS END: " << pos << std::endl;
+
 }
 
 Client* Server::addClient(int fd)
