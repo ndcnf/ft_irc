@@ -1,5 +1,6 @@
 #include "../inc/Server.hpp"
 #include "../inc/Client.hpp"
+#include "../inc/Messages.hpp"
 
 
 void	Server::commands(std::string cmd, Client *client) {
@@ -91,14 +92,14 @@ void	Server::INVITE(Client *client) {
 
 void	Server::PASS(Client *client) {
 	if (client->isAuthenticated()){
-		sendErrMsgServer(462, client);
+		sendMsg(ERR_ALREADYREGISTERED, client->getFd());
 	}
 
 	if (_password != getPassword()){
-		sendErrMsgServer(464, client);
+		sendMsg(ERR_PASSWDMISMATCH, client->getFd());
 	}
 	if (_password.empty()){
-		sendErrMsgServer(461, client);
+		sendMsg(ERR_NEEDMOREPARAMS, client->getFd());
 	}
 	client->setIsAuthenticated(true);
 	first_message(client);

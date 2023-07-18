@@ -191,7 +191,7 @@ bool	Server::connection()
 							{
 								std::cout << "Ready to destroy " << _pfds[i].fd << " aka " << (*it).getFd() << std::endl;
 								_clients.erase(it);
-								delete &(*it);
+								//delete &(*it);
 								break;
 							}
 						}

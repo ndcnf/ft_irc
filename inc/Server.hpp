@@ -76,6 +76,8 @@ class Server
 		void		getPing(char *buf, Client *client);
 		void		first_message(Client *client);
 		void		sendMsgServer(Client *Client); // pas encore ecrite correctement donc ca ne compilera pas avec
+		void		sendMsgErr(std::string message, int fd);
+		void		sendErrorMsg(int errorCode, int fd, std::string param1="", std::string param2="", std::string param3="", std::string info="");
 		void		sendErrMsgServer(int errorCode, Client *client); // pas encore ecrite correctement donc ca ne compilera pas avec
 
 		//COMMANDS CALL
