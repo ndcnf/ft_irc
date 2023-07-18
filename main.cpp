@@ -33,6 +33,7 @@ int	main(int argc, char *argv[])
 		srv.createSocket();
 		srv.setPassword(argv[2]);
 		std::cout << "Port: " << srv.getPort() << "\nPassword: " << srv.getPassword() << std::endl; //@Verena (pour recuperer les infos de co)
+		std::cout << "PASS" << std::endl;
 		srv.allSockets(); // DEBUG ONLY
 		// bzero(&srv._addr, sizeof(srv._addr));
 		// while (true)

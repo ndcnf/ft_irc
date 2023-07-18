@@ -47,6 +47,8 @@ class Client
 
 		//CLAIRE
 		std::string	getHostname();
+		bool isAuthenticated();
+		void setIsAuthenticated(bool authenticated);
 
 
 	private:
@@ -56,6 +58,7 @@ class Client
 		std::string _fullname;
 		std::string _hostname;
 		std::string	_channel;
+		bool		_isAuthenticated;
 		bool		_connected; // is the client successfully connected or not?
 
 		//CLAIRE
