@@ -35,8 +35,8 @@ class Client
 
 		int			getFd()const;
 		//autres fonctions probablement necessaires @Verena :
-		std::string	getNick();
-		// void		setNick(std::string nick, char *buf);
+		std::string	getNick() const;
+		// void		setNick(std::string nick, std::string buf);
 		void		setNick(std::string nick);
 		void		logIn();
 		void		applyNick();
