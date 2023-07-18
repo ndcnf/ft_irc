@@ -11,9 +11,11 @@ class Channel
 			Channel &operator=(Channel const &rhs);
 			~Channel();
 
+			std::string	getNameChannel();
+
 	private:
 			std::string _nameUser;
-
+			std::string _nameChannel;
 
 };
 
