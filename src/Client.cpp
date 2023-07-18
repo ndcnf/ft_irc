@@ -68,11 +68,11 @@ std::string	Client::getUser() {
 		}
 
 std::string Client::getHostname() {
-    char hostname[256];
-    if (gethostname(hostname, sizeof(hostname)) == 0) {
-        return std::string(hostname);
-    }
-    return "";
+	char hostname[256];
+	if (gethostname(hostname, sizeof(hostname)) == 0) {
+		return std::string(hostname);
+	}
+	return "";
 }
 
 bool Client::isAuthenticated(){
@@ -80,7 +80,7 @@ bool Client::isAuthenticated(){
 }
 
 void Client::setIsAuthenticated(bool authenticated) {
-        _isAuthenticated = authenticated;
+		_isAuthenticated = authenticated;
 }
 
 bool Client::isConnected(){

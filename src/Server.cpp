@@ -2,7 +2,8 @@
 #include "../inc/Client.hpp"
 
 
-Server::Server():	_socket(0),
+Server::Server():	nickSet(false),
+					_socket(0),
 					_validity(0),
 					_port(0)
 					// _quit(false)
@@ -276,56 +277,43 @@ bool	Server::connection()
 //     return str.substr(first, (last-first+1));
 // }
 
-void Server::parseNick(std::string buf, Client* client) {
-	std::string s_buf(buf);
+// void Server::parseNick(std::string buf, Client* client) {
+// 	std::string s_buf(buf);
 
-	std::cout << "DEBUG PARSE NIKC " << buf << std::endl;
-	std::size_t nickPos = s_buf.find("nick");
-	if (nickPos != std::string::npos) {
-		std::string nickToUp = "NICK";
-		for (std::size_t i = 0; i < nickToUp.length(); i++) {
-			nickToUp[i] = std::toupper(nickToUp[i]);
-		}
-		s_buf.replace(nickPos, nickToUp.length(), nickToUp);
-	}
-	nickPos = s_buf.find("NICK ");
-	if (nickPos != std::string::npos) {
-		std::size_t newlinePos = s_buf.find("USER", nickPos + 5); // On commence à chercher à partir de nickPos + 5
-		std::cout << "NICKNAAAAME DEBUUUG " << client->getNick() << std::endl;
-		if (newlinePos != std::string::npos) {
-			std::string nickname = s_buf.substr(nickPos + 5, newlinePos - (nickPos + 5));
-			if (nickname.empty()) {
-				std::cout << "MESSAGE D ERREUR NEEDED" << std::endl;
-				std::cout << "NICK " << client->getNick() << std::endl;
-			}
-			std::cout << "NICKNAME: " << nickname << std::endl;
-			std::cout << "2 NICKNAAAAME DEBUUUG " << client->getNick() << std::endl;
-			nickname.erase(std::remove(nickname.begin(), nickname.end(), '\n'), nickname.end());
-			nickname.erase(std::remove(nickname.begin(), nickname.end(), '\r'), nickname.end());
-			client->setNick(nickname);
-			std::cout << "3 NICKNAAAAME DEBUUUG " << client->getNick() << std::endl;
-			std::string msg = "NICK " + nickname;
-			sendMsg(msg, client->getFd());
-			command.clear();
-			token.clear();
-			s_buf.clear();
-		}
-	}
-}
+// 	std::cout << "DEBUG PARSE NIKC " << buf << std::endl;
+// 	std::size_t nickPos = s_buf.find("nick");
+// 	if (nickPos != std::string::npos) {
+// 		std::string nickToUp = "NICK";
+// 		for (std::size_t i = 0; i < nickToUp.length(); i++) {
+// 			nickToUp[i] = std::toupper(nickToUp[i]);
+// 		}
+// 		s_buf.replace(nickPos, nickToUp.length(), nickToUp);
+// 	}
+// 	nickPos = s_buf.find("NICK ");
+// 	if (nickPos != std::string::npos) {
+// 		std::size_t newlinePos = s_buf.find("USER", nickPos + 5); // On commence à chercher à partir de nickPos + 5
+// 		std::cout << "NICKNAAAAME DEBUUUG " << client->getNick() << std::endl;
+// 		if (newlinePos != std::string::npos) {
+// 			std::string nickname = s_buf.substr(nickPos + 5, newlinePos - (nickPos + 5));
+// 			if (nickname.empty()) {
+// 				std::cout << "MESSAGE D ERREUR NEEDED" << std::endl;
+// 				std::cout << "NICK " << client->getNick() << std::endl;
+// 			}
+// 			std::cout << "NICKNAME: " << nickname << std::endl;
+// 			std::cout << "2 NICKNAAAAME DEBUUUG " << client->getNick() << std::endl;
+// 			nickname.erase(std::remove(nickname.begin(), nickname.end(), '\n'), nickname.end());
+// 			nickname.erase(std::remove(nickname.begin(), nickname.end(), '\r'), nickname.end());
+// 			client->setNick(nickname);
+// 			std::cout << "3 NICKNAAAAME DEBUUUG " << client->getNick() << std::endl;
+// 			std::string msg = "NICK " + nickname;
+// 			sendMsg(msg, client->getFd());
+// 			command.clear();
+// 			token.clear();
+// 			s_buf.clear();
+// 		}
+// 	}
+// }
 
-
-void	Server::parseUser(std::string buf, Client *client) { // debug only ou utile ?
-	if (buf.find("USER") != std::string::npos) {
-		std::string str(buf);
-		std::size_t colonPos = str.find(':');
-		if (colonPos != std::string::npos) {
-			std::string UserContent = str.substr(colonPos + 1);
-			client->setUser(UserContent);
-			std::cout << "USERCONTENT : " << UserContent << std::endl; // DEBUG ONLY
-			std::cout << "USERNAME : " << client->getUser() << std::endl; // DEBUG ONLY
-		}
-	}
-}
 
 void	Server::getPing(std::string buf, Client *client) {
 		// if (client->getIPAddress() == clientPingIP && client->getPort() == clientPingPort) { // solution ?

@@ -47,6 +47,7 @@ class Server
 		Client						*currentClient;
 		std::string					token; //@Verena to have the token
 		std::string					command; //@Verena ... to arrete de se faire chier
+		bool						nickSet; // to set the nick once at the begining
 
 		bool		createSocket();
 		bool		connection();
@@ -69,8 +70,6 @@ class Server
 		Client		getClient(Client *client);
 
 		//COMMNANDS
-		void		parseNick(std::string buf, Client *client);
-		void		parseUser(std::string buf, Client *client);
 		void		parseCommand(std::string buf);
 		void		sendMsg(std::string message, int fd);
 		void		getCapLs(std::string buf);
