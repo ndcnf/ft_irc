@@ -112,6 +112,7 @@ bool	Server::connection()
 	int			pollCounter;
 	char		buf[250];
 	socklen_t	addrlen;
+	std::map<int, std::string>	msgBuf;
 
 	bzero(&pfd, sizeof(pfd));
 
@@ -158,6 +159,7 @@ bool	Server::connection()
 				{
 					// std::cout << "client " << _pfds[i].fd << " request your attention." << std::endl; // only for DEBUG
 					bzero(&buf, sizeof(buf));
+
 					int	bytesNbr = recv(_pfds[i].fd, buf, sizeof(buf), 0);
 					for (std::vector<Client>::iterator	it = _clients.begin(); it != _clients.end(); it++)
 					{
@@ -167,11 +169,17 @@ bool	Server::connection()
 							currentClient = &(*it);
 							// break;
 						}
-
 					}
 					int	sender = _pfds[i].fd;
+					msgBuf[sender] += static_cast<std::string>(buf);
 					//getPing(buf, currentClient);
-					inputClient(buf, currentClient);
+
+					if (static_cast<std::string>(buf).find("\n") != std::string::npos)
+					{
+						inputClient(msgBuf[sender], currentClient);
+						msgBuf[sender].clear();
+					}
+
 					//bzero(&buf, 250);
 
 					if (bytesNbr <= 0)
@@ -196,10 +204,9 @@ bool	Server::connection()
 								break;
 							}
 						}
-
+						msgBuf[_pfds[i].fd].clear();
 						close(_pfds[i].fd);
 						_pfds.erase(_pfds.begin() + i);
-
 						i--;
 					}
 					else
