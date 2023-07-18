@@ -5,6 +5,7 @@
 void	Server::commands(std::string cmd, Client *client) {
 		
 	std::string _cmdArray[CMDNBR] = {"NICK", "USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
+	//std::string _cmdArray[CMDNBR] = {"USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
 
 	void	(Server::*functionPtr[])(Client *client) = {
 		&Server::NICK,
@@ -77,7 +78,19 @@ void Server::NICK(Client *client) {
 			std::cout << "DEBUG NEWNICK SET : " << newNick << std::endl; // nana
 			std::cout << "TOKEN DEBUG IS : " << token << std::endl; // NICK
 			std::cout << "3 oldNick DEBUG IS : " << oldNick << std::endl;
-			std::string msg = ":" + oldNick + " NICK " + newNick + END_SEQUENCE;
+		
+			for (unsigned long i = 0; i < client->getNick().length(); i++ ) {
+				std::cout << "i de getNick est : " << i << std::endl;
+			}
+			for (unsigned long o = 0; o < oldNick.length(); o++ ) {
+				std::cout << "oldNick est : " << o << std::endl;
+			}
+			for (unsigned long n = 0; n < newNick.length(); n++ ) {
+				std::cout << "newNick est : " << n << std::endl;
+			}
+
+			std::string msg = ":" + oldNick + " NICK " + newNick;
+			// std::string msg = ":n1t4r4 NICK nana";
 			std::cout << "MESS : " << msg << std::endl;
 			sendMsg(msg, client->getFd());
 			break;

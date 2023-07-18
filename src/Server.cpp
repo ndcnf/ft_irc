@@ -35,7 +35,6 @@ Server	&Server::operator=(Server const &rhs)
 Server::~Server()
 {
 	delete currentClient;
-	
 }
 
 void	Server::setPort(int port)
@@ -173,6 +172,7 @@ bool	Server::connection()
 					int	sender = _pfds[i].fd;
 					//getPing(buf, currentClient);
 					inputClient(buf, currentClient);
+					//bzero(&buf, 250);
 
 					if (bytesNbr <= 0)
 					{
@@ -230,7 +230,7 @@ bool	Server::connection()
 // VERENA
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// void Server::parseNick(char* buf, Client* client) { // pas de USER mais mal parser, a voir
+// void Server::parseNick(std::string buf, Client* client) { // pas de USER mais mal parser, a voir
 // 	std::string s_buf(buf);
 
 // 	std::cout << "DEBUG PARSE NIKC " << buf << std::endl;
@@ -276,7 +276,7 @@ bool	Server::connection()
 //     return str.substr(first, (last-first+1));
 // }
 
-void Server::parseNick(char* buf, Client* client) {
+void Server::parseNick(std::string buf, Client* client) {
 	std::string s_buf(buf);
 
 	std::cout << "DEBUG PARSE NIKC " << buf << std::endl;
@@ -301,8 +301,11 @@ void Server::parseNick(char* buf, Client* client) {
 			std::cout << "NICKNAME: " << nickname << std::endl;
 			std::cout << "2 NICKNAAAAME DEBUUUG " << client->getNick() << std::endl;
 			nickname.erase(std::remove(nickname.begin(), nickname.end(), '\n'), nickname.end());
+			nickname.erase(std::remove(nickname.begin(), nickname.end(), '\r'), nickname.end());
 			client->setNick(nickname);
 			std::cout << "3 NICKNAAAAME DEBUUUG " << client->getNick() << std::endl;
+			std::string msg = "NICK " + nickname;
+			sendMsg(msg, client->getFd());
 			command.clear();
 			token.clear();
 			s_buf.clear();
@@ -311,8 +314,8 @@ void Server::parseNick(char* buf, Client* client) {
 }
 
 
-void	Server::parseUser(char *buf, Client *client) { // debug only ou utile ?
-	if (strstr(buf, "USER") != 0) {
+void	Server::parseUser(std::string buf, Client *client) { // debug only ou utile ?
+	if (buf.find("USER") != std::string::npos) {
 		std::string str(buf);
 		std::size_t colonPos = str.find(':');
 		if (colonPos != std::string::npos) {
@@ -326,7 +329,7 @@ void	Server::parseUser(char *buf, Client *client) { // debug only ou utile ?
 	}
 }
 
-void	Server::getPing(char *buf, Client *client) {
+void	Server::getPing(std::string buf, Client *client) {
 		// if (client->getIPAddress() == clientPingIP && client->getPort() == clientPingPort) { // solution ?
 			if (static_cast<std::string>(buf).find("PING") == 0) {
 			// Extraire le contenu du message PING (après le token "PING")
@@ -343,7 +346,7 @@ void	Server::getPing(char *buf, Client *client) {
 	}
 }
 
-void Server::parseCommand(char* buf)
+void Server::parseCommand(std::string buf)
 {
 	std::string input(buf);
 	size_t spacePos = input.find(' ');
@@ -368,24 +371,38 @@ void Server::parseCommand(char* buf)
 }
 
 
-void	Server::inputClient(char *buf, Client *client) // retourner une veleur ? un string ? return buff
+void	Server::inputClient(std::string buf, Client *client) // retourner une veleur ? un string ? return buff
 {
 	std::cout << "buf iCAv: " << buf << std::endl;
+	size_t pos;
 
-	if (static_cast<std::string>(buf).find("CAP LS") == 0) { // a sortir de la boucle ???
-		parseNick(buf, client);
-		parseUser(buf, client);
-		first_message(client);
-	}
-	else if (static_cast<std::string>(buf).find("PING") == 0)
+	while ((pos = buf.find(END_SEQUENCE)) != std::string::npos)
 	{
-		std::cout << "ping dans input client" << std::endl;
-		getPing(buf, client);
-	}
-	else if (buf != 0)
-	{
-		parseCommand(buf);
-		commands(token, client);
+		std::string line = buf.substr(0, pos);
+		buf.erase(0, pos + 2);
+
+		std::cout << "BUF: " << buf << std::endl;
+		std::cout << "RECIVED : " << line << std::endl;
+		std::cout << "POS : " << pos << std::endl;
+
+
+		if (line.find("CAP LS") != std::string::npos) { // a sortir de la boucle ???
+			sendMsg("CAP * LS :", client->getFd());
+			break;
+			//parseNick(buf, client);
+			//parseUser(buf, client);
+			//first_message(client);
+		}
+		else if (line.find("PING") != std::string::npos)
+		{
+			std::cout << "ping dans input client" << std::endl;
+			getPing(line, client);
+		}
+		else if (! line.empty())
+		{
+			parseCommand(line);
+			commands(token, client);
+		}
 	}
 }
 
