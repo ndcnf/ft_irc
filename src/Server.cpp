@@ -204,10 +204,9 @@ bool	Server::connection()
 								break;
 							}
 						}
-
+						msgBuf[_pfds[i].fd].clear();
 						close(_pfds[i].fd);
 						_pfds.erase(_pfds.begin() + i);
-
 						i--;
 					}
 					else
