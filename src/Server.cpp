@@ -35,6 +35,7 @@ Server	&Server::operator=(Server const &rhs)
 Server::~Server()
 {
 	delete currentClient;
+	
 }
 
 void	Server::setPort(int port)

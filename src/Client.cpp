@@ -67,9 +67,9 @@ std::string	Client::getUser() {
 // 		}
 
 std::string Client::getHostname() {
-    char hostname[256];
-    if (gethostname(hostname, sizeof(hostname)) == 0) {
-        return std::string(hostname);
-    }
-    return "";
+	char hostname[256];
+	if (gethostname(hostname, sizeof(hostname)) == 0) {
+		return std::string(hostname);
+	}
+	return "";
 }

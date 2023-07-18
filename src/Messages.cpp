@@ -112,7 +112,7 @@ void	Server::sendErrMsgServer(int errorCode, Client *client) {
 	//Conditions en switch ou voir HARL avec les niveaux d erreur, ou autres...
 
 	//msg == le message à renvoyer avec les getter necessaires.
-	//sendMsg(msg, client->getFd())
+	sendMsg(errorminator, client->getFd());
 
 
 }

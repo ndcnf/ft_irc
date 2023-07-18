@@ -34,6 +34,7 @@
 # define END_SEQUENCE "\r\n" //pour temriner les phrases
 # define SERVNAME "The MoIRes Connection Server" //nom du serveur
 # define CMDNBR 12 //tableau de commandes si besoin de le modifier en terme de nombre
+# define CHANTYPES "&#" //nickname definition
 
 class Server
 {

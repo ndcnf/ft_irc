@@ -44,9 +44,15 @@ void Server::NICK(Client *client) {
 	// vérifie si le surnom existe déjà
 	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
 		if (it->getNick() == newNick) {
-			std::cerr << "Error: Nickname already exists." << std::endl;
+			std::cerr << "Error: Nickname already exists." << std::endl;// message d erreurs a gerer voir avec claire
 			return;  // quitte la fonction
 		}
+	}
+
+	// vérifie si le nouveau surnom respecte les règles
+	if (newNick.empty() || newNick[0] == '#' || newNick[0] == ':' || newNick.find_first_of(CHANTYPES) != std::string::npos || newNick.find(' ') != std::string::npos) {
+		std::cerr << "Error: Nickname contains invalid characters." << std::endl; // message d erreurs a gerer voir avec claire
+		return;  // quitte la fonction
 	}
 
 	// continue avec le reste du code si les conditions sont remplies
@@ -65,8 +71,8 @@ void Server::NICK(Client *client) {
 			// 	oldNick = oldNick.substr(0, pos);
 			// }
 			std::cout << "2 oldNick DEBUG IS : " << oldNick << std::endl;
+			
 			it->setNick(newNick);
-			sleep(1); // Attendre 1 seconde
 			std::cout << "DEBUG NICKNAME SET : " << it->getNick() << std::endl; // nana
 			std::cout << "DEBUG NEWNICK SET : " << newNick << std::endl; // nana
 			std::cout << "TOKEN DEBUG IS : " << token << std::endl; // NICK
