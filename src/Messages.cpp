@@ -170,7 +170,7 @@ void Server::sendErrorMsg(int errorCode, int fd, std::string param1="", std::str
 			errorminator += " USERONCHANNEL " + param1 + " " + param2 + " :is already on channel";
 			break;
 		case 461:
-			errorminator += " NEEDMOREPARAMS " + param1 + " :Not enough parameters";
+			errorminator += " NEEDMOREPARAMS " + param1 + param2 + " :Not enough parameters";
 			break;
 		case 462:
 			errorminator += " ALREADYREGISTRED :You may not reregister";

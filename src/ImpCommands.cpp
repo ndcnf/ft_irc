@@ -55,7 +55,7 @@ void Server::NICK(Client *client) {
 
 	// vérifie si le nouveau surnom respecte les règles
 	if (newNick.empty() || newNick[0] == '#' || newNick[0] == ':' || newNick.find_first_of(CHANTYPES) != std::string::npos || newNick.find(' ') != std::string::npos) {
-		sendErrorMsg(432, client->getFd(), client->getNick(), "", "");
+		sendErrorMsg(432, client->getFd(), client->getNick(), "", "", "");
 		//std::cerr << "Error: Nickname contains invalid characters." << std::endl; // message d erreurs a gerer voir avec claire
 		//std::string msg = 
 		return ;  // quitte la fonction
@@ -155,17 +155,17 @@ void	Server::INVITE(Client *client) {
 
 void	Server::PASS(Client *client) {
 	if (client->isAuthenticated()){
-		std::cout << "PASS" << std::endl;
-		// sendErrMsgServer(462, client);
+		//std::cout << "PASS" << std::endl;
+		sendErrorMsg(462, client->getFd(),"", "", "", "");
 	}
 
 	if (_password != getPassword()){
 		std::cout << "PASS" << std::endl;
-		// sendErrMsgServer(464, client);
+		sendErrorMsg(464, client->getFd(),"", "", "", "");
 	}
 	if (_password.empty()){
 		std::cout << "PASS" << std::endl;
-		// sendErrMsgServer(461, client);
+		sendErrorMsg(461, client->getFd(), client->getNick(), "COMMANDE A IMPLEMENTER", "", "");		
 	}
 	client->setIsAuthenticated(true);
 	first_message(client);
