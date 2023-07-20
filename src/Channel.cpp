@@ -24,12 +24,13 @@ std::string	Channel::getNameChannel()
     return (_nameChannel);
 }
 
-// void Channel::addMembers(Client *client)
-// {
-//     if (client->isAuthenticated())
-// 		_members.push_back(client);
-// 	else {
+ void Channel::addMembers(Client *client)
+{
+    if (client->isAuthenticated())
+		// _members.push_back(client);
+        std::cout << "new member" << std::endl;
+    else {
 		
-// 		return;
-// 	}
-// }
+		return;
+	}
+}
