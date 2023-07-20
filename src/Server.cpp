@@ -3,8 +3,7 @@
 #include "../inc/Messages.hpp"
 
 
-Server::Server():	nickSet(false),
-					_socket(0),
+Server::Server():	_socket(0),
 					_validity(0),
 					_port(0)
 					// _quit(false)

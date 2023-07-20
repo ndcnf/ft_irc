@@ -9,9 +9,11 @@ Client::Client():	_fd(0),
 		_channel= "";
 		_hostname= "";
 		_isAuthenticated = false;
+		nickSet = false;
 }
 
-Client::Client(int fd):	_fd(fd),
+Client::Client(int fd):	nickSet(false),
+						_fd(fd),
 						_connected(false)
 {
 
