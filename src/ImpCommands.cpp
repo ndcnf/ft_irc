@@ -1,7 +1,7 @@
 #include "../inc/Server.hpp"
 #include "../inc/Client.hpp"
+#include "../inc/Messages.hpp"
 #include "../inc/Channel.hpp"
-
 
 void	Server::commands(std::string cmd, Client *client) {
 		
@@ -69,26 +69,26 @@ void Server::NICK(Client *client) {
 
 		// vérifie si le nouveau surnom dépasse 30 caractères
 		if(newNick.size() > 30) {
-			sendErrorMsg(432, client->getFd(), client->getNick(), "", "", "");
+      sendErrorMsg(ERR_ERRONEUSNICKNAME, client->getFd(), client->getNick(), "", "", "");
 			std::cerr << "Error: Nickname is longer than 30 characters." << std::endl; //comme dans freenode
-			return;
-		}
+      return;
+    }
 
-		// vérifie si le surnom existe déjà
-		for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-			if (it->getNick() == newNick) {
-				sendErrorMsg(433, client->getFd(), client->getNick(), "", "", "");
-				// std::cerr << "Error: Nickname already exists." << std::endl;// message d erreurs a gerer voir avec claire
-				return;  // quitte la fonction
-			}
+	// vérifie si le surnom existe déjà
+	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+		if (it->getNick() == newNick) {
+			sendErrorMsg(ERR_NICKNAMEINUSE, client->getFd(), client->getNick(), "", "", "");
+			// std::cerr << "Error: Nickname already exists." << std::endl;// message d erreurs a gerer voir avec claire
+			return;  // quitte la fonction
 		}
+  }
 
-		// vérifie si le nouveau surnom respecte les règles
-		if (newNick.empty() || newNick[0] == '#' || newNick[0] == ':' || newNick.find_first_of(CHANTYPES) != std::string::npos || newNick.find(' ') != std::string::npos) {
-			sendErrorMsg(432, client->getFd(), client->getNick(), "", "", "");
-			//std::cerr << "Error: Nickname contains invalid characters." << std::endl; // message d erreurs a gerer voir avec claire
-			return ;  // quitte la fonction
-		}
+	// vérifie si le nouveau surnom respecte les règles
+	if (newNick.empty() || newNick[0] == '#' || newNick[0] == ':' || newNick.find_first_of(CHANTYPES) != std::string::npos || newNick.find(' ') != std::string::npos) {
+		sendErrorMsg(ERR_ERRONEUSNICKNAME, client->getFd(), client->getNick(), "", "", "");
+  	//std::cerr << "Error: Nickname contains invalid characters." << std::endl; // message d erreurs a gerer voir avec claire
+		return ;  // quitte la fonction
+	}
 
 		// continue avec le reste du code si les conditions sont remplies
 		for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
@@ -215,16 +215,16 @@ void	Server::INVITE(Client *client) {
 void	Server::PASS(Client *client) {
 	if (client->isAuthenticated()){
 		//std::cout << "PASS" << std::endl;
-		sendErrorMsg(462, client->getFd(),"", "", "", "");
+		sendErrorMsg(ERR_ALREADYREGISTERED, client->getFd(),"", "", "", "");
 	}
 
 	if (_password != getPassword()){
 		std::cout << "PASS" << std::endl;
-		sendErrorMsg(464, client->getFd(),"", "", "", "");
+		sendErrorMsg(ERR_PASSWDMISMATCH, client->getFd(),"", "", "", "");
 	}
 	if (_password.empty()){
 		std::cout << "PASS" << std::endl;
-		sendErrorMsg(461, client->getFd(), client->getNick(), "COMMANDE A IMPLEMENTER", "", "");		
+		sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), client->getNick(), "COMMANDE A IMPLEMENTER", "", "");
 	}
 	client->setIsAuthenticated(true);
 	first_message(client);
