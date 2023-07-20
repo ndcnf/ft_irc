@@ -146,20 +146,24 @@ void	Server::JOIN(Client *client) {
 	std::cout << "cmd join" << std::endl;
 	std::string chanName;
 	chanName = command;
-	// if (command == 0)
-	// 	Type /join #<channel> pas besoin gere tout seul
-	if (chanName[0] == '#') {
-		std::string msg = ":" + client->getNick() + " JOIN " + chanName;
-		sendMsg(msg, client->getFd());
-	}
-	else
-	{
-		chanName = '#' + chanName;
-		std::string msg = ":" + client->getNick() + " JOIN " + chanName;
-		sendMsg(msg, client->getFd());
+	// if (chanName == channel.getName()) { // juste ?
+	// 	message d'erreur ce channel existe deja voir avec le mess erreur claire
+	// }
+	// else {
+		// if (command == 0)
+		// 	Type /join #<channel> pas besoin gere tout seul
+		if (chanName[0] == '#') {
+			std::string msg = ":" + client->getNick() + " JOIN " + chanName;
+			sendMsg(msg, client->getFd());
+		}
+		else {
+			chanName = '#' + chanName;
+			std::string msg = ":" + client->getNick() + " JOIN " + chanName;
+			sendMsg(msg, client->getFd());
 
-	}
-	// rest a ajouter lA GESTION DES ERREURS par claire
+		}
+	// }
+	// rest a ajouter lA GESTION DES ERREURS par claire 
 }
 
 void	Server::MODE(Client *client) { // channel only ? auto gerer par le client lorqu on se connect
