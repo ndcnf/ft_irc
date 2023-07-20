@@ -1,5 +1,6 @@
 #include "../inc/Server.hpp"
 #include "../inc/Client.hpp"
+#include "../inc/Messages.hpp"
 
 void Server::sendMsg(std::string message, int fd)
 {
@@ -22,79 +23,79 @@ void Server::sendErrorMsg(int errorCode, int fd, std::string param1="", std::str
 
 	switch(errorCode)
 	{
-		case 400:
+		case ERR_UNKNOWNERROR:
 			errorminator += " UNKNOWNERROR " + param1 + param2 + " :Unknown error";
 			break;
-		case 401:
+		case ERR_NOSUCHNICK:
 			errorminator += " NOSUCHNICK " + param1 + " :No such nick/channel";
 			break;
-		case 403:
+		case ERR_NOSUCHCHANNEL:
 			errorminator += " NOSUCHCHANNEL " + param1 + " :No such channel";
 			break;
-		case 404:
+		case ERR_CANNOTSENDTOCHAN:
 			errorminator += " CANNOTSENDTOCHAN " + param1 + " :Cannot send to channel";
 			break;
-		case 411:
+		case ERR_NORECIPIENT:
 			errorminator += " NORECIPIENT :No recipient given (" + param1 + ")";
 			break;
-		case 412:
+		case ERR_NOTEXTTOSEND:
 			errorminator += " NOTEXTTOSEND :No text to send";
 			break;
-		case 421:
+		case ERR_UNKNOWNCOMMAND:
 			errorminator += " UNKNOWNCOMMAND " + param1 + " :Unknown command";
 			break;
-		case 431:
+		case ERR_NONICKNAMEGIVEN:
 			errorminator += " NONICKNAMEGIVE :No nickname given";
 			break;
-		case 432:
+		case ERR_ERRONEUSNICKNAME:
 			errorminator += " ERRONEUSNICKNAME " + param1 + " :Erroneous nickname";
 			break;
-		case 433:
+		case ERR_NICKNAMEINUSE:
 			errorminator += " NICKNAMEINUSE " + param1 + " :Nickname is already in use";
 			break;
-		case 436:
+		case ERR_NICKCOLLISION:
 			errorminator += " NICKCOLLISION " + param1 + " :Nickname collision KILL from " + param2 + "@" + param3;
 			break;
-		case 441:
+		case ERR_USERNOTINCHANNEL:
 			errorminator += " USERNOTINCHANNEL " + param1 + " " + param2 + " :They aren't on that channel";
 			break;
-		case 442:
+		case ERR_NOTONCHANNEL:
 			errorminator += " NOTONCHANNEL " + param1 + " :You're not on that channel";
 			break;
-		case 443:
+		case ERR_USERONCHANNEL:
 			errorminator += " USERONCHANNEL " + param1 + " " + param2 + " :is already on channel";
 			break;
-		case 461:
+		case ERR_NEEDMOREPARAMS:
 			errorminator += " NEEDMOREPARAMS " + param1 + param2 + " :Not enough parameters";
 			break;
-		case 462:
+		case ERR_ALREADYREGISTERED:
 			errorminator += " ALREADYREGISTRED :You may not reregister";
 			break;
-		case 464:
+		case ERR_PASSWDMISMATCH:
 			errorminator += " PASSWDMISMATCH :Password incorrect";
 			break;
-		case 471:
+		case ERR_CHANNELISFULL:
 			errorminator += " " + param1 + " " + param2 + " :Cannot join channel (+l)";
 			break;
-		case 472:
+		case ERR_UNKNOWNMODE:
 			errorminator += " " + param1 + " " + param2 + " :is not a recognised channel mode.";
 			break;
-		case 473:
+		case ERR_INVITEONLYCHAN:
 			errorminator += " ERR_INVITEONYLCHAN " + param1 + " :Cannot join channel. (+i)";
 			break;
-		case 475:
+		case ERR_BADCHANNELKEY:
 			errorminator += " ERR_BADPASSWORD " + param2 + " :Cannot join channel (incorrect channel key)";
 			break;
-		case 482:
+		case ERR_CHANOPRIVSNEEDED:
 			errorminator += + " " + param1 + " " + param2 + " :You're not a channel operator";
 			break;
-		case 501:
+		case ERR_UMODEUNKNOWNFLAG:
 			errorminator += " UMODEUNKNOWNFLAG :Unknown MODE flag";
 			break;
 		case 650:
 			errorminator += param1 + ":<channel> [:<topic>]";
 			break;
-		case 696:
+		case ERR_INVALIDMODEPARAM:
 			errorminator += + " " + param1 + " " + param2 + " " + param3 + " *" + " :You must specify a parameter for the " + param3 + " mode";
 			break;
 		default:
