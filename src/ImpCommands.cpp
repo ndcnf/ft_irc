@@ -67,9 +67,9 @@ void Server::NICK(Client *client) {
 	else {
 		std::string newNick = command;
 
-		// vérifie si le nouveau surnom dépasse 9 caractères
+		// vérifie si le nouveau surnom dépasse 30 caractères
 		if(newNick.size() > 30) {
-      sendErrorMsg(ERR_ERRONEUSNICKNAME, client->getFd(), client->getNick(), "", "", "")
+      sendErrorMsg(ERR_ERRONEUSNICKNAME, client->getFd(), client->getNick(), "", "", "");
 			std::cerr << "Error: Nickname is longer than 30 characters." << std::endl; //comme dans freenode
       return;
     }
@@ -81,6 +81,7 @@ void Server::NICK(Client *client) {
 			// std::cerr << "Error: Nickname already exists." << std::endl;// message d erreurs a gerer voir avec claire
 			return;  // quitte la fonction
 		}
+  }
 
 	// vérifie si le nouveau surnom respecte les règles
 	if (newNick.empty() || newNick[0] == '#' || newNick[0] == ':' || newNick.find_first_of(CHANTYPES) != std::string::npos || newNick.find(' ') != std::string::npos) {
@@ -173,6 +174,7 @@ void	Server::JOIN(Client *client) {
 
 	// creer une fonction pour creer le channel ou le faire direct la ?
 	
+// }
 }
 
 void	Server::MODE(Client *client) { // channel only ? auto gerer par le client lorqu on se connect
