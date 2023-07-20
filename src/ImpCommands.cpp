@@ -1,13 +1,16 @@
 #include "../inc/Server.hpp"
 #include "../inc/Client.hpp"
 #include "../inc/Messages.hpp"
+#include "../inc/Channel.hpp"
 
 void	Server::commands(std::string cmd, Client *client) {
-
-	std::string _cmdArray[CMDNBR] = {"NICK", "USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
+		
+	std::string _cmdArray[CMDNBR] = {"CAP", "PING", "NICK", "USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
 	//std::string _cmdArray[CMDNBR] = {"USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
 
 	void	(Server::*functionPtr[])(Client *client) = {
+		&Server::CAP,
+		&Server::PING,
 		&Server::NICK,
 		&Server::USER,
 		&Server::JOIN,
@@ -30,69 +33,95 @@ void	Server::commands(std::string cmd, Client *client) {
 	}
 }
 
+void	Server::CAP(Client *client) {
+	if (command == "LS")
+		sendMsg("CAP * LS :", client->getFd());
+	else
+		return;
+}
+
+void	Server::PING(Client *client) {
+	std::string ping = token;
+	std::string pingContent = command;
+	// Construire la réponse PONG avec le même contenu que le message PING
+	std::string pongResponse = "PONG " + pingContent;
+	_lastPing = time(NULL);
+	// Envoyer la réponse PONG au client
+	sendMsg(pongResponse, client->getFd());
+}
+
 void Server::NICK(Client *client) {
 	std::cout << "Votre demande est une commande.: ";
 	std::cout << "cmd nick" << std::endl;
 
-	std::string newNick = command;
-
-	// vérifie si le nouveau surnom dépasse 9 caractères
-	if(newNick.size() > 9) {
-		std::cerr << "Error: Nickname is longer than 9 characters." << std::endl;
-		return;  // quitte la fonction
+	if (nickSet == false) {
+		std::string nickname = command;
+		std::cout << "1 NICKNAAAAME DEBUUUG " << nickname << std::endl;
+		std::cout << "different ou egale DEBUUUG " << nickname.length() << std::endl;
+		client->setNick(nickname);
+		std::cout << "2 NICKNAAAAME DEBUUUG " << client->getNick() << std::endl;
+		std::string msg = "NICK " + nickname;
+		sendMsg(msg, client->getFd());
+		nickSet = true;
 	}
+	else {
+		std::string newNick = command;
+
+		// vérifie si le nouveau surnom dépasse 9 caractères
+		if(newNick.size() > 30) {
+      sendErrorMsg(ERR_ERRONEUSNICKNAME, client->getFd(), client->getNick(), "", "", "")
+			std::cerr << "Error: Nickname is longer than 30 characters." << std::endl; //comme dans freenode
+      return;
+    }
 
 	// vérifie si le surnom existe déjà
 	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
 		if (it->getNick() == newNick) {
 			sendErrorMsg(ERR_NICKNAMEINUSE, client->getFd(), client->getNick(), "", "", "");
 			// std::cerr << "Error: Nickname already exists." << std::endl;// message d erreurs a gerer voir avec claire
-			// std::string msg = "433 " + client->getNick() + " " + newNick + ":Nickname is already in use";
-			// sendMsg(msg, client->getFd());
 			return;  // quitte la fonction
 		}
-	}
 
 	// vérifie si le nouveau surnom respecte les règles
 	if (newNick.empty() || newNick[0] == '#' || newNick[0] == ':' || newNick.find_first_of(CHANTYPES) != std::string::npos || newNick.find(' ') != std::string::npos) {
 		sendErrorMsg(ERR_ERRONEUSNICKNAME, client->getFd(), client->getNick(), "", "", "");
-		//std::cerr << "Error: Nickname contains invalid characters." << std::endl; // message d erreurs a gerer voir avec claire
-		//std::string msg =
+  	//std::cerr << "Error: Nickname contains invalid characters." << std::endl; // message d erreurs a gerer voir avec claire
 		return ;  // quitte la fonction
 	}
 
-	// continue avec le reste du code si les conditions sont remplies
-	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-		if (it->getFd() == client->getFd()) {
-			std::cout << "1 oldNick DEBUG IS : " << client->getNick() << std::endl;
-			std::string oldNick;
-			for (std::vector<Client>::iterator innerIt = _clients.begin(); innerIt != _clients.end(); ++innerIt) {
-				if (innerIt->getFd() == client->getFd()) {
-					oldNick = innerIt->getNick();
-					break;
+		// continue avec le reste du code si les conditions sont remplies
+		for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+			if (it->getFd() == client->getFd()) {
+				std::cout << "1 oldNick DEBUG IS : " << client->getNick() << std::endl;
+				std::string oldNick;
+				for (std::vector<Client>::iterator innerIt = _clients.begin(); innerIt != _clients.end(); ++innerIt) {
+					if (innerIt->getFd() == client->getFd()) {
+						oldNick = innerIt->getNick();
+						break;
+					}
 				}
+				// std::size_t pos = oldNick.find("\nNICK");
+				// if (pos != std::string::npos) {
+				// 	oldNick = oldNick.substr(0, pos);
+				// }
+				// std::cout << "2 oldNick DEBUG IS : " << oldNick << std::endl;
+				
+				it->setNick(newNick);
+				// std::cout << "DEBUG NICKNAME SET : " << it->getNick() << std::endl; // nana
+				// std::cout << "DEBUG NEWNICK SET : " << newNick << std::endl; // nana
+				// std::cout << "TOKEN DEBUG IS : " << token << std::endl; // NICK
+				// std::cout << "3 oldNick DEBUG IS : " << oldNick << std::endl;
+				
+				std::string msg;
+				if (oldNick.empty())
+					msg = "NICK " + newNick;
+				else
+					msg = ":" + oldNick + " NICK " + newNick;
+				// std::string msg = ":n1t4r4 NICK nana";
+				// std::cout << "MESS : " << msg << std::endl;
+				sendMsg(msg, client->getFd());
+				break;
 			}
-			// std::size_t pos = oldNick.find("\nNICK");
-			// if (pos != std::string::npos) {
-			// 	oldNick = oldNick.substr(0, pos);
-			// }
-			std::cout << "2 oldNick DEBUG IS : " << oldNick << std::endl;
-
-			it->setNick(newNick);
-			std::cout << "DEBUG NICKNAME SET : " << it->getNick() << std::endl; // nana
-			std::cout << "DEBUG NEWNICK SET : " << newNick << std::endl; // nana
-			std::cout << "TOKEN DEBUG IS : " << token << std::endl; // NICK
-			std::cout << "3 oldNick DEBUG IS : " << oldNick << std::endl;
-
-			std::string msg;
-			if (oldNick.empty())
-				msg = "NICK " + newNick;
-			else
-				msg = ":" + oldNick + " NICK " + newNick;
-			// std::string msg = ":n1t4r4 NICK nana";
-			std::cout << "MESS : " << msg << std::endl;
-			sendMsg(msg, client->getFd());
-			break;
 		}
 	}
 }
@@ -115,7 +144,35 @@ void	Server::USER(Client *client) { // passe dedant ?
 
 void	Server::JOIN(Client *client) {
 	std::cout << "cmd join" << std::endl;
-	(void)client;
+	std::string chanName;
+	chanName = command;
+	// if (chanName == channel.getName()) { // juste ?
+	// 	message d'erreur ce channel existe deja voir avec le mess erreur claire
+	// }
+	// else {
+		// if (command == 0)
+		// 	Type /join #<channel> pas besoin gere tout seul
+		if (chanName[0] == '#') {
+			std::string msg = ":" + client->getNick() + " JOIN " + chanName;
+			sendMsg(msg, client->getFd());
+		}
+		else {
+			chanName = '#' + chanName;
+			std::string msg = ":" + client->getNick() + " JOIN " + chanName;
+			sendMsg(msg, client->getFd());
+
+		}
+	// }
+	// rest a ajouter lA GESTION DES ERREURS par claire 
+  
+// 	Channel	*channel;
+	//lui dire que la commande (requete qui vient apres JOIN)= le nom du channel
+	//comment introduire la classe channel la dedans ?
+
+// 	channel->_nameChannel = command;
+
+	// creer une fonction pour creer le channel ou le faire direct la ?
+	
 }
 
 void	Server::MODE(Client *client) { // channel only ? auto gerer par le client lorqu on se connect
