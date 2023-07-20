@@ -33,7 +33,7 @@
 # define ERRMSG RED"Error: " //parce que c est joli
 # define END_SEQUENCE "\r\n" //pour temriner les phrases
 # define SERVNAME "The MoIRes Connection Server" //nom du serveur
-# define CMDNBR 12 //tableau de commandes si besoin de le modifier en terme de nombre
+# define CMDNBR 13 //tableau de commandes si besoin de le modifier en terme de nombre
 # define CHANTYPES "&#" //nickname definition
 
 class Server
@@ -107,6 +107,7 @@ class Server
 		std::string					_password; //@Verena to get the password
 		int							_lastPing;
 
+		void	CAP(Client *client);
 		void	NICK(Client *client);
 		void	USER(Client *client);
 		void	JOIN(Client *client);

@@ -4,10 +4,11 @@
 
 void	Server::commands(std::string cmd, Client *client) {
 		
-	std::string _cmdArray[CMDNBR] = {"NICK", "USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
+	std::string _cmdArray[CMDNBR] = {"CAP", "NICK", "USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
 	//std::string _cmdArray[CMDNBR] = {"USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
 
 	void	(Server::*functionPtr[])(Client *client) = {
+		&Server::CAP,
 		&Server::NICK,
 		&Server::USER,
 		&Server::JOIN,
@@ -28,6 +29,10 @@ void	Server::commands(std::string cmd, Client *client) {
 			return;
 		}
 	}
+}
+
+void	Server::CAP(Client *client) {
+	
 }
 
 void Server::NICK(Client *client) {
@@ -85,13 +90,13 @@ void Server::NICK(Client *client) {
 				// if (pos != std::string::npos) {
 				// 	oldNick = oldNick.substr(0, pos);
 				// }
-				std::cout << "2 oldNick DEBUG IS : " << oldNick << std::endl;
+				// std::cout << "2 oldNick DEBUG IS : " << oldNick << std::endl;
 				
 				it->setNick(newNick);
-				std::cout << "DEBUG NICKNAME SET : " << it->getNick() << std::endl; // nana
-				std::cout << "DEBUG NEWNICK SET : " << newNick << std::endl; // nana
-				std::cout << "TOKEN DEBUG IS : " << token << std::endl; // NICK
-				std::cout << "3 oldNick DEBUG IS : " << oldNick << std::endl;
+				// std::cout << "DEBUG NICKNAME SET : " << it->getNick() << std::endl; // nana
+				// std::cout << "DEBUG NEWNICK SET : " << newNick << std::endl; // nana
+				// std::cout << "TOKEN DEBUG IS : " << token << std::endl; // NICK
+				// std::cout << "3 oldNick DEBUG IS : " << oldNick << std::endl;
 				
 				std::string msg;
 				if (oldNick.empty())
@@ -99,7 +104,7 @@ void Server::NICK(Client *client) {
 				else
 					msg = ":" + oldNick + " NICK " + newNick;
 				// std::string msg = ":n1t4r4 NICK nana";
-				std::cout << "MESS : " << msg << std::endl;
+				// std::cout << "MESS : " << msg << std::endl;
 				sendMsg(msg, client->getFd());
 				break;
 			}
@@ -125,7 +130,22 @@ void	Server::USER(Client *client) { // passe dedant ?
 
 void	Server::JOIN(Client *client) {
 	std::cout << "cmd join" << std::endl;
-	(void)client;
+	std::string chanName;
+	chanName = command;
+	// if (command == 0)
+	// 	Type /join #<channel> pas besoin gere tout seul
+	if (chanName[0] == '#') {
+		std::string msg = ":" + client->getNick() + " JOIN " + chanName;
+		sendMsg(msg, client->getFd());
+	}
+	else
+	{
+		chanName = '#' + chanName;
+		std::string msg = ":" + client->getNick() + " JOIN " + chanName;
+		sendMsg(msg, client->getFd());
+
+	}
+	// rest a ajouter lA GESTION DES ERREURS par claire
 }
 
 void	Server::MODE(Client *client) { // channel only ? auto gerer par le client lorqu on se connect
