@@ -67,27 +67,28 @@ void Server::NICK(Client *client) {
 	else {
 		std::string newNick = command;
 
-		// vérifie si le nouveau surnom dépasse 9 caractères
+		// vérifie si le nouveau surnom dépasse 30 caractères
 		if(newNick.size() > 30) {
-      sendErrorMsg(432, client->getFd(), client->getNick(), "", "", "")
+			sendErrorMsg(432, client->getFd(), client->getNick(), "", "", "");
 			std::cerr << "Error: Nickname is longer than 30 characters." << std::endl; //comme dans freenode
-      return;
-    }
-
-	// vérifie si le surnom existe déjà
-	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-		if (it->getNick() == newNick) {
-			sendErrorMsg(433, client->getFd(), client->getNick(), "", "", "");
-			// std::cerr << "Error: Nickname already exists." << std::endl;// message d erreurs a gerer voir avec claire
-			return;  // quitte la fonction
+			return;
 		}
 
-	// vérifie si le nouveau surnom respecte les règles
-	if (newNick.empty() || newNick[0] == '#' || newNick[0] == ':' || newNick.find_first_of(CHANTYPES) != std::string::npos || newNick.find(' ') != std::string::npos) {
-		sendErrorMsg(432, client->getFd(), client->getNick(), "", "", "");
-  	//std::cerr << "Error: Nickname contains invalid characters." << std::endl; // message d erreurs a gerer voir avec claire
-		return ;  // quitte la fonction
-	}
+		// vérifie si le surnom existe déjà
+		for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+			if (it->getNick() == newNick) {
+				sendErrorMsg(433, client->getFd(), client->getNick(), "", "", "");
+				// std::cerr << "Error: Nickname already exists." << std::endl;// message d erreurs a gerer voir avec claire
+				return;  // quitte la fonction
+			}
+		}
+
+		// vérifie si le nouveau surnom respecte les règles
+		if (newNick.empty() || newNick[0] == '#' || newNick[0] == ':' || newNick.find_first_of(CHANTYPES) != std::string::npos || newNick.find(' ') != std::string::npos) {
+			sendErrorMsg(432, client->getFd(), client->getNick(), "", "", "");
+			//std::cerr << "Error: Nickname contains invalid characters." << std::endl; // message d erreurs a gerer voir avec claire
+			return ;  // quitte la fonction
+		}
 
 		// continue avec le reste du code si les conditions sont remplies
 		for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
@@ -173,6 +174,7 @@ void	Server::JOIN(Client *client) {
 
 	// creer une fonction pour creer le channel ou le faire direct la ?
 	
+// }
 }
 
 void	Server::MODE(Client *client) { // channel only ? auto gerer par le client lorqu on se connect

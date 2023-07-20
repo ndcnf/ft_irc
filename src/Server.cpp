@@ -278,8 +278,8 @@ void	Server::inputClient(std::string buf, Client *client) // retourner une veleu
 			parseCommand(line);
 			commands(token, client);
 		}
-		// else
-		// 	sendErrorMsg(461, client->getFd(), "", "", "", "");
+		else
+			sendErrorMsg(461, client->getFd(), "", "", "", "");
 	}
 	std::cout << "POS END: " << pos << std::endl;
 }
