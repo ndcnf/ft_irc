@@ -12,10 +12,14 @@ class Channel
 			~Channel();
 
 			std::string	getNameChannel();
+			void	addMembers(Client *client);
+			
 
 	private:
-			std::string _nameUser;
-			std::string _nameChannel;
+			std::string 				_nameMembers;
+			std::vector<std::string>	_members;
+			std::string 				_nameChannel;
+
 
 };
 
