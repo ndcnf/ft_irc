@@ -112,6 +112,7 @@ bool	Server::connection()
 	int			pollCounter;
 	char		buf[250];
 	socklen_t	addrlen;
+	std::map<int, std::string>	msgBuf;
 
 	bzero(&pfd, sizeof(pfd));
 
@@ -158,6 +159,7 @@ bool	Server::connection()
 				{
 					// std::cout << "client " << _pfds[i].fd << " request your attention." << std::endl; // only for DEBUG
 					bzero(&buf, sizeof(buf));
+
 					int	bytesNbr = recv(_pfds[i].fd, buf, sizeof(buf), 0);
 					for (std::vector<Client>::iterator	it = _clients.begin(); it != _clients.end(); it++)
 					{
@@ -167,11 +169,18 @@ bool	Server::connection()
 							currentClient = &(*it);
 							// break;
 						}
-
 					}
 					int	sender = _pfds[i].fd;
+					msgBuf[sender] += static_cast<std::string>(buf);
 					//getPing(buf, currentClient);
-					inputClient(buf, currentClient);
+
+					if (static_cast<std::string>(buf).find("\n") != std::string::npos)
+					{
+						inputClient(msgBuf[sender], currentClient);
+						msgBuf[sender].clear();
+					}
+
+					//bzero(&buf, 250);
 
 					if (bytesNbr <= 0)
 					{
@@ -191,14 +200,13 @@ bool	Server::connection()
 							{
 								std::cout << "Ready to destroy " << _pfds[i].fd << " aka " << (*it).getFd() << std::endl;
 								_clients.erase(it);
-								delete &(*it);
+								// delete &(*it);
 								break;
 							}
 						}
-
+						msgBuf[_pfds[i].fd].clear();
 						close(_pfds[i].fd);
 						_pfds.erase(_pfds.begin() + i);
-
 						i--;
 					}
 					else
@@ -229,7 +237,53 @@ bool	Server::connection()
 // VERENA
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Server::parseNick(char* buf, Client* client) { // pas de USER mais mal parser, a voir
+// void Server::parseNick(std::string buf, Client* client) { // pas de USER mais mal parser, a voir
+// 	std::string s_buf(buf);
+
+// 	std::cout << "DEBUG PARSE NIKC " << buf << std::endl;
+// 	std::size_t nickPos = s_buf.find("nick");
+// 	if (nickPos != std::string::npos) {
+// 		std::string nickToUp = "NICK";
+// 		for (std::size_t i = 0; i < nickToUp.length(); i++) {
+// 			nickToUp[i] = std::toupper(nickToUp[i]);
+// 		}
+// 		s_buf.replace(nickPos, nickToUp.length(), nickToUp);
+// 	}
+// 	nickPos = s_buf.find("NICK ");
+// 	if (nickPos != std::string::npos) {
+// 		std::size_t newlinePos = s_buf.find(' ', nickPos); // ou find(\n, nickPos) ?
+// 		std::cout << "NICKNAAAAME DEBUUUG " << client->getNick() << std::endl;
+// 		std::cout << "BUFFER DEBUUUG " << s_buf << std::endl;
+// 		if (newlinePos != std::string::npos) {
+// 			std::string nickname = s_buf.substr(nickPos + 5, newlinePos - nickPos - 6);
+// 			// std::string nickname = s_buf.substr(nickPos + 5, newlinePos - (nickPos + 5));
+// 			if (nickname.empty()) {
+// 				std::cout << "MESSAGE D ERREUR NEEDED" << std::endl;
+// 				std::cout << "NICK " << client->getNick() << std::endl;
+// 			}
+// 			// std::string msg = "NICK " + nickname + END_SEQUENCE;
+// 			// sendMsg(msg, client->getFd()); // fait buger ? ou pas ? @Verena
+// 			std::cout << "NICKNAME: " << nickname << std::endl;
+// 			std::cout << "2 NICKNAAAAME DEBUUUG " << client->getNick() << std::endl;
+// 			client->setNick(nickname);
+// 			std::cout << "3 NICKNAAAAME DEBUUUG " << client->getNick() << std::endl;
+// 			command.clear();
+// 			token.clear();
+// 			s_buf.clear();
+// 		}
+// 	}
+// }
+
+// std::string Server::trim(const std::string& str)
+// {
+//     size_t first = str.find_first_not_of(" \n\t");
+//     if (first == std::string::npos)
+//         return "";
+//     size_t last = str.find_last_not_of(" \n\t");
+//     return str.substr(first, (last-first+1));
+// }
+
+void Server::parseNick(std::string buf, Client* client) {
 	std::string s_buf(buf);
 
 	std::cout << "DEBUG PARSE NIKC " << buf << std::endl;
@@ -243,37 +297,44 @@ void Server::parseNick(char* buf, Client* client) { // pas de USER mais mal pars
 	}
 	nickPos = s_buf.find("NICK ");
 	if (nickPos != std::string::npos) {
-		std::size_t newlinePos = s_buf.find('\n', nickPos); // ou find('', nickPos) ?
+		std::size_t newlinePos = s_buf.find("USER", nickPos + 5); // On commence à chercher à partir de nickPos + 5
+		std::cout << "NICKNAAAAME DEBUUUG " << client->getNick() << std::endl;
 		if (newlinePos != std::string::npos) {
-			std::string nickname = s_buf.substr(nickPos + 5, newlinePos - nickPos - 5 - 1);
+			std::string nickname = s_buf.substr(nickPos + 5, newlinePos - (nickPos + 5));
 			if (nickname.empty()) {
+				std::cout << "MESSAGE D ERREUR NEEDED" << std::endl;
 				std::cout << "NICK " << client->getNick() << std::endl;
 			}
-			// std::string msg = "NICK " + nickname + END_SEQUENCE;
-			// sendMsg(msg, client->getFd()); // fait buger ? ou pas ? @Verena
 			std::cout << "NICKNAME: " << nickname << std::endl;
+			std::cout << "2 NICKNAAAAME DEBUUUG " << client->getNick() << std::endl;
+			nickname.erase(std::remove(nickname.begin(), nickname.end(), '\n'), nickname.end());
+			nickname.erase(std::remove(nickname.begin(), nickname.end(), '\r'), nickname.end());
 			client->setNick(nickname);
-			// command.clear(); ??
+			std::cout << "3 NICKNAAAAME DEBUUUG " << client->getNick() << std::endl;
+			std::string msg = "NICK " + nickname;
+			sendMsg(msg, client->getFd());
+			command.clear();
+			token.clear();
+			s_buf.clear();
 		}
 	}
 }
 
-void	Server::parseUser(char *buf, Client *client) { // debug only ou utile ?
-	if (strstr(buf, "USER") != 0) {
+
+void	Server::parseUser(std::string buf, Client *client) { // debug only ou utile ?
+	if (buf.find("USER") != std::string::npos) {
 		std::string str(buf);
 		std::size_t colonPos = str.find(':');
 		if (colonPos != std::string::npos) {
 			std::string UserContent = str.substr(colonPos + 1);
-			std::string	msg = "USER : " + UserContent + END_SEQUENCE;
 			client->setUser(UserContent);
 			std::cout << "USERCONTENT : " << UserContent << std::endl; // DEBUG ONLY
 			std::cout << "USERNAME : " << client->getUser() << std::endl; // DEBUG ONLY
-			// sendMsg(msg, client->getFd()); // DEBUG ONLY pas necessaire a priori (pas dans freenode)
 		}
 	}
 }
 
-void	Server::getPing(char *buf, Client *client) {
+void	Server::getPing(std::string buf, Client *client) {
 		// if (client->getIPAddress() == clientPingIP && client->getPort() == clientPingPort) { // solution ?
 			if (static_cast<std::string>(buf).find("PING") == 0) {
 			// Extraire le contenu du message PING (après le token "PING")
@@ -290,18 +351,15 @@ void	Server::getPing(char *buf, Client *client) {
 	}
 }
 
-void Server::parseCommand(char* buf)
+void Server::parseCommand(std::string buf)
 {
 	std::string input(buf);
 	size_t spacePos = input.find(' ');
 
-	// Trouver le retour à la ligne
-	size_t newlinePos = input.find('\n');
-
-	if (spacePos != std::string::npos && newlinePos != std::string::npos && spacePos < newlinePos)
+	if (spacePos != std::string::npos)
 	{
 		token = input.substr(0, spacePos);
-		command = input.substr(spacePos + 1, newlinePos - spacePos - 1);
+		command = input.substr(spacePos + 1, input.size());
 	}
 	else
 	{
@@ -315,25 +373,38 @@ void Server::parseCommand(char* buf)
 }
 
 
-void	Server::inputClient(char *buf, Client *client) // retourner une veleur ? un string ? return buff
+void	Server::inputClient(std::string buf, Client *client) // retourner une veleur ? un string ? return buff
 {
 	std::cout << "buf iCAv: " << buf << std::endl;
+	size_t pos = buf.find(END_SEQUENCE);
 
-	if (static_cast<std::string>(buf).find("CAP LS") == 0) { // a sortir de la boucle ???
-		parseNick(buf, client);
-		parseUser(buf, client);
-		first_message(client);
-	}
-	else if (static_cast<std::string>(buf).find("PING") == 0)
+	while (pos != std::string::npos)
 	{
-		std::cout << "ping dans input client" << std::endl;
-		getPing(buf, client);
+		std::string line = buf.substr(0, pos);
+		buf.erase(0, pos + 2);
+		pos = buf.find(END_SEQUENCE);
+
+		std::cout << "RECIVED : " << line << std::endl;
+
+		if (line.find("CAP LS") != std::string::npos) { // a sortir de la boucle ???
+			sendMsg("CAP * LS :", client->getFd());
+			//parseNick(buf, client); tout se fait dans nick a present
+			//parseUser(buf, client); a faire avec une commande USER
+			//first_message(client); on l-envoi quand du coup, a la fin de cette focntion _
+		}
+		else if (line.find("PING") != std::string::npos)
+		{
+			std::cout << "ping dans input client" << std::endl;
+			getPing(line, client);
+		}
+		else if (! line.empty())
+		{
+			parseCommand(line);
+			commands(token, client);
+		}
 	}
-	else if (buf != 0)
-	{
-		parseCommand(buf);
-		commands(token, client);
-	}
+	std::cout << "POS END: " << pos << std::endl;
+
 }
 
 Client* Server::addClient(int fd)

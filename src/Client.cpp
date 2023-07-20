@@ -45,7 +45,7 @@ int		Client::getFd() const
 	return (_fd);
 }
 
-std::string	Client::getNick()
+std::string	Client::getNick() const
 {
 	return _nick;
 }
@@ -53,7 +53,10 @@ std::string	Client::getNick()
 void	Client::setNick(std::string nick) {
 	// si le nickname n existe pas deja?
 	//_username = nick;// pas sure de ca
+	std::cout << "Before : " << getNick() << std::endl;
 	_nick = nick;
+	std::cout << "After : " << getNick() << std::endl;
+	std::cout << "Length : " << getNick().length() << std::endl;
 }
 
 void		Client::setUser(std::string user) {
@@ -63,10 +66,6 @@ void		Client::setUser(std::string user) {
 std::string	Client::getUser() {
 			return _username;
 		}
-
-// std::string	Client::getHostname() {
-// 			return _hostname;
-// 		}
 
 std::string Client::getHostname() {
     char hostname[256];

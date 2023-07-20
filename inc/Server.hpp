@@ -34,6 +34,7 @@
 # define END_SEQUENCE "\r\n" //pour temriner les phrases
 # define SERVNAME "The MoIRes Connection Server" //nom du serveur
 # define CMDNBR 12 //tableau de commandes si besoin de le modifier en terme de nombre
+# define CHANTYPES "&#" //nickname definition
 
 class Server
 {
@@ -50,10 +51,10 @@ class Server
 		bool		createSocket();
 		bool		connection();
 		Client*		addClient(int fd);
-		void		inputClient(char *buf, Client *client);
-		void		cmdSelection(char *buf, Client *client);
+		void		inputClient(std::string buf, Client *client);
+		void		cmdSelection(std::string buf, Client *client);
 		//@Verena CAP LS
-		// void	capOrNOt(char *buf, int clientSocket);
+		// void	capOrNOt(std::string buf, int clientSocket);
 		void		capOrNOt(Client *client);
 		std::vector<std::string> getCap();
 		// bool	selectConnection();
@@ -68,18 +69,21 @@ class Server
 		Client		getClient(Client *client);
 
 		//COMMNANDS
-		void		parseNick(char *buf, Client *client);
-		void		parseUser(char *buf, Client *client);
-		void		parseCommand(char* buf);
+		void		parseNick(std::string buf, Client *client);
+		void		parseUser(std::string buf, Client *client);
+		void		parseCommand(std::string buf);
 		void		sendMsg(std::string message, int fd);
-		void		getCapLs(char *buf);
-		void		getPing(char *buf, Client *client);
+		void		getCapLs(std::string buf);
+		void		getPing(std::string buf, Client *client);
 		void		first_message(Client *client);
 		void		sendMsgServer(Client *Client); // pas encore ecrite correctement donc ca ne compilera pas avec
 		void		sendErrMsgServer(int errorCode, Client *client); // pas encore ecrite correctement donc ca ne compilera pas avec
-
+		void 		sendErrorMsg(int errorCode, int fd, std::string param1, std::string param2, std::string param3, std::string info);
 		//COMMANDS CALL
 		void	commands(std::string cmd, Client *client);
+
+		//UTILS
+		std::string	trim(const std::string& str);
 
 		class ServException : public std::exception {
 			public:
