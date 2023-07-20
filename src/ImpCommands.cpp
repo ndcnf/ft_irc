@@ -45,16 +45,18 @@ void Server::NICK(Client *client) {
 	// vérifie si le surnom existe déjà
 	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
 		if (it->getNick() == newNick) {
-			std::cerr << "Error: Nickname already exists." << std::endl;// message d erreurs a gerer voir avec claire
-			std::string msg = "433 " + client->getNick() + " " + newNick + ":Nickname is already in use";
-			sendMsg(msg, client->getFd());
+			sendErrorMsg(433, client->getFd(), client->getNick(), "", "", "");
+			// std::cerr << "Error: Nickname already exists." << std::endl;// message d erreurs a gerer voir avec claire
+			// std::string msg = "433 " + client->getNick() + " " + newNick + ":Nickname is already in use";
+			// sendMsg(msg, client->getFd());
 			return;  // quitte la fonction
 		}
 	}
 
 	// vérifie si le nouveau surnom respecte les règles
 	if (newNick.empty() || newNick[0] == '#' || newNick[0] == ':' || newNick.find_first_of(CHANTYPES) != std::string::npos || newNick.find(' ') != std::string::npos) {
-		std::cerr << "Error: Nickname contains invalid characters." << std::endl; // message d erreurs a gerer voir avec claire
+		sendErrorMsg(432, client->getFd(), client->getNick(), "", "", "");
+		//std::cerr << "Error: Nickname contains invalid characters." << std::endl; // message d erreurs a gerer voir avec claire
 		//std::string msg = 
 		return ;  // quitte la fonction
 	}
@@ -153,14 +155,17 @@ void	Server::INVITE(Client *client) {
 
 void	Server::PASS(Client *client) {
 	if (client->isAuthenticated()){
-		sendErrMsgServer(462, client);
+		//std::cout << "PASS" << std::endl;
+		sendErrorMsg(462, client->getFd(),"", "", "", "");
 	}
 
 	if (_password != getPassword()){
-		sendErrMsgServer(464, client);
+		std::cout << "PASS" << std::endl;
+		sendErrorMsg(464, client->getFd(),"", "", "", "");
 	}
 	if (_password.empty()){
-		sendErrMsgServer(461, client);
+		std::cout << "PASS" << std::endl;
+		sendErrorMsg(461, client->getFd(), client->getNick(), "COMMANDE A IMPLEMENTER", "", "");		
 	}
 	client->setIsAuthenticated(true);
 	first_message(client);
