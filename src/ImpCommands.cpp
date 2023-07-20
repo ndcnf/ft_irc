@@ -1,9 +1,9 @@
 #include "../inc/Server.hpp"
 #include "../inc/Client.hpp"
-
+#include "../inc/Messages.hpp"
 
 void	Server::commands(std::string cmd, Client *client) {
-		
+
 	std::string _cmdArray[CMDNBR] = {"NICK", "USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
 	//std::string _cmdArray[CMDNBR] = {"USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
 
@@ -45,7 +45,7 @@ void Server::NICK(Client *client) {
 	// vérifie si le surnom existe déjà
 	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
 		if (it->getNick() == newNick) {
-			sendErrorMsg(433, client->getFd(), client->getNick(), "", "", "");
+			sendErrorMsg(ERR_NICKNAMEINUSE, client->getFd(), client->getNick(), "", "", "");
 			// std::cerr << "Error: Nickname already exists." << std::endl;// message d erreurs a gerer voir avec claire
 			// std::string msg = "433 " + client->getNick() + " " + newNick + ":Nickname is already in use";
 			// sendMsg(msg, client->getFd());
@@ -55,9 +55,9 @@ void Server::NICK(Client *client) {
 
 	// vérifie si le nouveau surnom respecte les règles
 	if (newNick.empty() || newNick[0] == '#' || newNick[0] == ':' || newNick.find_first_of(CHANTYPES) != std::string::npos || newNick.find(' ') != std::string::npos) {
-		sendErrorMsg(432, client->getFd(), client->getNick(), "", "", "");
+		sendErrorMsg(ERR_ERRONEUSNICKNAME, client->getFd(), client->getNick(), "", "", "");
 		//std::cerr << "Error: Nickname contains invalid characters." << std::endl; // message d erreurs a gerer voir avec claire
-		//std::string msg = 
+		//std::string msg =
 		return ;  // quitte la fonction
 	}
 
@@ -77,13 +77,13 @@ void Server::NICK(Client *client) {
 			// 	oldNick = oldNick.substr(0, pos);
 			// }
 			std::cout << "2 oldNick DEBUG IS : " << oldNick << std::endl;
-			
+
 			it->setNick(newNick);
 			std::cout << "DEBUG NICKNAME SET : " << it->getNick() << std::endl; // nana
 			std::cout << "DEBUG NEWNICK SET : " << newNick << std::endl; // nana
 			std::cout << "TOKEN DEBUG IS : " << token << std::endl; // NICK
 			std::cout << "3 oldNick DEBUG IS : " << oldNick << std::endl;
-			
+
 			std::string msg;
 			if (oldNick.empty())
 				msg = "NICK " + newNick;
@@ -156,16 +156,16 @@ void	Server::INVITE(Client *client) {
 void	Server::PASS(Client *client) {
 	if (client->isAuthenticated()){
 		//std::cout << "PASS" << std::endl;
-		sendErrorMsg(462, client->getFd(),"", "", "", "");
+		sendErrorMsg(ERR_ALREADYREGISTERED, client->getFd(),"", "", "", "");
 	}
 
 	if (_password != getPassword()){
 		std::cout << "PASS" << std::endl;
-		sendErrorMsg(464, client->getFd(),"", "", "", "");
+		sendErrorMsg(ERR_PASSWDMISMATCH, client->getFd(),"", "", "", "");
 	}
 	if (_password.empty()){
 		std::cout << "PASS" << std::endl;
-		sendErrorMsg(461, client->getFd(), client->getNick(), "COMMANDE A IMPLEMENTER", "", "");		
+		sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), client->getNick(), "COMMANDE A IMPLEMENTER", "", "");
 	}
 	client->setIsAuthenticated(true);
 	first_message(client);
