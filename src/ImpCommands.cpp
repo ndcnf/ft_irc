@@ -1,5 +1,6 @@
 #include "../inc/Server.hpp"
 #include "../inc/Client.hpp"
+#include "../inc/Channel.hpp"
 
 
 void	Server::commands(std::string cmd, Client *client) {
@@ -56,8 +57,6 @@ void Server::NICK(Client *client) {
 	// vérifie si le nouveau surnom respecte les règles
 	if (newNick.empty() || newNick[0] == '#' || newNick[0] == ':' || newNick.find_first_of(CHANTYPES) != std::string::npos || newNick.find(' ') != std::string::npos) {
 		sendErrorMsg(432, client->getFd(), client->getNick(), "", "", "");
-		//std::cerr << "Error: Nickname contains invalid characters." << std::endl; // message d erreurs a gerer voir avec claire
-		//std::string msg = 
 		return ;  // quitte la fonction
 	}
 
@@ -115,7 +114,14 @@ void	Server::USER(Client *client) { // passe dedant ?
 
 void	Server::JOIN(Client *client) {
 	std::cout << "cmd join" << std::endl;
-	(void)client;
+	Channel	*channel;
+	//lui dire que la commande (requete qui vient apres JOIN)= le nom du channel
+	//comment introduire la classe channel la dedans ?
+
+	channel->_nameChannel = command;
+
+	// creer une fonction pour creer le channel ou le faire direct la ?
+	
 }
 
 void	Server::MODE(Client *client) { // channel only ? auto gerer par le client lorqu on se connect
