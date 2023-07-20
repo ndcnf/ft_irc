@@ -33,7 +33,7 @@
 # define ERRMSG RED"Error: " //parce que c est joli
 # define END_SEQUENCE "\r\n" //pour temriner les phrases
 # define SERVNAME "The MoIRes Connection Server" //nom du serveur
-# define CMDNBR 13 //tableau de commandes si besoin de le modifier en terme de nombre
+# define CMDNBR 14 //tableau de commandes si besoin de le modifier en terme de nombre
 # define CHANTYPES "&#" //nickname definition
 
 class Server
@@ -73,7 +73,6 @@ class Server
 		void		parseCommand(std::string buf);
 		void		sendMsg(std::string message, int fd);
 		void		getCapLs(std::string buf);
-		void		getPing(std::string buf, Client *client);
 		void		first_message(Client *client);
 		void		sendMsgServer(Client *Client); // pas encore ecrite correctement donc ca ne compilera pas avec
 		void		sendErrMsgServer(int errorCode, Client *client); // pas encore ecrite correctement donc ca ne compilera pas avec
@@ -108,6 +107,7 @@ class Server
 		int							_lastPing;
 
 		void	CAP(Client *client);
+		void	PING(Client *client);
 		void	NICK(Client *client);
 		void	USER(Client *client);
 		void	JOIN(Client *client);

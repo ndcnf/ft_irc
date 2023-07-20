@@ -4,11 +4,12 @@
 
 void	Server::commands(std::string cmd, Client *client) {
 		
-	std::string _cmdArray[CMDNBR] = {"CAP", "NICK", "USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
+	std::string _cmdArray[CMDNBR] = {"CAP", "PING", "NICK", "USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
 	//std::string _cmdArray[CMDNBR] = {"USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
 
 	void	(Server::*functionPtr[])(Client *client) = {
 		&Server::CAP,
+		&Server::PING,
 		&Server::NICK,
 		&Server::USER,
 		&Server::JOIN,
@@ -32,7 +33,20 @@ void	Server::commands(std::string cmd, Client *client) {
 }
 
 void	Server::CAP(Client *client) {
-	
+	if (command == "LS")
+		sendMsg("CAP * LS :", client->getFd());
+	else
+		return;
+}
+
+void	Server::PING(Client *client) {
+	std::string ping = token;
+	std::string pingContent = command;
+	// Construire la réponse PONG avec le même contenu que le message PING
+	std::string pongResponse = "PONG " + pingContent;
+	_lastPing = time(NULL);
+	// Envoyer la réponse PONG au client
+	sendMsg(pongResponse, client->getFd());
 }
 
 void Server::NICK(Client *client) {
