@@ -1,5 +1,6 @@
 #include "../inc/Server.hpp"
 #include "../inc/Client.hpp"
+#include "../inc/Messages.hpp"
 
 
 Server::Server():	nickSet(false),
