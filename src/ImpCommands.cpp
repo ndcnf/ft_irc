@@ -55,6 +55,7 @@ void Server::NICK(Client *client) {
 
 	if (client->nickSet == false) {
 		std::string nickname = command;
+		std::cout << "GetNick() DEBUUUG " << client->getNick() << std::endl;
 		std::cout << "1 NICKNAAAAME DEBUUUG " << nickname << std::endl;
 		// int numberFd = client->getFd();
 		// static_cast<std::string>(numberFd);
@@ -67,7 +68,7 @@ void Server::NICK(Client *client) {
 		std::cout << "different ou egale DEBUUUG " << nickname << std::endl;
 		client->setNick(nickname);
 		std::cout << "2 NICKNAAAAME DEBUUUG " << client->getNick() << std::endl;
-		std::string msg = "NICK " + nickname;
+		std::string msg = ":" + command + " NICK " + nickname;
 		sendMsg(msg, client->getFd());
 		client->nickSet = true;
 	}
@@ -75,8 +76,8 @@ void Server::NICK(Client *client) {
 		std::string newNick = command;
 
 		// vérifie si le nouveau surnom dépasse 30 caractères
-		std::cout << "getNick" << client->getNick() << std::endl;
-		std::cout << "newNick" << newNick << std::endl;
+		std::cout << "getNick " << client->getNick() << std::endl;
+		std::cout << "newNick " << newNick << std::endl;
 		if(newNick.size() > 30) {
 		sendErrorMsg(ERR_ERRONEUSNICKNAME, client->getFd(), newNick, "", "", "");
 		std::cerr << "Error: Nickname is longer than 30 characters." << std::endl; //comme dans freenode
@@ -113,10 +114,10 @@ void Server::NICK(Client *client) {
 				it->setNick(newNick);
 				
 				std::string msg;
-				if (oldNick.empty())
-					msg = "NICK " + newNick;
-				else
-					msg = ":" + oldNick + " NICK " + newNick;
+				// if (oldNick.empty())
+				// 	msg = "NICK " + newNick;
+				// else
+				msg = ":" + oldNick + " NICK " + newNick;
 				// std::string msg = ":n1t4r4 NICK nana";
 				// std::cout << "MESS : " << msg << std::endl;
 				sendMsg(msg, client->getFd());
@@ -138,9 +139,10 @@ void	Server::USER(Client *client) { // passe dedant ?
 			client->setUser(UserContent);
 			std::cout << "USERCONTENT : " << UserContent << std::endl; // DEBUG ONLY
 			std::cout << "USERNAME : " << client->getUser() << std::endl; // DEBUG ONLY
+			// if (client->isAuthenticated() && !client->getUser().empty() && !client->getNick().empty())
 			first_message(client);
+			}
 		}
-}
 
 void	Server::JOIN(Client *client) {
 	std::cout << "cmd join" << std::endl;
@@ -227,7 +229,8 @@ void	Server::PASS(Client *client) {
 		sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), client->getNick(), "COMMANDE A IMPLEMENTER", "", "");
 	}
 	client->setIsAuthenticated(true);
-	first_message(client);
+	if (client->isAuthenticated() && !client->getUser().empty() && !client->getNick().empty())
+		first_message(client);
 }
 
 void Server::QUIT(Client *client) {

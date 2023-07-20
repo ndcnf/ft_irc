@@ -26,6 +26,7 @@ Client::Client(Client const &src)
 
 Client	&Client::operator=(Client const &rhs)
 {
+	nickSet = rhs.nickSet;
 	_fd = rhs._fd;
 	_nick = rhs._nick;
 	_username = rhs._username;
