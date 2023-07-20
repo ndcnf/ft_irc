@@ -4,7 +4,7 @@
 #include "../inc/Channel.hpp"
 
 void	Server::commands(std::string cmd, Client *client) {
-		
+
 	std::string _cmdArray[CMDNBR] = {"CAP", "PING", "NICK", "USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
 	//std::string _cmdArray[CMDNBR] = {"USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
 
@@ -34,7 +34,7 @@ void	Server::commands(std::string cmd, Client *client) {
 }
 
 void	Server::CAP(Client *client) {
-	if (command == "LS")
+	if (command[0] == 'L' && command[1] == 'S')
 		sendMsg("CAP * LS :", client->getFd());
 	else
 		return;
@@ -69,7 +69,7 @@ void Server::NICK(Client *client) {
 
 		// vérifie si le nouveau surnom dépasse 30 caractères
 		if(newNick.size() > 30) {
-      sendErrorMsg(ERR_ERRONEUSNICKNAME, client->getFd(), client->getNick(), "", "", "");
+      sendErrorMsg(ERR_ERRONEUSNICKNAME, client->getFd(), newNick, "", "", "");
 			std::cerr << "Error: Nickname is longer than 30 characters." << std::endl; //comme dans freenode
       return;
     }
@@ -77,7 +77,7 @@ void Server::NICK(Client *client) {
 	// vérifie si le surnom existe déjà
 	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
 		if (it->getNick() == newNick) {
-			sendErrorMsg(ERR_NICKNAMEINUSE, client->getFd(), client->getNick(), "", "", "");
+			sendErrorMsg(ERR_NICKNAMEINUSE, client->getFd(), newNick, "", "", "");
 			// std::cerr << "Error: Nickname already exists." << std::endl;// message d erreurs a gerer voir avec claire
 			return;  // quitte la fonction
 		}
@@ -85,7 +85,7 @@ void Server::NICK(Client *client) {
 
 	// vérifie si le nouveau surnom respecte les règles
 	if (newNick.empty() || newNick[0] == '#' || newNick[0] == ':' || newNick.find_first_of(CHANTYPES) != std::string::npos || newNick.find(' ') != std::string::npos) {
-		sendErrorMsg(ERR_ERRONEUSNICKNAME, client->getFd(), client->getNick(), "", "", "");
+		sendErrorMsg(ERR_ERRONEUSNICKNAME, client->getFd(), newNick, "", "", "");
   	//std::cerr << "Error: Nickname contains invalid characters." << std::endl; // message d erreurs a gerer voir avec claire
 		return ;  // quitte la fonction
 	}
@@ -106,13 +106,13 @@ void Server::NICK(Client *client) {
 				// 	oldNick = oldNick.substr(0, pos);
 				// }
 				// std::cout << "2 oldNick DEBUG IS : " << oldNick << std::endl;
-				
+
 				it->setNick(newNick);
 				// std::cout << "DEBUG NICKNAME SET : " << it->getNick() << std::endl; // nana
 				// std::cout << "DEBUG NEWNICK SET : " << newNick << std::endl; // nana
 				// std::cout << "TOKEN DEBUG IS : " << token << std::endl; // NICK
 				// std::cout << "3 oldNick DEBUG IS : " << oldNick << std::endl;
-				
+
 				std::string msg;
 				if (oldNick.empty())
 					msg = "NICK " + newNick;
@@ -145,6 +145,8 @@ void	Server::USER(Client *client) { // passe dedant ?
 
 void	Server::JOIN(Client *client) {
 	std::cout << "cmd join" << std::endl;
+	if (command == ":")
+		return;
 	std::string chanName;
 	chanName = command;
 	// if (chanName == channel.getName()) { // juste ?
@@ -164,8 +166,8 @@ void	Server::JOIN(Client *client) {
 
 		}
 	// }
-	// rest a ajouter lA GESTION DES ERREURS par claire 
-  
+	// rest a ajouter lA GESTION DES ERREURS par claire
+
 // 	Channel	*channel;
 	//lui dire que la commande (requete qui vient apres JOIN)= le nom du channel
 	//comment introduire la classe channel la dedans ?
@@ -173,7 +175,7 @@ void	Server::JOIN(Client *client) {
 // 	channel->_nameChannel = command;
 
 	// creer une fonction pour creer le channel ou le faire direct la ?
-	
+
 // }
 }
 
