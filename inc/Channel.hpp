@@ -15,15 +15,15 @@ class Channel
 			std::string	getNameChannel();
 			void	addMembers(Client *client);
 			Channel* addChannel(std::string name);
-			
+
 
 	private:
 			std::string 				_nameMembers;
-			std::vector<Channel>		_members;
-			std::vector<Channel>		_channels;
+			std::vector<*Client>		_members;
 			std::string 				_nameChannel;
 
-
+			std::vector<int>			_operators;
+			std::vector<int>			_banned;
 };
 
 #endif

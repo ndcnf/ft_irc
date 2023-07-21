@@ -105,6 +105,8 @@ class Server
 		// bool						_quit;		// useless at the moment
 		std::string					_password; //@Verena to get the password
 		int							_lastPing;
+		std::vector<Channel>		_channels;
+
 
 		void	CAP(Client *client);
 		void	PING(Client *client);
