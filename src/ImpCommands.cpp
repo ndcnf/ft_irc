@@ -177,7 +177,10 @@ void	Server::USER(Client *client, Channel *channel) { // passe dedant ?
 void	Server::JOIN(Client *client, Channel *channel) {
 	(void)channel;
 	std::cout << "cmd join" << std::endl;
-	bool	channelExists = false;
+	bool		channelExists = false;
+	std::string	chanName;
+	size_t		pos = command.find(" ");
+
 
 	if (command == ":")
 		return;
@@ -189,14 +192,19 @@ void	Server::JOIN(Client *client, Channel *channel) {
 	// else {
 		// if (command == 0)
 		// 	Type /join #<channel> pas besoin gere tout seul
-	if (command[0] != '#')
-		command = '#' + command;
+	if (pos != std::string::npos)
+		chanName = command.substr(0, pos);
+	else
+		chanName = command;
+
+	if (chanName[0] != '#')
+		chanName = '#' + chanName;
 
 	for (std::vector<Channel*>::iterator	it = _channels.begin(); it != _channels.end(); it++)
 	{
-		if (((*it)->getChannelName() == command))
+		if (((*it)->getChannelName() == chanName))
 		{
-			std::cout << "Channel [" + command + "] already exist. You'll join 'em" << std::endl;
+			std::cout << "Channel [" + chanName + "] already exist. You'll join 'em" << std::endl;
 			currentChannel = (*it);
 			currentChannel->addMember(client);
 			channelExists = true;
@@ -207,25 +215,40 @@ void	Server::JOIN(Client *client, Channel *channel) {
 
 	if (!channelExists)
 	{
-		currentChannel = addChannel(command);
-		std::cout << "Channel [" + command + "] created. You'll be a VIP soon." << std::endl;
+		currentChannel = addChannel(chanName);
+		std::cout << "Channel [" + chanName + "] created. You'll be a VIP soon." << std::endl;
 		//le client aura un mode operator
 		currentChannel->addMember(client);
 	}
 
+	// if (pos != std::string::npos)
+		// chanName = command.substr(0, pos);
+
+	pos = command.find(" :");
+	if (pos != std::string::npos && (std::string::npos + 1) != chanName.size())
+		currentChannel->setTopic(command.substr(pos + 2, command.size()));
+
 	// send info to client
-	std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + command;
+	std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + chanName;
 	sendMsg(msg, client->getFd());
 
 	// send info of all members in the channel
-	msg = ":" + client->getNick() + "@" + client->getHostname() + " = " + command + " :" + currentChannel->getAllMembers();
+	msg = ":" + client->getNick() + "@" + client->getHostname() + " = " + chanName + " :" + currentChannel->getAllMembers();
 	sendMsg(msg, client->getFd());
 
-	msg = ":" + command + " :End of /NAMES list.";
+	msg = ":" + chanName + " :End of /NAMES list.";
 	sendMsg(msg, client->getFd());
 
-	msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + command;
+	msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + chanName;
 	sendMsgToAllMembers(msg, client->getFd());
+
+	if (!currentChannel->getTopic().empty())
+	{
+		msg = "TOPIC " + chanName + " :" + currentChannel->getTopic();
+		sendMsg(msg, client->getFd());
+		sendMsgToAllMembers(msg, client->getFd());
+	}
+
 	// rest a ajouter lA GESTION DES ERREURS par claire
 
 // 	Channel	*channel;

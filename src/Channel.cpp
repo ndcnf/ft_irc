@@ -40,6 +40,11 @@ std::string	Channel::getTopic()
 	return (_topic);
 }
 
+void	Channel::setTopic(std::string topic)
+{
+	_topic = topic;
+}
+
 void Channel::addMember(Client *client)
 {
 	// if (client->isAuthenticated())

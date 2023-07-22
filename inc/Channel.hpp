@@ -14,6 +14,7 @@ class Channel
 			~Channel();
 
 			void						addMember(Client *client);
+			void						setTopic(std::string topic);
 			void						sendToAllMembers(std::string msg);
 
 			std::string					getChannelName();
