@@ -18,6 +18,7 @@
 # include <algorithm>
 # include <poll.h>
 # include <cstdlib>
+#include <sstream>
 
 # include "Client.hpp"
 # include "Channel.hpp"
@@ -50,7 +51,7 @@ class Server
 
 		std::string	token; //@Verena to have the token
 		std::string	command; //@Verena ... to arrete de se faire chier
-		bool		nickSet; // to set the nick once at the begining
+		bool		nickSet; // to set the nick once at the begining // a voir si devait etre enlever ou surtout pas (Nadia)
 
 		bool		createSocket();
 		bool		connection();
