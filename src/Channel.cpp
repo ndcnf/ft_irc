@@ -30,10 +30,10 @@ std::string	Channel::getNameChannel()
 	return (_nameChannel);
 }
 
- void Channel::addMembers(Client *client)
+void Channel::addMembers(Client *client)
 {
 	if (client->isAuthenticated())
-		_members.push_back(client->getNick());
+		_members.push_back(*client);
 		// std::cout << "new member" << std::endl;
 	else {
 		
@@ -41,9 +41,9 @@ std::string	Channel::getNameChannel()
 	}
 }
 
-Channel* Channel::addChannel(std::string name)
-{
-	Channel* channel = new Channel(name); // Allouer dynamiquement un nouvel objet Channel
-	_channels.push_back(*channel);
-	return channel;
-}
+// Channel* Channel::addChannel(std::string name)
+// {
+// 	Channel* channel = new Channel(name); // Allouer dynamiquement un nouvel objet Channel
+// 	_channels.push_back(*channel);
+// 	return channel;
+// }

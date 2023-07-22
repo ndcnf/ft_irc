@@ -53,6 +53,7 @@ class Server
 		bool		createSocket();
 		bool		connection();
 		Client*		addClient(int fd);
+		Channel* 	addChannel(std::string name);
 		void		inputClient(std::string buf, Client *client);
 		void		cmdSelection(std::string buf, Client *client);
 		//@Verena CAP LS

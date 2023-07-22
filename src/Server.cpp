@@ -292,6 +292,13 @@ Client* Server::addClient(int fd)
 	return client;
 }
 
+Channel* Server::addChannel(std::string name)
+{
+	Channel* channel = new Channel(name); // Allouer dynamiquement un nouvel objet Channel
+	_channels.push_back(*channel);
+	return channel;
+}
+
 std::string	Server::getPassword() {
 	return _password;
 } //@Verena to print the password entered
