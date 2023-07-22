@@ -17,6 +17,9 @@ Channel::Channel(Channel const &cpy){
 
 Channel &Channel::operator=(Channel const &rhs){
 	_channelName = rhs._channelName;
+	_members = rhs._members;
+	_operators = rhs._operators;
+	_banned = rhs._banned;
 
 	return (*this);
 }

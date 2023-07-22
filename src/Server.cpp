@@ -21,15 +21,19 @@ Server	&Server::operator=(Server const &rhs)
 {
 	token = rhs.token;
 	command = rhs.command;
+	nickSet = rhs.nickSet;
+
 	_socket = rhs._socket;
 	_validity = rhs._validity;
 	_port = rhs._port;
-	_sockets = rhs._sockets;
 	_addr = rhs._addr;
+	_sockets = rhs._sockets;
 	_pfds = rhs._pfds;
 	_clients = rhs._clients;
+	_channels = rhs._channels;
 	// _quit = rhs._quit;
 	_password = rhs._password;
+	_lastPing = rhs._lastPing;
 
 	return (*this);
 }
