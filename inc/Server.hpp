@@ -81,7 +81,7 @@ class Server
 		void		sendErrMsgServer(int errorCode, Client *client); // pas encore ecrite correctement donc ca ne compilera pas avec
 		void 		sendErrorMsg(int errorCode, int fd, std::string param1, std::string param2, std::string param3, std::string info);
 		//COMMANDS CALL
-		void		commands(std::string cmd, Client *client);
+		void		commands(std::string cmd, Client *client, Channel *channel);
 
 		//UTILS
 		std::string	trim(const std::string& str);
@@ -111,21 +111,21 @@ class Server
 		int						_lastPing;
 		std::string 			_cmdArray[CMDNBR];
 
-		void					CAP(Client *client);
-		void					PING(Client *client);
-		void					NICK(Client *client);
-		void					USER(Client *client);
-		void					JOIN(Client *client);
-		void					MODE(Client *client);
-		void					PRIVMSG(Client *client);
-		void					NOTICE(Client *client);
+		void					CAP(Client *client, Channel *channel);
+		void					PING(Client *client, Channel *channel);
+		void					NICK(Client *client, Channel *channel);
+		void					USER(Client *client, Channel *channel);
+		void					JOIN(Client *client, Channel *channel);
+		void					MODE(Client *client, Channel *channel);
+		void					PRIVMSG(Client *client, Channel *channel);
+		void					NOTICE(Client *client, Channel *channel);
 		// void					TOPIC(Client *client);
-		void					TOPIC(Client *client, Channel *channel)
-		void					PART(Client *client);
-		void					KICK(Client *client);
-		void					INVITE(Client *client);
-		void					PASS(Client *client);
-		void					QUIT(Client *client);
+		void					TOPIC(Client *client, Channel *channel);
+		void					PART(Client *client, Channel *channel);
+		void					KICK(Client *client, Channel *channel);
+		void					INVITE(Client *client, Channel *channel);
+		void					PASS(Client *client, Channel *channel);
+		void					QUIT(Client *client, Channel *channel);
 };
 
 #endif

@@ -3,11 +3,37 @@
 #include "../inc/Messages.hpp"
 #include "../inc/Channel.hpp"
 
-void	Server::commands(std::string cmd, Client *client) {
+// struct CommandHandler {
+//     void (Server::*functionPtr)(Client *client, const std::vector<std::string>& params);
+//     int numParams;
+// };
 
+// CommandHandler commandHandlers[CMDNBR] = {
+//     {&Server::CAP, 1},      // CAP
+//     {&Server::PING, 1},     // PING
+//     {&Server::NICK, 1},     // NICK
+//     {&Server::USER, 4},     // USER
+//     {&Server::JOIN, 1},     // JOIN
+//     {&Server::MODE, 2},     // MODE
+//     {&Server::PRIVMSG, 2},  // PRIVMSG
+//     {&Server::NOTICE, 2},   // NOTICE
+//     {&Server::TOPIC, 2},    // TOPIC
+//     {&Server::PART, 1},     // PART
+//     {&Server::KICK, 2},     // KICK
+//     {&Server::INVITE, 2},   // INVITE
+//     {&Server::PASS, 1},     // PASS
+//     {&Server::QUIT, 0}      // QUIT
+// };
+
+
+void	Server::commands(std::string cmd, Client *client, Channel *channel) {
+
+	// std::string _cmdArray[CMDNBR] = {"CAP", "PING", "NICK", "USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
 	std::string _cmdArray[CMDNBR] = {"CAP", "PING", "NICK", "USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
+	// std::string _cmdArrayTwoArg[CMDNBR] = {"CAP", "PING", "NICK", "USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
 
-	void	(Server::*functionPtr[])(Client *client) = {
+
+	void	(Server::*functionPtr[])(Client *client, Channel *channel) = {
 		&Server::CAP,
 		&Server::PING,
 		&Server::NICK,
@@ -26,20 +52,22 @@ void	Server::commands(std::string cmd, Client *client) {
 
 	for (int i = 0; i < CMDNBR; i++) {
 		if (cmd.compare(_cmdArray[i]) == 0) {
-			(this->*functionPtr[i])(client);
+			(this->*functionPtr[i])(client, channel);
 			return;
 		}
 	}
 }
 
-void	Server::CAP(Client *client) {
+void	Server::CAP(Client *client, Channel *channel) {
+	(void)channel;
 	if (command[0] == 'L' && command[1] == 'S')
 		sendMsg("CAP * LS :", client->getFd());
 	else
 		return;
 }
 
-void	Server::PING(Client *client) {
+void	Server::PING(Client *client, Channel *channel) {
+	(void)channel;
 	std::string ping = token;
 	std::string pingContent = command;
 	// Construire la réponse PONG avec le même contenu que le message PING
@@ -49,7 +77,8 @@ void	Server::PING(Client *client) {
 	sendMsg(pongResponse, client->getFd());
 }
 
-void Server::NICK(Client *client) {
+void Server::NICK(Client *client, Channel *channel) {
+	(void)channel;
 	std::cout << "Votre demande est une commande.: ";
 	std::cout << "cmd nick" << std::endl;
 
@@ -128,7 +157,8 @@ void Server::NICK(Client *client) {
 	}
 }
 
-void	Server::USER(Client *client) { // passe dedant ?
+void	Server::USER(Client *client, Channel *channel) { // passe dedant ?
+	(void)channel;
 	std::cout << "cmd user" << std::endl; // info only
 
 	std::cout << "TOKEN " << token << std::endl;
@@ -144,7 +174,8 @@ void	Server::USER(Client *client) { // passe dedant ?
 		}
 }
 
-void	Server::JOIN(Client *client) {
+void	Server::JOIN(Client *client, Channel *channel) {
+	(void)channel;
 	std::cout << "cmd join" << std::endl;
 	bool	channelExists = false;
 
@@ -216,46 +247,56 @@ void	Server::JOIN(Client *client) {
 // }
 }
 
-void	Server::MODE(Client *client) { // channel only ? auto gerer par le client lorqu on se connect
+void	Server::MODE(Client *client, Channel *channel) { // channel only ? auto gerer par le client lorqu on se connect
 	std::cout << "cmd mode" << std::endl;
 	(void)client;
+	(void)channel;
 }
 
-void	Server::PRIVMSG(Client *client) {
+void	Server::PRIVMSG(Client *client, Channel *channel) {
 	std::cout << "cmd privmsg" << std::endl;
 	(void)client;
+	(void)channel;
 }
 
-void	Server::NOTICE(Client *client) {
+void	Server::NOTICE(Client *client, Channel *channel) {
 	std::cout << "cmd notice" << std::endl;
 	(void)client;
+	(void)channel;
 }
 
 void	Server::TOPIC(Client *client, Channel *channel) {
 	std::cout << "cmd topic" << std::endl;
-	
+
 
 	(void)client;
+	(void)channel;
+
 }
 
 // surement ici qu'il faudra erase() le member -> _members.erase(it);
 // si plus personne, _members.size() == 0, il faudra aussi _channels.erase(it);
-void	Server::PART(Client *client) {
+void	Server::PART(Client *client, Channel *channel) {
 	std::cout << "cmd part" << std::endl;
 	(void)client;
+	(void)channel;
 }
 
-void	Server::KICK(Client *client) {
+void	Server::KICK(Client *client, Channel *channel) {
 	std::cout << "cmd Kick" << std::endl;
 	(void)client;
+	(void)channel;
 }
 
-void	Server::INVITE(Client *client) {
+void	Server::INVITE(Client *client, Channel *channel) {
 	std::cout << "cmd invite" << std::endl;
 	(void)client;
+	(void)channel;
 }
 
-void	Server::PASS(Client *client) {
+void	Server::PASS(Client *client, Channel *channel) {
+	(void)channel;
+
 	if (client->isAuthenticated()){
 		//std::cout << "PASS" << std::endl;
 		sendErrorMsg(ERR_ALREADYREGISTERED, client->getFd(),"", "", "", "");
@@ -273,7 +314,8 @@ void	Server::PASS(Client *client) {
 	first_message(client);
 }
 
-void Server::QUIT(Client *client) {
+void Server::QUIT(Client *client, Channel *channel) {
+	(void)channel;
 	std::cout << "Client " << client->getNick() << " has quit." << std::endl;
 
 	// Envoyer un message de départ aux autres clients si nécessaire mais on peut l'enlever car pas demande apparement

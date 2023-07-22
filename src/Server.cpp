@@ -281,7 +281,7 @@ void	Server::inputClient(std::string buf, Client *client) // retourner une veleu
 		std::cout << "RECEIVED : " << line << std::endl;
 		if (! line.empty()) {
 			parseCommand(line);
-			commands(token, client);
+			commands(token, client, NULL);
 		}
 		else
 			sendErrorMsg(461, client->getFd(), "", "", "", "");
