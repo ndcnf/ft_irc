@@ -33,15 +33,27 @@ std::string	Channel::getChannelName()
 	return (_channelName);
 }
 
-void Channel::addMembers(Client *client)
+void Channel::addMember(Client *client)
 {
-	if (client->isAuthenticated())
+	// if (client->isAuthenticated())
 		_members.push_back(*client);
 		// std::cout << "new member" << std::endl;
-	else {
+	// else {
 		
 		return;
+	// }
+}
+
+std::string	Channel::getMembers()
+{
+	std::string	allMembers;
+
+	for (std::vector<Client>::iterator it=_members.begin(); it != _members.end(); it++)
+	{
+		allMembers += (*it).getNick() + "@" + (*it).getHostname() + " ";
 	}
+	std::cout << "ALLMEMBERS = [" + allMembers + "]" << std::endl;
+	return allMembers;
 }
 
 // Channel* Channel::addChannel(std::string name)

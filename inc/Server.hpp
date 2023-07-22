@@ -46,6 +46,7 @@ class Server
 		~Server();
 
 		Client		*currentClient;
+		Channel		*currentChannel;
 
 		std::string	token; //@Verena to have the token
 		std::string	command; //@Verena ... to arrete de se faire chier
@@ -103,7 +104,7 @@ class Server
 		std::vector<int>		_sockets;	// maybe useless
 		std::vector<pollfd>		_pfds;
 		std::vector<Client>		_clients;	// vecteur clients pour faire le lien entre les classes ? @Verena
-		std::vector<Channel>	_channels;
+		std::vector<Channel*>	_channels;
 		// bool					_quit;		// useless at the moment
 		std::string				_password; //@Verena to get the password
 		int						_lastPing;

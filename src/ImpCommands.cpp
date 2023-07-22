@@ -145,6 +145,7 @@ void	Server::USER(Client *client) { // passe dedant ?
 
 void	Server::JOIN(Client *client) {
 	std::cout << "cmd join" << std::endl;
+	bool	channelExists = false;
 
 	if (command == ":")
 		return;
@@ -159,22 +160,46 @@ void	Server::JOIN(Client *client) {
 	if (command[0] != '#')
 		command = '#' + command;
 
-
-
-	for (std::vector<Channel>::iterator	it=_channels.begin(); it != _channels.end(); it++)
+	for (std::vector<Channel*>::iterator	it = _channels.begin(); it != _channels.end(); it++)
 	{
-		if (((*it).getChannelName() == command))
+		if (((*it)->getChannelName() == command))
 		{
 			std::cout << "Channel [" + command + "] already exist. You'll join 'em" << std::endl;
-			// client aura un mode normal
-			return;
+			currentChannel = (*it);
+			currentChannel->addMember(client);
+			channelExists = true;
+			// client aura un mode 'normal' (pas oper/admin)
+			currentChannel->getMembers();
+			break;
 		}
 	}
-	addChannel(command);
-	std::cout << "Channel [" + command + "] created. You'll be VIP soon." << std::endl;
-	//le client aura un mode operator
 
+	if (!channelExists)
+	{
+		currentChannel = addChannel(command);
+		std::cout << "Channel [" + command + "] created. You'll be VIP soon." << std::endl;
+		//le client aura un mode operator
+		currentChannel->addMember(client);
+		currentChannel->getMembers();
+	}
+
+
+
+	
+	
+	
+	// envoyer la LISTE de TOUS les nicks avec hostnames presents dans le channel.
+
+	// for ()
+	currentChannel->getMembers();
+	
+
+	// std::string msg = ":" + currentChannel->getMembers() + "JOIN " + command;
 	std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + command;
+	sendMsg(msg, client->getFd());
+
+	// msg = ":" 
+	msg = ":" + command + " :End of /NAMES list.";
 	sendMsg(msg, client->getFd());
 
 	// }

@@ -278,7 +278,7 @@ void	Server::inputClient(std::string buf, Client *client) // retourner une veleu
 		buf.erase(0, pos + 2);
 		pos = buf.find(END_SEQUENCE);
 
-		std::cout << "RECIVED : " << line << std::endl;
+		std::cout << "RECEIVED : " << line << std::endl;
 		if (! line.empty()) {
 			parseCommand(line);
 			commands(token, client);
@@ -286,7 +286,7 @@ void	Server::inputClient(std::string buf, Client *client) // retourner une veleu
 		else
 			sendErrorMsg(461, client->getFd(), "", "", "", "");
 	}
-	std::cout << "POS END: " << pos << std::endl;
+	// std::cout << "POS END: " << pos << std::endl;
 }
 
 Client* Server::addClient(int fd)
@@ -299,7 +299,7 @@ Client* Server::addClient(int fd)
 Channel* Server::addChannel(std::string name)
 {
 	Channel* channel = new Channel(name); // Allouer dynamiquement un nouvel objet Channel
-	_channels.push_back(*channel);
+	_channels.push_back(channel);
 	return channel;
 }
 
