@@ -20,7 +20,7 @@ class Channel
 
 	private:
 			// std::string 				_nameMembers; //a quoi sert-il ?
-			std::vector<Client>			_members;
+			std::vector<Client*>		_members;
 			std::string 				_channelName;
 
 			std::vector<int>			_operators;

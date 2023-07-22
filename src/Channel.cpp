@@ -36,7 +36,7 @@ std::string	Channel::getChannelName()
 void Channel::addMember(Client *client)
 {
 	// if (client->isAuthenticated())
-		_members.push_back(*client);
+		_members.push_back(client);
 		// std::cout << "new member" << std::endl;
 	// else {
 		
@@ -48,9 +48,9 @@ std::string	Channel::getMembers()
 {
 	std::string	allMembers;
 
-	for (std::vector<Client>::iterator it=_members.begin(); it != _members.end(); it++)
+	for (std::vector<Client*>::iterator it=_members.begin(); it != _members.end(); it++)
 	{
-		allMembers += (*it).getNick() + "@" + (*it).getHostname() + " ";
+		allMembers += (*it)->getNick() + "@" + (*it)->getHostname() + " ";
 	}
 	// std::cout << "ALLMEMBERS = [" + allMembers + "]" << std::endl;
 	return allMembers;
