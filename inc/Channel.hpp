@@ -16,6 +16,7 @@ class Channel
 			std::string	getChannelName();
 			void		addMember(Client *client);
 			std::string	getMembers();
+			void		sendToAllMembers(std::string msg);
 
 	private:
 			// std::string 				_nameMembers; //a quoi sert-il ?

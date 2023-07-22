@@ -169,7 +169,7 @@ void	Server::JOIN(Client *client) {
 			currentChannel->addMember(client);
 			channelExists = true;
 			// client aura un mode 'normal' (pas oper/admin)
-			currentChannel->getMembers();
+			// currentChannel->getMembers();
 			break;
 		}
 	}
@@ -180,7 +180,7 @@ void	Server::JOIN(Client *client) {
 		std::cout << "Channel [" + command + "] created. You'll be VIP soon." << std::endl;
 		//le client aura un mode operator
 		currentChannel->addMember(client);
-		currentChannel->getMembers();
+		// currentChannel->getMembers();
 	}
 
 
@@ -191,16 +191,34 @@ void	Server::JOIN(Client *client) {
 	// envoyer la LISTE de TOUS les nicks avec hostnames presents dans le channel.
 
 	// for ()
-	currentChannel->getMembers();
+	// currentChannel->getMembers();
 	
 
 	// std::string msg = ":" + currentChannel->getMembers() + "JOIN " + command;
 	std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + command;
 	sendMsg(msg, client->getFd());
 
-	// msg = ":" 
+
+	
+
+
+
+	msg = ":" + client->getNick() + "@" + client->getHostname() + " = " + command + " :" + currentChannel->getMembers();
+	sendMsg(msg, client->getFd());
+
 	msg = ":" + command + " :End of /NAMES list.";
 	sendMsg(msg, client->getFd());
+
+	// message a envoyer a tous les membres du channel
+	// for ()
+
+	if (client->getFd() == 5) //DEBUG ONLY
+	{
+		msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + command;
+		// currentChannel->sendToAllMembers(msg);
+		sendMsg(msg, 4); //DEBUG ONLY
+	}
+
 
 	// }
 	// rest a ajouter lA GESTION DES ERREURS par claire

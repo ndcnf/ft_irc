@@ -52,9 +52,18 @@ std::string	Channel::getMembers()
 	{
 		allMembers += (*it).getNick() + "@" + (*it).getHostname() + " ";
 	}
-	std::cout << "ALLMEMBERS = [" + allMembers + "]" << std::endl;
+	// std::cout << "ALLMEMBERS = [" + allMembers + "]" << std::endl;
 	return allMembers;
 }
+
+// void	Channel::sendToAllMembers(std::string msg)
+// {
+// 	for (std::vector<Client>::iterator it=_members.begin(); it != _members.end(); it++)
+// 	{
+// 		sendMsg(msg, (*it).getFd());
+// 	}
+// }
+
 
 // Channel* Channel::addChannel(std::string name)
 // {
