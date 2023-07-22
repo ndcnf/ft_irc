@@ -4,7 +4,7 @@
 #include "../inc/Channel.hpp"
 
 void	Server::commands(std::string cmd, Client *client) {
-		
+
 	std::string _cmdArray[CMDNBR] = {"CAP", "PING", "NICK", "USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
 
 	void	(Server::*functionPtr[])(Client *client) = {
@@ -83,6 +83,7 @@ void Server::NICK(Client *client) {
 		return;
 	}
 
+
 	// vérifie si le surnom existe déjà
 	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
 		if (it->getNick() == newNick) {
@@ -110,6 +111,7 @@ void Server::NICK(Client *client) {
 						break;
 					}
 				}
+
 				it->setNick(newNick);
 				
 				std::string msg;
@@ -164,8 +166,8 @@ void	Server::JOIN(Client *client) {
 
 		}
 	// }
-	// rest a ajouter lA GESTION DES ERREURS par claire 
-  
+	// rest a ajouter lA GESTION DES ERREURS par claire
+
 // 	Channel	*channel;
 	//lui dire que la commande (requete qui vient apres JOIN)= le nom du channel
 	//comment introduire la classe channel la dedans ?
@@ -173,7 +175,7 @@ void	Server::JOIN(Client *client) {
 // 	channel->_nameChannel = command;
 
 	// creer une fonction pour creer le channel ou le faire direct la ?
-	
+
 // }
 }
 
