@@ -70,6 +70,7 @@ class Server
 		std::string	getPassword();//@Verena to print the password entered
 		void		setPassword(std::string pass);
 		Client		getClient(Client *client);
+		// Channel		getChannel(Channel *channel);
 
 		//COMMNANDS
 		void		parseCommand(std::string buf);
@@ -80,7 +81,7 @@ class Server
 		void		sendErrMsgServer(int errorCode, Client *client); // pas encore ecrite correctement donc ca ne compilera pas avec
 		void 		sendErrorMsg(int errorCode, int fd, std::string param1, std::string param2, std::string param3, std::string info);
 		//COMMANDS CALL
-		void	commands(std::string cmd, Client *client);
+		void		commands(std::string cmd, Client *client);
 
 		//UTILS
 		std::string	trim(const std::string& str);
@@ -104,10 +105,10 @@ class Server
 		std::vector<int>			_sockets;	// maybe useless
 		std::vector<pollfd>			_pfds;
 		std::vector<Client>			_clients;	// vecteur clients pour faire le lien entre les classes ? @Verena
+		std::vector<Channel>		_channels;
 		// bool						_quit;		// useless at the moment
 		std::string					_password; //@Verena to get the password
 		int							_lastPing;
-		std::vector<Channel>		_channels;
 
 
 		void	CAP(Client *client);
