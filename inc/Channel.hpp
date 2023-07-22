@@ -15,8 +15,6 @@ class Channel
 
 			std::string	getChannelName();
 			void		addMembers(Client *client);
-			// Channel* addChannel(std::string name);
-
 
 	private:
 			// std::string 				_nameMembers; //a quoi sert-il ?
