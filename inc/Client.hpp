@@ -33,6 +33,8 @@ class Client
 		Client	&operator=(Client const &rhs);
 		~Client();
 
+		bool		nickSet; // to set the nick once at the begining
+
 		int			getFd()const;
 		//autres fonctions probablement necessaires @Verena :
 		std::string	getNick() const;
