@@ -4,10 +4,10 @@
 #include "../inc/Channel.hpp"
 
 Channel::Channel(){
-	_nameChannel = "";
+	_channelName = "";
 }
 
-Channel::Channel(std::string name): _nameChannel(name) {
+Channel::Channel(std::string name): _channelName(name) {
 
 }
 
@@ -16,7 +16,7 @@ Channel::Channel(Channel const &cpy){
 }
 
 Channel &Channel::operator=(Channel const &rhs){
-	_nameChannel = rhs._nameChannel;
+	_channelName = rhs._channelName;
 
 	return (*this);
 }
@@ -25,9 +25,9 @@ Channel::~Channel(){
 
 }
 
-std::string	Channel::getNameChannel()
+std::string	Channel::getChannelName()
 {
-	return (_nameChannel);
+	return (_channelName);
 }
 
 void Channel::addMembers(Client *client)

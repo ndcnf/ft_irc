@@ -13,15 +13,15 @@ class Channel
 			Channel &operator=(Channel const &rhs);
 			~Channel();
 
-			std::string	getNameChannel();
-			void	addMembers(Client *client);
+			std::string	getChannelName();
+			void		addMembers(Client *client);
 			// Channel* addChannel(std::string name);
 
 
 	private:
-			std::string 				_nameMembers;
+			// std::string 				_nameMembers; //a quoi sert-il ?
 			std::vector<Client>			_members;
-			std::string 				_nameChannel;
+			std::string 				_channelName;
 
 			std::vector<int>			_operators;
 			std::vector<int>			_banned;
