@@ -25,7 +25,7 @@ RUN_C	= \033[0;32m
 
 NAME	= ircserv
 
-SRCS	= main.cpp $(addprefix src/, Server.cpp Client.cpp notInUse.cpp ImpCommands.cpp Messages.cpp)
+SRCS	= main.cpp $(addprefix src/, Server.cpp Client.cpp notInUse.cpp ImpCommands.cpp Messages.cpp Channel.cpp)
 MAIN	= main.cpp
 
 OBJS	= ${SRCS:.cpp=.o}
