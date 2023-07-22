@@ -13,10 +13,12 @@ class Channel
 			Channel &operator=(Channel const &rhs);
 			~Channel();
 
-			std::string	getChannelName();
-			void		addMember(Client *client);
-			std::string	getMembers();
-			void		sendToAllMembers(std::string msg);
+			void						addMember(Client *client);
+			void						sendToAllMembers(std::string msg);
+
+			std::string					getChannelName();
+			std::string					getAllMembers();
+			std::vector<Client*>		getMember();
 
 	private:
 			// std::string 				_nameMembers; //a quoi sert-il ?

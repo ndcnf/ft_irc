@@ -186,23 +186,28 @@ void	Server::JOIN(Client *client) {
 	sendMsg(msg, client->getFd());
 
 	// send info of all members in the channel
-	msg = ":" + client->getNick() + "@" + client->getHostname() + " = " + command + " :" + currentChannel->getMembers();
+	msg = ":" + client->getNick() + "@" + client->getHostname() + " = " + command + " :" + currentChannel->getAllMembers();
 	sendMsg(msg, client->getFd());
 
 	msg = ":" + command + " :End of /NAMES list.";
 	sendMsg(msg, client->getFd());
 
+	std::vector<Client*>	members = currentChannel->getMember(); // moins moche apres
+	msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + command;
 	// message a envoyer a tous les membres du channel
-	// for ()
-
+	for (std::vector<Client*>::iterator it=members.begin(); it !=members.end(); it++)
+	{
+		if ((*it)->getFd() != client->getFd()) // || autorise a recevoir des messages
+			sendMsg(msg, (*it)->getFd());
+	}
 
 	
-	if (client->getFd() == 5) //DEBUG ONLY
-	{
-		msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + command;
-		// currentChannel->sendToAllMembers(msg);
-		sendMsg(msg, 4); //DEBUG ONLY
-	}
+	// if (client->getFd() == 5) //DEBUG ONLY
+	// {
+	// 	msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + command;
+	// 	// currentChannel->sendToAllMembers(msg);
+	// 	sendMsg(msg, 4); //DEBUG ONLY
+	// }
 
 
 	// }

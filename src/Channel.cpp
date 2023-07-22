@@ -44,7 +44,7 @@ void Channel::addMember(Client *client)
 	// }
 }
 
-std::string	Channel::getMembers()
+std::string	Channel::getAllMembers()
 {
 	std::string	allMembers;
 
@@ -55,6 +55,12 @@ std::string	Channel::getMembers()
 	// std::cout << "ALLMEMBERS = [" + allMembers + "]" << std::endl;
 	return allMembers;
 }
+
+std::vector<Client*>		Channel::getMember()
+{
+	return _members;
+}
+
 
 // void	Channel::sendToAllMembers(std::string msg)
 // {
