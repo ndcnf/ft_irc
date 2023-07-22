@@ -145,26 +145,38 @@ void	Server::USER(Client *client) { // passe dedant ?
 
 void	Server::JOIN(Client *client) {
 	std::cout << "cmd join" << std::endl;
+
 	if (command == ":")
 		return;
-	std::string chanName;
-	chanName = command;
+
 	// if (chanName == channel.getName()) { // juste ?
 	// 	message d'erreur ce channel existe deja voir avec le mess erreur claire
+	// Nadia: Non, pas de message d'erreur, mais joindre le channel existant en verifiant si droits
 	// }
 	// else {
 		// if (command == 0)
 		// 	Type /join #<channel> pas besoin gere tout seul
-		if (chanName[0] == '#') {
-			std::string msg = ":" + client->getNick() + " JOIN " + chanName;
-			sendMsg(msg, client->getFd());
-		}
-		else {
-			chanName = '#' + chanName;
-			std::string msg = ":" + client->getNick() + " JOIN " + chanName;
-			sendMsg(msg, client->getFd());
+	if (command[0] != '#')
+		command = '#' + command;
 
+
+
+	for (std::vector<Channel>::iterator	it=_channels.begin(); it != _channels.end(); it++)
+	{
+		if (((*it).getChannelName() == command))
+		{
+			std::cout << "Channel [" + command + "] already exist. You'll join 'em" << std::endl;
+			// client aura un mode normal
+			return;
 		}
+	}
+	addChannel(command);
+	std::cout << "Channel [" + command + "] created. You'll be VIP soon." << std::endl;
+	//le client aura un mode operator
+
+	std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + command;
+	sendMsg(msg, client->getFd());
+
 	// }
 	// rest a ajouter lA GESTION DES ERREURS par claire
 
