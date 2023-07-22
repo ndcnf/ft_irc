@@ -20,6 +20,7 @@
 # include <cstdlib>
 
 # include "Client.hpp"
+# include "Channel.hpp"
 
 # define RED "\e[31m"
 # define RES "\e[0m"
