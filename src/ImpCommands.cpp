@@ -224,16 +224,8 @@ void	Server::JOIN(Client *client, Channel *channel) {
 	msg = ":" + command + " :End of /NAMES list.";
 	sendMsg(msg, client->getFd());
 
-	std::vector<Client*>	members = currentChannel->getMember(); // moins moche apres
 	msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + command;
-	// message a envoyer a tous les membres du channel
-	for (std::vector<Client*>::iterator it=members.begin(); it !=members.end(); it++)
-	{
-		if ((*it)->getFd() != client->getFd()) // || autorise a recevoir des messages
-			sendMsg(msg, (*it)->getFd());
-	}
-
-	// }
+	sendMsgToAllMembers(msg, client->getFd());
 	// rest a ajouter lA GESTION DES ERREURS par claire
 
 // 	Channel	*channel;
@@ -267,10 +259,29 @@ void	Server::NOTICE(Client *client, Channel *channel) {
 
 void	Server::TOPIC(Client *client, Channel *channel) {
 	std::cout << "cmd topic" << std::endl;
+//	La commande TOPIC peut comporter deux formes :
 
+//	TOPIC #nom_du_canal :nouveau_sujet (pour définir un nouveau sujet)
+//	TOPIC #nom_du_canal (pour récupérer le sujet actuel)
 
-	(void)client;
-	(void)channel;
+// Nouveau sujet uniquement pour les operators
+// Gestion d'erreur: le channel n'existe pas, pas les droits, texte trop long
+
+// lors d'un changement de sujet, envoyer a tous les membres via TOPIC qqch
+
+	// (void)client;
+	// (void)channel;
+	std::string	msg;
+
+	if (command.empty())
+	{
+		msg = ": 332" + client->getNick() + channel->getChannelName() + " :" + channel->getTopic();
+	}
+
+	// msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + command;
+	sendMsg(msg, client->getFd());
+	
+	
 
 }
 

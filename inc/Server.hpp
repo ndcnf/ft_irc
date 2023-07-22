@@ -75,6 +75,7 @@ class Server
 		//COMMNANDS
 		void		parseCommand(std::string buf);
 		void		sendMsg(std::string message, int fd);
+		void		sendMsgToAllMembers(std::string message, int fd);
 		void		getCapLs(std::string buf);
 		void		first_message(Client *client);
 		void		sendMsgServer(Client *Client); // pas encore ecrite correctement donc ca ne compilera pas avec
