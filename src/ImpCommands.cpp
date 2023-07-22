@@ -85,8 +85,8 @@ void Server::NICK(Client *client) {
 
 
 	// vérifie si le surnom existe déjà
-	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-		if (it->getNick() == newNick) {
+	for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+		if ((*it)->getNick() == newNick) {
 			sendErrorMsg(ERR_NICKNAMEINUSE, client->getFd(), newNick, "", "", "");
 			// std::cerr << "Error: Nickname already exists." << std::endl;// message d erreurs a gerer voir avec claire
 			return;  // quitte la fonction
@@ -101,18 +101,18 @@ void Server::NICK(Client *client) {
 	}
 
 		// continue avec le reste du code si les conditions sont remplies
-		for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-			if (it->getFd() == client->getFd()) {
+		for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+			if ((*it)->getFd() == client->getFd()) {
 				std::cout << "1 oldNick DEBUG IS : " << client->getNick() << std::endl;
 				std::string oldNick;
-				for (std::vector<Client>::iterator innerIt = _clients.begin(); innerIt != _clients.end(); ++innerIt) {
-					if (innerIt->getFd() == client->getFd()) {
-						oldNick = innerIt->getNick();
+				for (std::vector<Client*>::iterator innerIt = _clients.begin(); innerIt != _clients.end(); ++innerIt) {
+					if ((*innerIt)->getFd() == client->getFd()) {
+						oldNick = (*innerIt)->getNick();
 						break;
 					}
 				}
 
-				it->setNick(newNick);
+				(*it)->setNick(newNick);
 				
 				std::string msg;
 				if (oldNick.empty())
@@ -231,11 +231,15 @@ void	Server::NOTICE(Client *client) {
 	(void)client;
 }
 
-void	Server::TOPIC(Client *client) {
+void	Server::TOPIC(Client *client, Channel *channel) {
 	std::cout << "cmd topic" << std::endl;
+	
+
 	(void)client;
 }
 
+// surement ici qu'il faudra erase() le member -> _members.erase(it);
+// si plus personne, _members.size() == 0, il faudra aussi _channels.erase(it);
 void	Server::PART(Client *client) {
 	std::cout << "cmd part" << std::endl;
 	(void)client;
@@ -286,7 +290,7 @@ void Server::QUIT(Client *client) {
 
 	// Supprimer l'objet Client du vecteur _clients
 	for (size_t i = 0; i < _clients.size(); i++) {
-		if (_clients[i].getFd() == clientSocket) {
+		if (_clients[i]->getFd() == clientSocket) {
 			_clients.erase(_clients.begin() + i);
 			break;
 		}

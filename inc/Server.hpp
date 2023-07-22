@@ -104,7 +104,7 @@ class Server
 		struct sockaddr_in		_addr;
 		std::vector<int>		_sockets;	// maybe useless
 		std::vector<pollfd>		_pfds;
-		std::vector<Client>		_clients;	// vecteur clients pour faire le lien entre les classes ? @Verena
+		std::vector<Client*>	_clients;	// vecteur clients pour faire le lien entre les classes ? @Verena
 		std::vector<Channel*>	_channels;
 		// bool					_quit;		// useless at the moment
 		std::string				_password; //@Verena to get the password
@@ -119,7 +119,8 @@ class Server
 		void					MODE(Client *client);
 		void					PRIVMSG(Client *client);
 		void					NOTICE(Client *client);
-		void					TOPIC(Client *client);
+		// void					TOPIC(Client *client);
+		void					TOPIC(Client *client, Channel *channel)
 		void					PART(Client *client);
 		void					KICK(Client *client);
 		void					INVITE(Client *client);

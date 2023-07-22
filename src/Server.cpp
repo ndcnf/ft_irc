@@ -40,6 +40,7 @@ Server	&Server::operator=(Server const &rhs)
 Server::~Server()
 {
 	delete currentClient;
+	delete currentChannel; // a verifier
 }
 
 void	Server::setPort(int port)
@@ -166,12 +167,12 @@ bool	Server::connection()
 					bzero(&buf, sizeof(buf));
 
 					int	bytesNbr = recv(_pfds[i].fd, buf, sizeof(buf), 0);
-					for (std::vector<Client>::iterator	it = _clients.begin(); it != _clients.end(); it++)
+					for (std::vector<Client*>::iterator	it = _clients.begin(); it != _clients.end(); it++)
 					{
-						if ((*it).getFd() == _pfds[i].fd)
+						if ((*it)->getFd() == _pfds[i].fd)
 						{
 							std::cout << "I'm the " << _pfds[i].fd << std::endl;
-							currentClient = &(*it);
+							currentClient = (*it);
 							// break;
 						}
 					}
@@ -199,11 +200,11 @@ bool	Server::connection()
 						else
 							std::cout << ERRMSG << strerror(errno) << std::endl;
 
-						for (std::vector<Client>::iterator	it = _clients.begin(); it != _clients.end(); it++)
+						for (std::vector<Client*>::iterator	it = _clients.begin(); it != _clients.end(); it++)
 						{
-							if ((*it).getFd() == _pfds[i].fd)
+							if ((*it)->getFd() == _pfds[i].fd)
 							{
-								std::cout << "Ready to destroy " << _pfds[i].fd << " aka " << (*it).getFd() << std::endl;
+								std::cout << "Ready to destroy " << _pfds[i].fd << " aka " << (*it)->getFd() << std::endl;
 								_clients.erase(it);
 								// delete &(*it);
 								break;
@@ -291,7 +292,7 @@ void	Server::inputClient(std::string buf, Client *client) // retourner une veleu
 Client* Server::addClient(int fd)
 {
 	Client* client = new Client(fd); // Allouer dynamiquement un nouvel objet Client
-	_clients.push_back(*client);
+	_clients.push_back(client);
 	return client;
 }
 
