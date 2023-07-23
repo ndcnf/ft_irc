@@ -6,7 +6,7 @@ Client::Client():	_fd(0),
 {
 		_username = "";
 		_nick = "";
-		_channel= "";
+		// _channel= "";
 		_hostname= "";
 		_isAuthenticated = false;
 		nickSet = false;
@@ -29,7 +29,8 @@ Client	&Client::operator=(Client const &rhs)
 	_fd = rhs._fd;
 	_nick = rhs._nick;
 	_username = rhs._username;
-	_channel = rhs._channel;//utilisé ?
+	_fullname = rhs._fullname;
+	// _channel = rhs._channel;//utilisé ?
 	_connected = rhs._connected;
 	_hostname = rhs._hostname;
 	_isAuthenticated = rhs._isAuthenticated;

@@ -146,25 +146,62 @@ void	Server::USER(Client *client) { // passe dedant ?
 
 void	Server::JOIN(Client *client) {
 	std::cout << "cmd join" << std::endl;
-	// Channel *channel;
-	std::string chanName;
-	chanName = command;
+	bool	channelExists = false;
+
+	if (command == ":")
+		return;
+
 	// if (chanName == channel.getName()) { // juste ?
 	// 	message d'erreur ce channel existe deja voir avec le mess erreur claire
+	// Nadia: Non, pas de message d'erreur, mais joindre le channel existant en verifiant si droits
 	// }
 	// else {
 		// if (command == 0)
 		// 	Type /join #<channel> pas besoin gere tout seul
-		if (chanName[0] == '#') {
-			std::string msg = ":" + client->getNick() + " JOIN " + chanName;
-			sendMsg(msg, client->getFd());
-		}
-		else {
-			chanName = '#' + chanName;
-			std::string msg = ":" + client->getNick() + " JOIN " + chanName;
-			sendMsg(msg, client->getFd());
+	if (command[0] != '#')
+		command = '#' + command;
 
+	for (std::vector<Channel*>::iterator	it = _channels.begin(); it != _channels.end(); it++)
+	{
+		if (((*it)->getChannelName() == command))
+		{
+			std::cout << "Channel [" + command + "] already exist. You'll join 'em" << std::endl;
+			currentChannel = (*it);
+			currentChannel->addMember(client);
+			channelExists = true;
+			// client aura un mode 'normal' (pas oper/admin)
+			break;
 		}
+	}
+
+	if (!channelExists)
+	{
+		currentChannel = addChannel(command);
+		std::cout << "Channel [" + command + "] created. You'll be a VIP soon." << std::endl;
+		//le client aura un mode operator
+		currentChannel->addMember(client);
+	}
+
+	// send info to client
+	std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + command;
+	sendMsg(msg, client->getFd());
+
+	// send info of all members in the channel
+	msg = ":" + client->getNick() + "@" + client->getHostname() + " = " + command + " :" + currentChannel->getAllMembers();
+	sendMsg(msg, client->getFd());
+
+	msg = ":" + command + " :End of /NAMES list.";
+	sendMsg(msg, client->getFd());
+
+	std::vector<Client*>	members = currentChannel->getMember(); // moins moche apres
+	msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + command;
+	// message a envoyer a tous les membres du channel
+	for (std::vector<Client*>::iterator it=members.begin(); it !=members.end(); it++)
+	{
+		if ((*it)->getFd() != client->getFd()) // || autorise a recevoir des messages
+			sendMsg(msg, (*it)->getFd());
+	}
+
 	// }
 	// rest a ajouter lA GESTION DES ERREURS par claire
 

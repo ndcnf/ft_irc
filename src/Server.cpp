@@ -20,15 +20,19 @@ Server	&Server::operator=(Server const &rhs)
 {
 	token = rhs.token;
 	command = rhs.command;
+	nickSet = rhs.nickSet;
+
 	_socket = rhs._socket;
 	_validity = rhs._validity;
 	_port = rhs._port;
-	_sockets = rhs._sockets;
 	_addr = rhs._addr;
+	_sockets = rhs._sockets;
 	_pfds = rhs._pfds;
 	_clients = rhs._clients;
+	_channels = rhs._channels;
 	// _quit = rhs._quit;
 	_password = rhs._password;
+	_lastPing = rhs._lastPing;
 
 	return (*this);
 }
@@ -273,7 +277,7 @@ void	Server::inputClient(std::string buf, Client *client) // retourner une veleu
 		buf.erase(0, pos + 2);
 		pos = buf.find(END_SEQUENCE);
 
-		std::cout << "RECIVED : " << line << std::endl;
+		std::cout << "RECEIVED : " << line << std::endl;
 		if (! line.empty()) {
 			parseCommand(line);
 			commands(token, client);
@@ -281,7 +285,7 @@ void	Server::inputClient(std::string buf, Client *client) // retourner une veleu
 		else
 			sendErrorMsg(461, client->getFd(), "", "", "", "");
 	}
-	std::cout << "POS END: " << pos << std::endl;
+	// std::cout << "POS END: " << pos << std::endl;
 }
 
 Client* Server::addClient(int fd)
@@ -289,6 +293,13 @@ Client* Server::addClient(int fd)
 	Client* client = new Client(fd); // Allouer dynamiquement un nouvel objet Client
 	_clients.push_back(*client);
 	return client;
+}
+
+Channel* Server::addChannel(std::string name)
+{
+	Channel* channel = new Channel(name); // Allouer dynamiquement un nouvel objet Channel
+	_channels.push_back(channel);
+	return channel;
 }
 
 std::string	Server::getPassword() {
