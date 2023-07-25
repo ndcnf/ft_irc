@@ -326,12 +326,27 @@ void	Server::TOPIC(Client *client, Channel *channel) {
 }
 
 // surement ici qu'il faudra erase() le member -> _members.erase(it);
-// si plus personne, _members.size() == 0, il faudra aussi _channels.erase(it);
-void	Server::PART(Client *client, Channel *channel) {
-	std::cout << "cmd part" << std::endl;
-	(void)client;
-	(void)channel;
+// si plus personne, _members.size() == 0, il faudra aussi _cannels.erase(it);
+void	Server::PART(Client *client, Channel *channel){
+	// //void channel
+	// if(command != channel->getChannelName())
+	// 	sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), "", "", "", "");
+	// else{
+		if (channel == NULL){
+			std::cout << "channel null" << std::endl;
+			sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), "", "", "", "");
+		}
+		else if (command == channel->getChannelName())
+		{
+		// std::string msg = ":" + client->getNick() + " has left " + currentChannel->getChannelName();
+			std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " PART " + channel->getChannelName();
+			sendMsg(msg, client->getFd());
+			sendMsgToAllMembers(msg, client->getFd());
+		}
+		// else {
+		// }
 }
+
 
 void	Server::KICK(Client *client, Channel *channel) {
 	std::cout << "cmd Kick" << std::endl;
