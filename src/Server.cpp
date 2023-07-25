@@ -173,7 +173,6 @@ bool	Server::connection()
 					{
 						if ((*it)->getFd() == _pfds[i].fd)
 						{
-							std::cout << "I'm the " << _pfds[i].fd << std::endl;
 							currentClient = (*it);
 							// break;
 						}
@@ -206,7 +205,6 @@ bool	Server::connection()
 						{
 							if ((*it)->getFd() == _pfds[i].fd)
 							{
-								std::cout << "Ready to destroy " << _pfds[i].fd << " aka " << (*it)->getFd() << std::endl;
 								_clients.erase(it);
 								// delete &(*it);
 								break;
@@ -265,13 +263,13 @@ void Server::parseCommand(std::string buf)
 	// Affichage des résultats
 	std::cout << "Token: " << token << std::endl;
 	std::cout << "Command: " << command << std::endl;
+	std::cout << std::endl;
 }
 
 
 void	Server::inputClient(std::string buf, Client *client, Channel *channel) // retourner une veleur ? un string ? return buff
 {
 	// (void)client; //au cas ou on en a besoin quand meme plus tard sinon a virer
-	std::cout << "buf inputClient received: " << buf << std::endl;
 	size_t pos = buf.find(END_SEQUENCE);
 
 	while (pos != std::string::npos)
@@ -288,7 +286,6 @@ void	Server::inputClient(std::string buf, Client *client, Channel *channel) // r
 		else
 			sendErrorMsg(461, client->getFd(), "", "", "", "");
 	}
-	// std::cout << "POS END: " << pos << std::endl;
 }
 
 Client* Server::addClient(int fd)
@@ -322,7 +319,7 @@ void	Server::setPassword(std::string pass)  {
 
 	// // Connexion au serveur
 	if (connect(client->getFd(), (struct sockaddr*)&_addr, sizeof(_addr)) < 0) {
-		std::cerr <<  "other connexion detected"  << std::endl;
+		std::cerr <<  "other connection detected"  << std::endl;
 		sendMsg("PING", client->getFd()); // a voir si utile et necessaire
 		return;
 	}
