@@ -5,6 +5,7 @@
 
 Channel::Channel(){
 	_channelName = "";
+	_topic = "";
 }
 
 Channel::Channel(std::string name): _channelName(name) {
@@ -20,6 +21,7 @@ Channel &Channel::operator=(Channel const &rhs){
 	_members = rhs._members;
 	_operators = rhs._operators;
 	_banned = rhs._banned;
+	_topic = rhs._topic;
 
 	return (*this);
 }
@@ -31,6 +33,16 @@ Channel::~Channel(){
 std::string	Channel::getChannelName()
 {
 	return (_channelName);
+}
+
+std::string	Channel::getTopic()
+{
+	return (_topic);
+}
+
+void	Channel::setTopic(std::string topic)
+{
+	_topic = topic;
 }
 
 void Channel::addMember(Client *client)

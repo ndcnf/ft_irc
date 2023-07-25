@@ -8,6 +8,19 @@ void Server::sendMsg(std::string message, int fd)
  	send(fd, message.c_str(), message.size(), 0);
 }
 
+void		Server::sendMsgToAllMembers(std::string message, int fd)
+{
+	std::vector<Client*>	members = currentChannel->getMember(); // moins moche apres
+	// message = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + command;
+	// message a envoyer a tous les membres du channel
+	for (std::vector<Client*>::iterator it=members.begin(); it !=members.end(); it++)
+	{
+		if ((*it)->getFd() != fd) // || autorise a recevoir des messages
+			sendMsg(message, (*it)->getFd());
+	}
+}
+
+
 void    Server::first_message(Client *client) {
 
 	std::string	msg = "001 " + client->getNick() + " :" + "\033[34mWelcome on the MoIRes Connection Server " + "!~" + client->getNick() + " @" + client->getHostname() + END_SEQUENCE + RES;
