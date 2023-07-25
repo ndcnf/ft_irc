@@ -297,6 +297,11 @@ void	Server::TOPIC(Client *client, Channel *channel) {
 // Nouveau sujet uniquement pour les operators
 // Gestion d'erreur: le channel n'existe pas, pas les droits, texte trop long
 
+	if (channel == NULL)
+	{
+		sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), "", "", "", "");
+		return;
+	}
 
 	// le /topic seul est gere automatiquement sans passer par TOPIC
 	if (command.find("::") != std::string::npos)
