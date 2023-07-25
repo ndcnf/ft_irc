@@ -271,7 +271,7 @@ void	Server::MODE(Client *client, Channel *channel) { // channel only ? auto ger
 	(void)channel;
 }
 
-void Server::PRIVMSG(Client *client, Channel *channel) {
+void Server::PRIVMSG(Client *client, Channel *channel) { // ajouter des messages d erreurs ?
 	std::cout << "cmd privmsg" << std::endl;
 	
 	if (command.find('#') != std::string::npos) {
@@ -293,40 +293,15 @@ void Server::PRIVMSG(Client *client, Channel *channel) {
 				
 			}
 			else {
-				// Faire quelque chose si ce n'est pas le bon channel si on peut envoyer des messages aux autres channel ??
-				std::cout << "Message dans un autre channel : " << allChanMsg << std::endl;
+				sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), chanComp, "", "", "");
 			}
 		}
 		else {
-			std::cout << "ERROR: to define" << std::endl;
+			sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
 		}
 	}
-	else if (command.find('#') == std::string::npos) {
-		std::size_t msgPos = command.find(":");
-		if (msgPos != std::string::npos) {
-			std::string privMsg = command.substr(msgPos + 1);
-
-			// Recherche de l'indice du premier espace avant le ':'
-			std::size_t nickPos = command.find(" ");
-			if (nickPos != std::string::npos) {
-				// Extraction du nickname
-				// std::string nickname = command.substr(nickPos + 1, msgPos - nickPos - 1);
-				std::string nickname = command.substr(0, nickPos);
-				std::cout << "debug message : " << privMsg << std::endl;
-				std::cout << "debug nick a qui : " << nickname << std::endl;
-				std::cout << "debug nick moi: " << client->getNick() << std::endl;
-				// std::string msg = ':' + client->getNick() + "@" + client->getHostname() + " " + token + " " + nickname + " :" + privMsg;
-				// std::string msg = ':' + client->getNick() + "!~" + client->getUser() + "@" + client->getHostname() + " " + token + " " + nickname + " :" + privMsg;
-				std::string msg = ':' + client->getNick() + "@" + client->getHostname() + " " + token + " " + nickname + " :" + privMsg;
-				sendMsg(msg, client->getFd());
-			} else {
-				std::cout << "ERROR: Invalid command" << std::endl;
-			}
-		} else {
-			std::cout << "ERROR: Malformed command" << std::endl;
-		}
-
-	}
+	else
+		sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
 }
 
 
