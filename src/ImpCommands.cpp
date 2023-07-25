@@ -28,7 +28,6 @@
 
 void	Server::commands(std::string cmd, Client *client, Channel *channel) {
 
-	// std::string _cmdArray[CMDNBR] = {"CAP", "PING", "NICK", "USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
 	std::string _cmdArray[CMDNBR] = {"CAP", "PING", "NICK", "USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
 	// std::string _cmdArrayTwoArg[CMDNBR] = {"CAP", "PING", "NICK", "USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
 
@@ -142,7 +141,7 @@ void Server::NICK(Client *client, Channel *channel) {
 				}
 
 				(*it)->setNick(newNick);
-				
+
 				std::string msg;
 				if (oldNick.empty())
 					msg = "NICK " + newNick;
@@ -181,7 +180,6 @@ void	Server::JOIN(Client *client, Channel *channel) {
 	std::string	chanName;
 	size_t		pos = command.find(" ");
 
-
 	if (command == ":")
 		return;
 
@@ -192,6 +190,7 @@ void	Server::JOIN(Client *client, Channel *channel) {
 	// else {
 		// if (command == 0)
 		// 	Type /join #<channel> pas besoin gere tout seul
+	// if (pos != std::string::npos || command.find(":") != std::string::npos)
 	if (pos != std::string::npos)
 		chanName = command.substr(0, pos);
 	else
@@ -292,19 +291,26 @@ void	Server::TOPIC(Client *client, Channel *channel) {
 
 // lors d'un changement de sujet, envoyer a tous les membres via TOPIC qqch
 
-	// (void)client;
-	// (void)channel;
 	std::string	msg;
 
-	if (command.empty())
+	std::cout << "commande ds topic : [" + command + "]" << std::endl;
+	std::cout << "channel name ds topic : [" + channel->getChannelName() + "]" << std::endl;
+
+	// le /topic seul est gere automatiquement sans passer par TOPIC
+	if (command.find("::") != std::string::npos)
 	{
-		msg = ": 332" + client->getNick() + channel->getChannelName() + " :" + channel->getTopic();
+		msg = ": TOPIC " + channel->getChannelName();
+		// return;
+	}
+	else
+	{
+		channel->setTopic(command);
+		msg = ": 332 " + client->getNick() + " " + channel->getChannelName() + " :" + channel->getTopic();
 	}
 
 	// msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + command;
 	sendMsg(msg, client->getFd());
-	
-	
+	sendMsgToAllMembers(msg, client->getFd());
 
 }
 
