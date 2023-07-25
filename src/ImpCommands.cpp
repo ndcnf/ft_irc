@@ -271,12 +271,8 @@ void	Server::MODE(Client *client, Channel *channel) { // channel only ? auto ger
 	(void)channel;
 }
 
-#include <iostream>
-#include <string>
-
 void Server::PRIVMSG(Client *client, Channel *channel) {
 	std::cout << "cmd privmsg" << std::endl;
-	(void)client;
 	
 	if (command.find('#') != std::string::npos) {
 		// Recherche de l'indice du ':'
@@ -287,11 +283,13 @@ void Server::PRIVMSG(Client *client, Channel *channel) {
 			// Extraction des sous-chaines apres le # pour le channel et apres le : pour le message'
 			std::string chanComp = command.substr(chanPos + 1, msgPos - chanPos - 2);
 			std::string allChanMsg = command.substr(msgPos + 1);
-
+			chanComp = '#' + chanComp;
 			// Comparaison avec le nom du channel actuel
 			if (channel->getChannelName() == chanComp) {
 				// Faire quelque chose si c'est le bon channel
-				sendMsgToAllMembers(allChanMsg, client->getFd());
+				std::string msg = client->getNick() + "!~h@" + client->getHostname() + " " + token + " " + chanComp + " :" + allChanMsg;
+				sendMsg(msg, client->getFd());
+				sendMsgToAllMembers(msg, client->getFd());
 				
 			} else {
 				// Faire quelque chose si ce n'est pas le bon channel si on peut envoyer des messages aux autres channel ??
@@ -299,8 +297,32 @@ void Server::PRIVMSG(Client *client, Channel *channel) {
 			}
 		}
 		else {
-			std::cout << "ERROR: No message found" << std::endl;
+			std::cout << "ERROR: to define" << std::endl;
 		}
+	}
+	else if (command.find('#') == std::string::npos) {
+		std::size_t msgPos = command.find(":");
+		if (msgPos != std::string::npos) {
+			std::string privMsg = command.substr(msgPos + 1);
+
+			// Recherche de l'indice du premier espace avant le ':'
+			std::size_t nickPos = command.find(" ");
+			if (nickPos != std::string::npos) {
+				// Extraction du nickname
+				// std::string nickname = command.substr(nickPos + 1, msgPos - nickPos - 1);
+				std::string nickname = command.substr(0, nickPos);
+				std::cout << "debug message : " << privMsg << std::endl;
+				std::cout << "debug nick a qui : " << nickname << std::endl;
+				std::cout << "debug nick moi: " << client->getNick() << std::endl;
+				std::string msg = ':' + client->getNick() + " " + token + " " + nickname + " :" + privMsg;
+				sendMsg(msg, client->getFd());
+			} else {
+				std::cout << "ERROR: Invalid command" << std::endl;
+			}
+		} else {
+			std::cout << "ERROR: Malformed command" << std::endl;
+		}
+
 	}
 }
 
