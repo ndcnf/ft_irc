@@ -271,11 +271,39 @@ void	Server::MODE(Client *client, Channel *channel) { // channel only ? auto ger
 	(void)channel;
 }
 
-void	Server::PRIVMSG(Client *client, Channel *channel) {
+#include <iostream>
+#include <string>
+
+void Server::PRIVMSG(Client *client, Channel *channel) {
 	std::cout << "cmd privmsg" << std::endl;
 	(void)client;
-	(void)channel;
+	
+	if (command.find('#') != std::string::npos) {
+		// Recherche de l'indice du ':'
+		std::size_t chanPos = command.find("#");
+		std::size_t msgPos = command.find(":");
+
+		if (msgPos != std::string::npos && chanPos != std::string::npos) {
+			// Extraction des sous-chaines apres le # pour le channel et apres le : pour le message'
+			std::string chanComp = command.substr(chanPos + 1, msgPos - chanPos - 2);
+			std::string allChanMsg = command.substr(msgPos + 1);
+
+			// Comparaison avec le nom du channel actuel
+			if (channel->getChannelName() == chanComp) {
+				// Faire quelque chose si c'est le bon channel
+				sendMsgToAllMembers(allChanMsg, client->getFd());
+				
+			} else {
+				// Faire quelque chose si ce n'est pas le bon channel si on peut envoyer des messages aux autres channel ??
+				std::cout << "Message dans un autre channel : " << allChanMsg << std::endl;
+			}
+		}
+		else {
+			std::cout << "ERROR: No message found" << std::endl;
+		}
+	}
 }
+
 
 void	Server::NOTICE(Client *client, Channel *channel) {
 	std::cout << "cmd notice" << std::endl;
