@@ -120,6 +120,8 @@ bool	Server::connection()
 	socklen_t	addrlen;
 	std::map<int, std::string>	msgBuf;
 
+	currentChannel = NULL; // a verifier
+
 	bzero(&pfd, sizeof(pfd));
 
 	/* *********************************************************
@@ -182,7 +184,7 @@ bool	Server::connection()
 
 					if (static_cast<std::string>(buf).find("\n") != std::string::npos)
 					{
-						inputClient(msgBuf[sender], currentClient);
+						inputClient(msgBuf[sender], currentClient, currentChannel);
 						msgBuf[sender].clear();
 					}
 
@@ -266,7 +268,7 @@ void Server::parseCommand(std::string buf)
 }
 
 
-void	Server::inputClient(std::string buf, Client *client) // retourner une veleur ? un string ? return buff
+void	Server::inputClient(std::string buf, Client *client, Channel *channel) // retourner une veleur ? un string ? return buff
 {
 	// (void)client; //au cas ou on en a besoin quand meme plus tard sinon a virer
 	std::cout << "buf inputClient received: " << buf << std::endl;
@@ -281,7 +283,7 @@ void	Server::inputClient(std::string buf, Client *client) // retourner une veleu
 		std::cout << "RECEIVED : " << line << std::endl;
 		if (! line.empty()) {
 			parseCommand(line);
-			commands(token, client, NULL);
+			commands(token, client, channel);
 		}
 		else
 			sendErrorMsg(461, client->getFd(), "", "", "", "");
