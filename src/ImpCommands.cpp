@@ -287,11 +287,12 @@ void Server::PRIVMSG(Client *client, Channel *channel) {
 			// Comparaison avec le nom du channel actuel
 			if (channel->getChannelName() == chanComp) {
 				// Faire quelque chose si c'est le bon channel
-				std::string msg = client->getNick() + "!~h@" + client->getHostname() + " " + token + " " + chanComp + " :" + allChanMsg;
-				sendMsg(msg, client->getFd());
+				std::string msg = ':' + client->getNick() + '@' + client->getHostname() + " " + token + " " + chanComp + " :" + allChanMsg;
+				// sendMsg(msg, client->getFd());
 				sendMsgToAllMembers(msg, client->getFd());
 				
-			} else {
+			}
+			else {
 				// Faire quelque chose si ce n'est pas le bon channel si on peut envoyer des messages aux autres channel ??
 				std::cout << "Message dans un autre channel : " << allChanMsg << std::endl;
 			}
@@ -314,7 +315,9 @@ void Server::PRIVMSG(Client *client, Channel *channel) {
 				std::cout << "debug message : " << privMsg << std::endl;
 				std::cout << "debug nick a qui : " << nickname << std::endl;
 				std::cout << "debug nick moi: " << client->getNick() << std::endl;
-				std::string msg = ':' + client->getNick() + " " + token + " " + nickname + " :" + privMsg;
+				// std::string msg = ':' + client->getNick() + "@" + client->getHostname() + " " + token + " " + nickname + " :" + privMsg;
+				// std::string msg = ':' + client->getNick() + "!~" + client->getUser() + "@" + client->getHostname() + " " + token + " " + nickname + " :" + privMsg;
+				std::string msg = ':' + client->getNick() + "@" + client->getHostname() + " " + token + " " + nickname + " :" + privMsg;
 				sendMsg(msg, client->getFd());
 			} else {
 				std::cout << "ERROR: Invalid command" << std::endl;
