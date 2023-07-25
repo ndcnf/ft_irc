@@ -78,13 +78,9 @@ void	Server::PING(Client *client, Channel *channel) {
 
 void Server::NICK(Client *client, Channel *channel) {
 	(void)channel;
-	std::cout << "Votre demande est une commande.: ";
-	std::cout << "cmd nick" << std::endl;
 
 	if (client->nickSet == false) {
 		std::string nickname = command;
-		std::cout << "GetNick() DEBUUUG " << client->getNick() << std::endl;
-		std::cout << "1 NICKNAAAAME DEBUUUG " << nickname << std::endl;
 		// int numberFd = client->getFd();
 		// static_cast<std::string>(numberFd);
 		// nickname = nickname + numberFd;
@@ -93,9 +89,7 @@ void Server::NICK(Client *client, Channel *channel) {
 		ss << numberFd;
 		std::string strNumberFd = ss.str();
 		nickname += strNumberFd;
-		std::cout << "different ou egale DEBUUUG " << nickname << std::endl;
 		client->setNick(nickname);
-		std::cout << "2 NICKNAAAAME DEBUUUG " << client->getNick() << std::endl;
 		std::string msg = ":" + command + " NICK " + nickname;
 		sendMsg(msg, client->getFd());
 		client->nickSet = true;
@@ -104,8 +98,6 @@ void Server::NICK(Client *client, Channel *channel) {
 		std::string newNick = command;
 
 		// vérifie si le nouveau surnom dépasse 30 caractères
-		std::cout << "getNick " << client->getNick() << std::endl;
-		std::cout << "newNick " << newNick << std::endl;
 		if(newNick.size() > 30) {
 		sendErrorMsg(ERR_ERRONEUSNICKNAME, client->getFd(), newNick, "", "", "");
 		std::cerr << "Error: Nickname is longer than 30 characters." << std::endl; //comme dans freenode
@@ -132,7 +124,6 @@ void Server::NICK(Client *client, Channel *channel) {
 		// continue avec le reste du code si les conditions sont remplies
 		for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
 			if ((*it)->getFd() == client->getFd()) {
-				std::cout << "1 oldNick DEBUG IS : " << client->getNick() << std::endl;
 				std::string oldNick;
 				for (std::vector<Client*>::iterator innerIt = _clients.begin(); innerIt != _clients.end(); ++innerIt) {
 					if ((*innerIt)->getFd() == client->getFd()) {
@@ -161,15 +152,11 @@ void	Server::USER(Client *client, Channel *channel) { // passe dedant ?
 	(void)channel;
 	std::cout << "cmd user" << std::endl; // info only
 
-	std::cout << "TOKEN " << token << std::endl;
-	std::cout << "command " << command << std::endl;
 		std::size_t colonPos = command.find(':');
 		if (colonPos != std::string::npos) {
 			std::string UserContent = command.substr(colonPos + 1);
 			std::string	msg = "USER : " + UserContent + END_SEQUENCE;
 			client->setUser(UserContent);
-			std::cout << "USERCONTENT : " << UserContent << std::endl; // DEBUG ONLY
-			std::cout << "USERNAME : " << client->getUser() << std::endl; // DEBUG ONLY
 			// if (client->isAuthenticated() && !client->getUser().empty() && !client->getNick().empty())
 			first_message(client);
 			}
@@ -248,6 +235,7 @@ void	Server::JOIN(Client *client, Channel *channel) {
 	if (!currentChannel->getTopic().empty())
 	{
 		msg = "TOPIC " + chanName + " :" + currentChannel->getTopic();
+
 		sendMsg(msg, client->getFd());
 		sendMsgToAllMembers(msg, client->getFd());
 	}
@@ -325,6 +313,11 @@ void	Server::TOPIC(Client *client, Channel *channel) {
 // Nouveau sujet uniquement pour les operators
 // Gestion d'erreur: le channel n'existe pas, pas les droits, texte trop long
 
+	if (channel == NULL)
+	{
+		sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), "", "", "", "");
+		return;
+	}
 
 	// le /topic seul est gere automatiquement sans passer par TOPIC
 	if (command.find("::") != std::string::npos)
