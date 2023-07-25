@@ -199,6 +199,8 @@ void	Server::JOIN(Client *client, Channel *channel) {
 	if (chanName[0] != '#')
 		chanName = '#' + chanName;
 
+	// ajouter les channel names au vecteur en push back
+
 	for (std::vector<Channel*>::iterator	it = _channels.begin(); it != _channels.end(); it++)
 	{
 		if (((*it)->getChannelName() == chanName))
@@ -281,35 +283,42 @@ void	Server::NOTICE(Client *client, Channel *channel) {
 
 void	Server::TOPIC(Client *client, Channel *channel) {
 	std::cout << "cmd topic" << std::endl;
+	std::string		topicName;
+	std::string		msg;
+	size_t			pos = command.find(":");
+
 //	La commande TOPIC peut comporter deux formes :
 
 //	TOPIC #nom_du_canal :nouveau_sujet (pour définir un nouveau sujet)
-//	TOPIC #nom_du_canal (pour récupérer le sujet actuel)
+//	TOPIC #nom_du_canal (pour récupérer le sujet actuel) // gere automatiquement
 
 // Nouveau sujet uniquement pour les operators
 // Gestion d'erreur: le channel n'existe pas, pas les droits, texte trop long
 
-// lors d'un changement de sujet, envoyer a tous les membres via TOPIC qqch
-
-	std::string	msg;
-
-	std::cout << "commande ds topic : [" + command + "]" << std::endl;
-	std::cout << "channel name ds topic : [" + channel->getChannelName() + "]" << std::endl;
 
 	// le /topic seul est gere automatiquement sans passer par TOPIC
 	if (command.find("::") != std::string::npos)
 	{
 		msg = ": TOPIC " + channel->getChannelName();
-		// return;
+		channel->setTopic("");
 	}
 	else
 	{
-		channel->setTopic(command);
+		if (pos != std::string::npos && (std::string::npos + 1) != command.size())
+			topicName = command.substr(pos + 1);
+		else
+			topicName = command;
+
+		std::cout << "commande ds topic : [" + command + "]" << std::endl;
+		std::cout << "topicName ds topic : [" + topicName + "]" << std::endl;
+		std::cout << "channel name ds topic : [" + channel->getChannelName() + "]" << std::endl;
+
+		channel->setTopic(topicName);
 		msg = ": 332 " + client->getNick() + " " + channel->getChannelName() + " :" + channel->getTopic();
 	}
 
-	// msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + command;
 	sendMsg(msg, client->getFd());
+	// lors d'un changement de sujet, envoyer a tous les membres via TOPIC qqch
 	sendMsgToAllMembers(msg, client->getFd());
 
 }
