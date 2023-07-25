@@ -14,6 +14,7 @@ class Channel
 			~Channel();
 
 			void						addMember(Client *client);
+			void						removeMember(Client *client, int fd);
 			void						setTopic(std::string topic);
 			void						sendToAllMembers(std::string msg);
 
