@@ -467,23 +467,26 @@ void Server::PRIVMSG(Client *client, Channel *channel) {
 	}
 }
 
-//tester avec ca pour parser et recuperer la phrase apres le dernier mot #
-std::vector<std::pair<std::string, std::size_t>> hashChanWithPos;
-size_t pos = 0;
-while ((pos = command.find("#", pos)) != std::string::npos) {
-    size_t endPos = command.find(" ", pos);
-    if (endPos == std::string::npos) {
-        endPos = command.length();
-    }
-    std::string chanName = command.substr(pos, endPos - pos);
-    hashChanWithPos.push_back(std::make_pair(chanName, endPos));
-    pos = endPos;
-}
+//LA FONCTION SEMBLE FONCTIONNER CORRECTEMENT, MAIS LES MESSAGES S ENVOI TROP SOUVENT ATTENTION A QUI ET QUAND J ENVOIE ET ATTENTION AU PARSING cf printscreen
 
-if (!hashChanWithPos.empty()) {
-    std::pair<std::string, std::size_t> lastHashWordWithPos = hashChanWithPos.back();
-    allChanMsg = command.substr(lastHashWordWithPos.second);
-}"
+//tester avec ca pour parser et recuperer la phrase apres le dernier mot #
+//probleme de parsing du message de fin, le parser avant ? Verifier que les message a un seul channel fcontionne tjr
+// std::vector<std::pair<std::string, std::size_t>> hashChanWithPos;
+// size_t pos = 0;
+// while ((pos = command.find("#", pos)) != std::string::npos) {
+//     size_t endPos = command.find(" ", pos);
+//     if (endPos == std::string::npos) {
+//         endPos = command.length();
+//     }
+//     std::string chanName = command.substr(pos, endPos - pos);
+//     hashChanWithPos.push_back(std::make_pair(chanName, endPos));
+//     pos = endPos;
+// }
+
+// if (!hashChanWithPos.empty()) {
+//     std::pair<std::string, std::size_t> lastHashWordWithPos = hashChanWithPos.back();
+//     allChanMsg = command.substr(lastHashWordWithPos.second);
+// }
 
 
 void	Server::NOTICE(Client *client, Channel *channel) { //comme privmsg mais sans les erreurs
