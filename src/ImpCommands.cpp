@@ -78,13 +78,9 @@ void	Server::PING(Client *client, Channel *channel) {
 
 void Server::NICK(Client *client, Channel *channel) {
 	(void)channel;
-	std::cout << "Votre demande est une commande.: ";
-	std::cout << "cmd nick" << std::endl;
 
 	if (client->nickSet == false) {
 		std::string nickname = command;
-		std::cout << "GetNick() DEBUUUG " << client->getNick() << std::endl;
-		std::cout << "1 NICKNAAAAME DEBUUUG " << nickname << std::endl;
 		// int numberFd = client->getFd();
 		// static_cast<std::string>(numberFd);
 		// nickname = nickname + numberFd;
@@ -93,9 +89,7 @@ void Server::NICK(Client *client, Channel *channel) {
 		ss << numberFd;
 		std::string strNumberFd = ss.str();
 		nickname += strNumberFd;
-		std::cout << "different ou egale DEBUUUG " << nickname << std::endl;
 		client->setNick(nickname);
-		std::cout << "2 NICKNAAAAME DEBUUUG " << client->getNick() << std::endl;
 		std::string msg = ":" + command + " NICK " + nickname;
 		sendMsg(msg, client->getFd());
 		client->nickSet = true;
@@ -104,8 +98,6 @@ void Server::NICK(Client *client, Channel *channel) {
 		std::string newNick = command;
 
 		// vérifie si le nouveau surnom dépasse 30 caractères
-		std::cout << "getNick " << client->getNick() << std::endl;
-		std::cout << "newNick " << newNick << std::endl;
 		if(newNick.size() > 30) {
 		sendErrorMsg(ERR_ERRONEUSNICKNAME, client->getFd(), newNick, "", "", "");
 		std::cerr << "Error: Nickname is longer than 30 characters." << std::endl; //comme dans freenode
@@ -132,7 +124,6 @@ void Server::NICK(Client *client, Channel *channel) {
 		// continue avec le reste du code si les conditions sont remplies
 		for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
 			if ((*it)->getFd() == client->getFd()) {
-				std::cout << "1 oldNick DEBUG IS : " << client->getNick() << std::endl;
 				std::string oldNick;
 				for (std::vector<Client*>::iterator innerIt = _clients.begin(); innerIt != _clients.end(); ++innerIt) {
 					if ((*innerIt)->getFd() == client->getFd()) {
@@ -161,15 +152,11 @@ void	Server::USER(Client *client, Channel *channel) { // passe dedant ?
 	(void)channel;
 	std::cout << "cmd user" << std::endl; // info only
 
-	std::cout << "TOKEN " << token << std::endl;
-	std::cout << "command " << command << std::endl;
 		std::size_t colonPos = command.find(':');
 		if (colonPos != std::string::npos) {
 			std::string UserContent = command.substr(colonPos + 1);
 			std::string	msg = "USER : " + UserContent + END_SEQUENCE;
 			client->setUser(UserContent);
-			std::cout << "USERCONTENT : " << UserContent << std::endl; // DEBUG ONLY
-			std::cout << "USERNAME : " << client->getUser() << std::endl; // DEBUG ONLY
 			// if (client->isAuthenticated() && !client->getUser().empty() && !client->getNick().empty())
 			first_message(client);
 			}
@@ -248,6 +235,7 @@ void	Server::JOIN(Client *client, Channel *channel) {
 	if (!currentChannel->getTopic().empty())
 	{
 		msg = "TOPIC " + chanName + " :" + currentChannel->getTopic();
+
 		sendMsg(msg, client->getFd());
 		sendMsgToAllMembers(msg, client->getFd());
 	}
@@ -271,11 +259,39 @@ void	Server::MODE(Client *client, Channel *channel) { // channel only ? auto ger
 	(void)channel;
 }
 
-void	Server::PRIVMSG(Client *client, Channel *channel) {
+void Server::PRIVMSG(Client *client, Channel *channel) { // ajouter des messages d erreurs ?
 	std::cout << "cmd privmsg" << std::endl;
-	(void)client;
-	(void)channel;
+	
+	if (command.find('#') != std::string::npos) {
+		// Recherche de l'indice du ':'
+		std::size_t chanPos = command.find("#");
+		std::size_t msgPos = command.find(":");
+
+		if (msgPos != std::string::npos && chanPos != std::string::npos) {
+			// Extraction des sous-chaines apres le # pour le channel et apres le : pour le message'
+			std::string chanComp = command.substr(chanPos + 1, msgPos - chanPos - 2);
+			std::string allChanMsg = command.substr(msgPos + 1);
+			chanComp = '#' + chanComp;
+			// Comparaison avec le nom du channel actuel
+			if (channel->getChannelName() == chanComp) {
+				// Faire quelque chose si c'est le bon channel
+				std::string msg = ':' + client->getNick() + '@' + client->getHostname() + " " + token + " " + chanComp + " :" + allChanMsg;
+				// sendMsg(msg, client->getFd());
+				sendMsgToAllMembers(msg, client->getFd());
+				
+			}
+			else {
+				sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), chanComp, "", "", "");
+			}
+		}
+		else {
+			sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
+		}
+	}
+	else
+		sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
 }
+
 
 void	Server::NOTICE(Client *client, Channel *channel) {
 	std::cout << "cmd notice" << std::endl;
@@ -297,6 +313,11 @@ void	Server::TOPIC(Client *client, Channel *channel) {
 // Nouveau sujet uniquement pour les operators
 // Gestion d'erreur: le channel n'existe pas, pas les droits, texte trop long
 
+	if (channel == NULL)
+	{
+		sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), "", "", "", "");
+		return;
+	}
 
 	// le /topic seul est gere automatiquement sans passer par TOPIC
 	if (command.find("::") != std::string::npos)
@@ -326,58 +347,12 @@ void	Server::TOPIC(Client *client, Channel *channel) {
 }
 
 // surement ici qu'il faudra erase() le member -> _members.erase(it);
-// si plus personne, _members.size() == 0, il faudra aussi _cannels.erase(it);
-void	Server::PART(Client *client, Channel *channel){
-	// //void channel
-	// if(command != channel->getChannelName())
-	// 	sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), "", "", "", "");
-	// else{
-	//	bool channelNotEmpty = true;
-
-		if (channel == NULL){
-			std::cout << "channel null" << std::endl;
-			sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), "", "", "", "");
-			return;
-		}
-		// else if (command == channel->getChannelName())
-		//channel->removeMember(client, client->getFd());
-		std::vector<Client*>	members = currentChannel->getMember();
-		for (std::vector<Client*>::iterator it = members.begin(); it != members.end(); it++)
-		{
-			// std::cout << "nb getmembres1 :" << channel->getMember().size() << std::endl;
-			// std::cout << "nb membres1 :" << members.size() << std::endl;
-
-			std::cout << "it->getFd " << (*it)->getFd() << std::endl;
-			std::cout << "client->getFd() " << client->getFd() << std::endl;
-			if ((*it)->getFd() == client->getFd()) // || autorise a recevoir des messages
-			{
-				members.erase(it);
-				break ;
-			}
-		}
-		std::cout << "nb getmembres2 :" << channel->getMember().size() << std::endl;
-		std::cout << "nb membres2 :" << members.size() << std::endl;
-
-		if (channel->getMember().size() > 1)
-		//if (members.size() > 2)
-		{
-			std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " PART " + channel->getChannelName();
-			sendMsg(msg, client->getFd());
-			sendMsgToAllMembers(msg, client->getFd());
-		}
-		// if (currentChannel->getAllMembers().size() == 0)
-		// 	channelNotEmpty = false;
-		else if (channel->getMember().size() == 1)
-		//else if (members.size() == 1)
-		{
-			std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " PART " + channel->getChannelName();
-			sendMsg(msg, client->getFd());
-			//channel->getChannelName().erase(); // channel a effacer du vector, non ?
-		}
-		//}
+// si plus personne, _members.size() == 0, il faudra aussi _channels.erase(it);
+void	Server::PART(Client *client, Channel *channel) {
+	std::cout << "cmd part" << std::endl;
+	(void)client;
+	(void)channel;
 }
-
-
 
 void	Server::KICK(Client *client, Channel *channel) {
 	std::cout << "cmd Kick" << std::endl;

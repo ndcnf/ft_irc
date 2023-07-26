@@ -51,10 +51,23 @@ void Channel::addMember(Client *client)
 		_members.push_back(client);
 		// std::cout << "new member" << std::endl;
 	// else {
-		
+
 		return;
 	// }
 }
+
+void	Channel::removeMember(Client *client, int fd)
+{
+	for (std::vector<Client*>::iterator it=_members.begin(); it != _members.end(); it++)
+	{
+		if (client->getFd() == fd)
+		{
+			_members.erase(it);
+			return;
+		}
+	}
+}
+
 
 std::string	Channel::getAllMembers()
 {
