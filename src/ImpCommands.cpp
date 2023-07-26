@@ -259,9 +259,43 @@ void	Server::MODE(Client *client, Channel *channel) { // channel only ? auto ger
 	(void)channel;
 }
 
-void Server::PRIVMSG(Client *client, Channel *channel) { // ajouter des messages d erreurs ?
-	std::cout << "cmd privmsg" << std::endl;
+// void Server::PRIVMSG(Client *client, Channel *channel) { // ajouter des messages d erreurs ?
+// 	std::cout << "cmd privmsg" << std::endl;
 	
+// 	if (command.find('#') != std::string::npos) {
+// 		// Recherche de l'indice du ':'
+// 		std::size_t chanPos = command.find("#");
+// 		std::size_t msgPos = command.find(":");
+
+// 		if (msgPos != std::string::npos && chanPos != std::string::npos) {
+// 			// Extraction des sous-chaines apres le # pour le channel et apres le : pour le message'
+// 			std::string chanComp = command.substr(chanPos + 1, msgPos - chanPos - 2);
+// 			std::string allChanMsg = command.substr(msgPos + 1);
+// 			chanComp = '#' + chanComp;
+// 			// Comparaison avec le nom du channel actuel
+// 			if (channel->getChannelName() == chanComp) {
+// 				// Faire quelque chose si c'est le bon channel
+// 				std::string msg = ':' + client->getNick() + '@' + client->getHostname() + " " + token + " " + chanComp + " :" + allChanMsg;
+// 				// sendMsg(msg, client->getFd());
+// 				sendMsgToAllMembers(msg, client->getFd());
+				
+// 			}
+// 			else {
+// 				sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), chanComp, "", "", "");
+// 			}
+// 		}
+// 		else {
+// 			sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
+// 		}
+// 	}
+// 	else
+// 		sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
+// }
+
+
+void Server::PRIVMSG(Client *client, Channel *channel) {
+	
+	std::cout << "cmd privmsg" << std::endl;
 	if (command.find('#') != std::string::npos) {
 		// Recherche de l'indice du ':'
 		std::size_t chanPos = command.find("#");
@@ -288,12 +322,51 @@ void Server::PRIVMSG(Client *client, Channel *channel) { // ajouter des messages
 			sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
 		}
 	}
-	else
-		sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
+	else if (command.find('#') == std::string::npos) {
+		std::size_t msgPos = command.find(":");
+		if (msgPos != std::string::npos) {
+			std::string privMsg = command.substr(msgPos + 1);
+
+			// Recherche de l'indice du premier espace avant le ':'
+			std::size_t nickPos = command.find(" ");
+			if (nickPos != std::string::npos) {
+				// Extraction du nickname
+				// std::string nickname = command.substr(nickPos + 1, msgPos - nickPos - 1);
+				std::string nickname = command.substr(0, nickPos);
+				std::cout << "debug message : " << privMsg << std::endl;
+				std::cout << "debug nick a qui : " << nickname << std::endl;
+				std::cout << "debug nick moi: " << client->getNick() << std::endl;
+				                
+                // Find the recipient client from _clients vector
+                Client* recipientClient = NULL;
+                for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+                    if ((*it)->getNick() == nickname) {
+                        recipientClient = *it;
+                        break;
+                    }
+                }
+                if (recipientClient) {
+				// std::string msg = ':' + client->getNick() + "@" + client->getHostname() + " " + token + " " + nickname + " :" + privMsg;
+				// std::string msg = ':' + client->getNick() + "!~" + client->getUser() + "@" + client->getHostname() + " " + token + " " + nickname + " :" + privMsg;
+				// std::string msg = ':' + client->getNick() + "@" + client->getHostname() + " " + token + " " + nickname + " :" + privMsg;
+				// sendMsg(msg, client->getFd());
+				std::string privMsgNick = "<" + client->getNick() + "> send you : " + privMsg;
+				sendMsg(privMsgNick, recipientClient->getFd());
+				}
+				else
+					sendErrorMsg(ERR_NOSUCHNICK, client->getFd(), client->getNick(), "", "", "");
+			} 
+			else
+				sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
+		} 
+		else
+			sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
+	}
 }
 
 
-void	Server::NOTICE(Client *client, Channel *channel) {
+
+void	Server::NOTICE(Client *client, Channel *channel) { //comme privmsg mais sans les erreurs
 	std::cout << "cmd notice" << std::endl;
 	(void)client;
 	(void)channel;
