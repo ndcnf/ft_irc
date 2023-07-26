@@ -348,10 +348,35 @@ void	Server::TOPIC(Client *client, Channel *channel) {
 
 // surement ici qu'il faudra erase() le member -> _members.erase(it);
 // si plus personne, _members.size() == 0, il faudra aussi _channels.erase(it);
-void	Server::PART(Client *client, Channel *channel) {
-	std::cout << "cmd part" << std::endl;
-	(void)client;
-	(void)channel;
+void	Server::PART(Client *client, Channel *channel){
+	if (channel == NULL){
+		std::cout << "channel null" << std::endl;
+		sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), "", "", "", "");
+		return;
+	}
+	channel->removeMember(client, client->getFd());
+	
+	std::cout << "nb getmembres2 :" << channel->getMember().size() << std::endl;
+
+	if (channel->getMember().size() > 1)
+	//if (members.size() > 2)
+	{
+		std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " PART " + channel->getChannelName();
+		sendMsg(msg, client->getFd());
+		sendMsgToAllMembers(msg, client->getFd());
+	}
+	else if (channel->getMember().size() == 1)
+	//else if (members.size() == 1)
+	{
+		std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " PART " + channel->getChannelName();
+		sendMsg(msg, client->getFd());
+		channel->removeMember(client, client->getFd());
+		//channel->getChannelName().erase(); // channel a effacer du vector, non ?
+	}
+	else if (channel->getMember().size() == 0)
+	{
+		removeChannel(channel);
+	}
 }
 
 void	Server::KICK(Client *client, Channel *channel) {
