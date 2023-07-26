@@ -182,7 +182,7 @@ bool	Server::connection()
 					std::string	rawMsgWithoutEndSeq = msgBuf[sender].substr(0, msgBuf[sender].find(END_SEQUENCE));
 
 					std::cout << "getcurrent before cool : [" + rawMsgWithoutEndSeq + "]" << std::endl;
-					currentChannel = getCurrentChannel(rawMsgWithoutEndSeq);›D
+					currentChannel = getCurrentChannel(rawMsgWithoutEndSeq);
 					//getPing(buf, currentClient);
 
 					if (static_cast<std::string>(buf).find("\n") != std::string::npos)
