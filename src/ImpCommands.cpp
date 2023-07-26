@@ -340,6 +340,7 @@ void	Server::PART(Client *client, Channel *channel){
 			return;
 		}
 		// else if (command == channel->getChannelName())
+		//channel->removeMember(client, client->getFd());
 		std::vector<Client*>	members = currentChannel->getMember();
 		for (std::vector<Client*>::iterator it = members.begin(); it != members.end(); it++)
 		{
