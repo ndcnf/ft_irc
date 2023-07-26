@@ -70,8 +70,8 @@ class Server
 		std::string	getPassword();//@Verena to print the password entered
 		void		setPassword(std::string pass);
 		// Client		getClients(Client *client);
-		// Channel		getChannels(Channel *channel);
-		std::vector<std::string> getCap();
+		Channel*	getCurrentChannel(std::string msgBuf);
+		std::vector<std::string>	getCap();
 
 		//COMMNANDS
 		void		parseCommand(std::string buf);
