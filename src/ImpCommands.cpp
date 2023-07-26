@@ -360,7 +360,7 @@ void	Server::PART(Client *client, Channel *channel){
 
 	std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " PART " + channel->getChannelName();
 	sendMsg(msg, client->getFd());
-	if (channel->getMember().size() > 1)
+	if (channel->getMember().size() > 0)
 		sendMsgToAllMembers(msg, client->getFd());
 	else if (channel->getMember().size() == 0)
 		removeChannel(channel);
