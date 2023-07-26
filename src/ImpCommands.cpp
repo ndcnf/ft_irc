@@ -354,29 +354,35 @@ void	Server::PART(Client *client, Channel *channel){
 		sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), "", "", "", "");
 		return;
 	}
-	channel->removeMember(client, client->getFd());
-	
-	std::cout << "nb getmembres2 :" << channel->getMember().size() << std::endl;
 
+	channel->removeMember(client, client->getFd());
+	std::cout << "Members still on the channel: " << channel->getMember().size() << std::endl;
+
+	std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " PART " + channel->getChannelName();
+	sendMsg(msg, client->getFd());
 	if (channel->getMember().size() > 1)
-	//if (members.size() > 2)
-	{
-		std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " PART " + channel->getChannelName();
-		sendMsg(msg, client->getFd());
 		sendMsgToAllMembers(msg, client->getFd());
-	}
-	else if (channel->getMember().size() == 1)
-	//else if (members.size() == 1)
-	{
-		std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " PART " + channel->getChannelName();
-		sendMsg(msg, client->getFd());
-		channel->removeMember(client, client->getFd());
-		//channel->getChannelName().erase(); // channel a effacer du vector, non ?
-	}
 	else if (channel->getMember().size() == 0)
-	{
 		removeChannel(channel);
-	}
+
+	// if (channel->getMember().size() > 1)
+	// //if (members.size() > 2)
+	// {
+	// 	// std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " PART " + channel->getChannelName();
+	// 	sendMsg(msg, client->getFd());
+	// 	sendMsgToAllMembers(msg, client->getFd());
+	// }
+	// else if (channel->getMember().size() == 1)
+	// //else if (members.size() == 1)
+	// {
+	// 	// std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " PART " + channel->getChannelName();
+	// 	sendMsg(msg, client->getFd());
+	// }
+	// else if (channel->getMember().size() == 0)
+	// {
+	// 	sendMsg(msg, client->getFd());
+	// 	removeChannel(channel);
+	// }
 }
 
 void	Server::KICK(Client *client, Channel *channel) {
