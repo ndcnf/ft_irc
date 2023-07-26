@@ -58,9 +58,10 @@ void Channel::addMember(Client *client)
 
 void	Channel::removeMember(Client *client, int fd)
 {
+	(void)client;
 	for (std::vector<Client*>::iterator it=_members.begin(); it != _members.end(); it++)
 	{
-		if (client->getFd() == fd)
+		if ((*it)->getFd() == fd)
 		{
 			_members.erase(it);
 			return;
