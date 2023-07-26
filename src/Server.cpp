@@ -179,6 +179,10 @@ bool	Server::connection()
 					}
 					int	sender = _pfds[i].fd;
 					msgBuf[sender] += static_cast<std::string>(buf);
+					std::string	rawMsgWithoutEndSeq = msgBuf[sender].substr(0, msgBuf[sender].find(END_SEQUENCE));
+
+					std::cout << "getcurrent before cool : [" + rawMsgWithoutEndSeq + "]" << std::endl;
+					currentChannel = getCurrentChannel(rawMsgWithoutEndSeq);
 					//getPing(buf, currentClient);
 
 					if (static_cast<std::string>(buf).find("\n") != std::string::npos)
@@ -314,6 +318,32 @@ void	Server::removeChannel(Channel *channel)
 	}
 }
 
+Channel*	Server::getCurrentChannel(std::string msgBuf)
+{
+	std::string		chanName;
+	size_t			pos = msgBuf.find("#");
+
+	if (pos != std::string::npos && (std::string::npos + 1) != msgBuf.size())
+	{
+		size_t		endPos = msgBuf.find(" ", pos);
+		chanName = msgBuf.substr(pos, endPos - pos);
+	}
+	else
+		chanName = msgBuf;
+
+	for(std::vector<Channel*>::iterator it=_channels.begin(); it != _channels.end(); it++)
+	{
+		if ((*it)->getChannelName() == chanName)
+		{
+			std::cout << "Chan Name current one: [" + chanName + "]" << std::endl;
+			return (*it);
+		}
+	}
+	return (NULL);
+
+}
+
+
 std::string	Server::getPassword() {
 	return _password;
 } //@Verena to print the password entered
@@ -336,4 +366,3 @@ void	Server::setPassword(std::string pass)  {
 		return;
 	}
 }
-

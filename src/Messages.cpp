@@ -118,4 +118,3 @@ void Server::sendErrorMsg(int errorCode, int fd, std::string param1="", std::str
 	errorminator = ": " + errorminator + "\r\n" ;
 	sendMsg(errorminator, fd);
 }
-
