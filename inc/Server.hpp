@@ -57,6 +57,7 @@ class Server
 		bool		connection();
 		Client*		addClient(int fd);
 		Channel* 	addChannel(std::string name);
+		void		removeChannel(Channel *channel);
 		void		inputClient(std::string buf, Client *client, Channel *channel);
 		void		cmdSelection(std::string buf, Client *client);
 		void		capOrNOt(Client *client);

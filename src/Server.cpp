@@ -302,6 +302,18 @@ Channel* Server::addChannel(std::string name)
 	return channel;
 }
 
+void	Server::removeChannel(Channel *channel)
+{
+	for (std::vector<Channel*>::iterator it=_channels.begin(); it != _channels.end(); it++)
+	{
+		if (channel->getChannelName() == (*it)->getChannelName())
+		{
+			_channels.erase(it);
+			break;
+		}
+	}
+}
+
 std::string	Server::getPassword() {
 	return _password;
 } //@Verena to print the password entered
