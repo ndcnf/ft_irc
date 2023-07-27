@@ -385,3 +385,13 @@ void	Server::setPassword(std::string pass)  {
 		return;
 	}
 }
+
+bool		Server::channelExists(std::string channel)
+{
+	for (std::vector<Channel*>::iterator it = _channels.begin(); it != _channels.end(); it++)
+	{
+		if ((*it)->getChannelName() == channel)
+			return true;
+	}
+	return false;
+}

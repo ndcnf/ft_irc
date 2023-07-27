@@ -58,6 +58,7 @@ class Server
 		Client*		addClient(int fd);
 		Channel* 	addChannel(std::string name);
 		void		removeChannel(Channel *channel);
+		bool		channelExists(std::string channel);
 		void		inputClient(std::string buf, Client *client, Channel *channel);
 		void		cmdSelection(std::string buf, Client *client);
 		void		capOrNOt(Client *client);

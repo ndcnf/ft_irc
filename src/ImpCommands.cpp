@@ -278,17 +278,48 @@ void	Server::JOIN(Client *client, Channel *channel) {
 
 void	Server::MODE(Client *client, Channel *channel) { // channel only ? auto gerer par le client lorqu on se connect
 	std::cout << "cmd mode" << std::endl;
-	std::string					msg;
-	std::vector<std::string>	modes;
+	std::string		msg;
+	std::string		modes;
+	size_t			pos;
+	std::string		chanName;
+	// bool			isMinus = false;
 
-	(void)client;
-	// (void)channel;
 
 	std::cout << "je recois : [" + command + "]" << std::endl;
 
 	if (command == (client->getNick() + " +i"))
 		return;
-	msg = "MODE " + channel->getChannelName() + " +t " + client->getNick();
+
+	chanName = parseChan(command, 0);
+	bool	isChannel = channelExists(chanName);
+
+	if (!isChannel)
+	{
+		//le channel donne n'existe pas ERREUR
+		return ;
+	}
+
+	pos = chanName.size() + 1;
+	modes = command.substr(pos, command.find(" "));
+
+	std::cout << "modes [" + modes + "]" << std::endl;
+
+	if ((pos = modes.find("t") != std::string::npos))
+	{
+		if ((pos - 1) == modes.find("+"))
+		{
+			channel->setTopicMode(true);
+		}
+		else
+		{
+			channel->setTopicMode(false);
+			// isMinus = true;
+		}
+	}
+	
+
+
+	msg = "MODE " + channel->getChannelName() + " " + modes + " " + client->getNick();
 
 	sendMsg(msg, client->getFd());
 
