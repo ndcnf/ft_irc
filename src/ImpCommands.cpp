@@ -223,17 +223,10 @@ void	Server::JOIN(Client *client, Channel *channel) {
 		if (!channelExists)
 		{
 			currentChannel = addChannel((*itc));
-			std::cout << "Channel [" + (*itc) + "] created. You'll be a VIP soon." << std::endl;
-			//le client aura un mode operator
+			std::cout << "Channel [" + (*itc) + "] created. You're a VIP now." << std::endl;
 			currentChannel->addMember(client);
 			currentChannel->addOperator(client);
-				// sendMsgToAllMembers(msg, client->getFd()); // inutile car seul encore
-			// msg = ": 381 " + client->getNick() + "@" + client->getHostname() + " " + (*itc);
-			// sendMsg(msg, client->getFd());
 		}
-
-		// if (pos != std::string::npos)
-			// (*itc) = command.substr(0, pos);
 
 		pos = command.find(" :");
 		if (pos != std::string::npos && (std::string::npos + 1) != (*itc).size())
@@ -266,7 +259,6 @@ void	Server::JOIN(Client *client, Channel *channel) {
 			sendMsg(msg, client->getFd());
 			sendMsgToAllMembers(msg, client->getFd());
 		}
-
 	}
 
 
