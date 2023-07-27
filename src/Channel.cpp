@@ -6,10 +6,12 @@
 Channel::Channel(){
 	_channelName = "";
 	_topic = "";
+	_topicOperatorsOnly = false;
 }
 
 Channel::Channel(std::string name): _channelName(name) {
-
+	_topic = "";
+	_topicOperatorsOnly = false;
 }
 
 Channel::Channel(Channel const &cpy){
@@ -22,6 +24,7 @@ Channel &Channel::operator=(Channel const &rhs){
 	_operators = rhs._operators;
 	_banned = rhs._banned;
 	_topic = rhs._topic;
+	_topicOperatorsOnly = rhs._topicOperatorsOnly;
 
 	return (*this);
 }
@@ -87,6 +90,51 @@ std::vector<Client*>		Channel::getMember()
 	return _members;
 }
 
+void						Channel::setTopicMode(bool mode)
+{
+	_topicOperatorsOnly = mode;
+}
+
+bool						Channel::getTopicMode()
+{
+	return _topicOperatorsOnly;
+}
+
+void				Channel::addOperator(Client *client)
+{
+	bool		isMember = false;
+	std::string	msg;
+
+	for (std::vector<Client*>::iterator it = _members.begin(); it != _members.end(); it++)
+	{
+		if (client->getFd() == (*it)->getFd())
+		{
+			isMember = true;
+			break ;
+		}
+	}
+
+	if (isMember)
+	{
+		for (std::vector<Client*>::iterator itc = _operators.begin(); itc != _operators.end(); itc++)
+		{
+			if (client->getFd() == (*itc)->getFd())
+			{
+				std::cout << "already operator :" + (*itc)->getNick() << std::endl; // erreur existe deja ou osef
+				return ;
+			}
+		}
+		_operators.push_back(client);
+		return ;
+		
+
+
+	}
+	// pas un membre donc erreur
+	std::cout << "Nice try, not a member : " + client->getNick() << std::endl; // erreur existe deja ou osef
+	return ;
+
+}
 
 // void	Channel::sendToAllMembers(std::string msg)
 // {

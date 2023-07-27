@@ -171,6 +171,7 @@ void	Server::JOIN(Client *client, Channel *channel) {
 	size_t						pos = 0;
 	size_t						hashtagPos = 0;
 	std::vector<std::string>	channelsToAdd;
+	std::string					msg;
 	
 	if (command == ":")
 		return;
@@ -225,6 +226,10 @@ void	Server::JOIN(Client *client, Channel *channel) {
 			std::cout << "Channel [" + (*itc) + "] created. You'll be a VIP soon." << std::endl;
 			//le client aura un mode operator
 			currentChannel->addMember(client);
+			currentChannel->addOperator(client);
+				// sendMsgToAllMembers(msg, client->getFd()); // inutile car seul encore
+			// msg = ": 381 " + client->getNick() + "@" + client->getHostname() + " " + (*itc);
+			// sendMsg(msg, client->getFd());
 		}
 
 		// if (pos != std::string::npos)
@@ -235,12 +240,18 @@ void	Server::JOIN(Client *client, Channel *channel) {
 			currentChannel->setTopic(command.substr(pos + 2, command.size()));
 
 		// send info to client
-		std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + (*itc);
+		msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + (*itc);
 		sendMsg(msg, client->getFd());
 
 		// send info of all members in the channel
 		msg = ":" + client->getNick() + "@" + client->getHostname() + " = " + (*itc) + " :" + currentChannel->getAllMembers();
 		sendMsg(msg, client->getFd());
+
+		if (!channelExists)
+		{
+			msg = "MODE " + (*itc) + " +o "+ client->getNick();
+			sendMsg(msg, client->getFd());
+		}
 
 		msg = ":" + (*itc) + " :End of /NAMES list.";
 		sendMsg(msg, client->getFd());
@@ -277,6 +288,11 @@ void	Server::MODE(Client *client, Channel *channel) { // channel only ? auto ger
 	std::cout << "cmd mode" << std::endl;
 	(void)client;
 	(void)channel;
+
+	
+
+
+
 }
 
 // void Server::PRIVMSG(Client *client, Channel *channel) { // ajouter des messages d erreurs ?
