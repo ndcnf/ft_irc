@@ -15,7 +15,7 @@ class Channel
 
 			void						addMember(Client *client);
 			void						removeMember(Client *client, int fd);
-			void						setTopic(std::string topic);
+			void						setTopic(std::string topic, Client *client);
 			void						setTopicMode(bool mode);
 			void						addOperator(Client *client);
 			void						sendToAllMembers(std::string msg);
@@ -25,6 +25,7 @@ class Channel
 			std::string					getAllMembers();
 			std::vector<Client*>		getMember();
 			bool						getTopicMode();
+			bool						isOperator(Client *client);
 
 	private:
 			// std::string 				_nameMembers; //a quoi sert-il ?

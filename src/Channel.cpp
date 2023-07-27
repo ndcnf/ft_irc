@@ -43,8 +43,13 @@ std::string	Channel::getTopic()
 	return (_topic);
 }
 
-void	Channel::setTopic(std::string topic)
+void	Channel::setTopic(std::string topic, Client *client)
 {
+	if (_topicOperatorsOnly && (!isOperator(client)))
+	{
+		//Erreur t'as pas les droits
+		return ;
+	}
 	_topic = topic;
 }
 
@@ -134,6 +139,17 @@ void				Channel::addOperator(Client *client)
 	std::cout << "Nice try, not a member : " + client->getNick() << std::endl; // erreur existe deja ou osef
 	return ;
 
+}
+
+
+bool		Channel::isOperator(Client *client)
+{
+	for (std::vector<Client*>::iterator it = _operators.begin(); it != _operators.end(); it++)
+	{
+		if ((*it)->getFd() == client->getFd())
+			return true;
+	}
+	return false;
 }
 
 // void	Channel::sendToAllMembers(std::string msg)

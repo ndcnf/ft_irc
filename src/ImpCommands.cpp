@@ -230,7 +230,7 @@ void	Server::JOIN(Client *client, Channel *channel) {
 
 		pos = command.find(" :");
 		if (pos != std::string::npos && (std::string::npos + 1) != (*itc).size())
-			currentChannel->setTopic(command.substr(pos + 2, command.size()));
+			currentChannel->setTopic(command.substr(pos + 2, command.size()), client);
 
 		// send info to client
 		msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + (*itc);
@@ -463,7 +463,7 @@ void	Server::TOPIC(Client *client, Channel *channel) {
 	if (command.find("::") != std::string::npos)
 	{
 		msg = ": TOPIC " + channel->getChannelName();
-		channel->setTopic("");
+		channel->setTopic("", client);
 	}
 	else
 	{
@@ -476,7 +476,7 @@ void	Server::TOPIC(Client *client, Channel *channel) {
 		std::cout << "topicName ds topic : [" + topicName + "]" << std::endl;
 		std::cout << "channel name ds topic : [" + channel->getChannelName() + "]" << std::endl;
 
-		channel->setTopic(topicName);
+		channel->setTopic(topicName, client);
 		msg = ": 332 " + client->getNick() + " " + channel->getChannelName() + " :" + channel->getTopic();
 	}
 
