@@ -318,18 +318,37 @@ void	Server::removeChannel(Channel *channel)
 	}
 }
 
+std::string	Server::parseChan(std::string buf, size_t pos)
+{
+	std::string	chanName;
+	size_t		spacePos;
+	size_t		commaPos;
+	size_t		endPos;
+	
+	if (pos == 0)
+		pos = buf.find("#");
+
+	if (pos != std::string::npos && pos != buf.size() - 1)
+	{
+		spacePos = buf.find(" ", pos);
+		commaPos = buf.find(",", pos);
+
+		endPos = std::min(spacePos, commaPos);
+		if (endPos == std::string::npos)
+			endPos = buf.size();
+		chanName = buf.substr(pos, endPos - pos);
+	}
+	else
+		chanName = buf;
+	return chanName;
+}
+
 Channel*	Server::getCurrentChannel(std::string msgBuf)
 {
 	std::string		chanName;
-	size_t			pos = msgBuf.find("#");
 
-	if (pos != std::string::npos && (std::string::npos + 1) != msgBuf.size())
-	{
-		size_t		endPos = msgBuf.find(" ", pos);
-		chanName = msgBuf.substr(pos, endPos - pos);
-	}
-	else
-		chanName = msgBuf;
+	chanName = parseChan(msgBuf, 0);
+	std::cout << "ChanName result fonction getcurrent : [" + chanName + "]" << std::endl;
 
 	for(std::vector<Channel*>::iterator it=_channels.begin(); it != _channels.end(); it++)
 	{
