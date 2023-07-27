@@ -278,11 +278,19 @@ void	Server::JOIN(Client *client, Channel *channel) {
 
 void	Server::MODE(Client *client, Channel *channel) { // channel only ? auto gerer par le client lorqu on se connect
 	std::cout << "cmd mode" << std::endl;
+	std::string					msg;
+	std::vector<std::string>	modes;
+
 	(void)client;
-	(void)channel;
+	// (void)channel;
 
-	
+	std::cout << "je recois : [" + command + "]" << std::endl;
 
+	if (command == (client->getNick() + " +i"))
+		return;
+	msg = "MODE " + channel->getChannelName() + " +t " + client->getNick();
+
+	sendMsg(msg, client->getFd());
 
 
 }
