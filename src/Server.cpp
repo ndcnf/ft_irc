@@ -325,7 +325,8 @@ std::string	Server::parseChan(std::string buf, size_t pos)
 	size_t		commaPos;
 	size_t		endPos;
 	
-	pos = buf.find("#");
+	if (pos == 0)
+		pos = buf.find("#");
 
 	if (pos != std::string::npos && pos != buf.size() - 1)
 	{
