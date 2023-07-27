@@ -165,10 +165,13 @@ void	Server::USER(Client *client, Channel *channel) { // passe dedant ?
 void	Server::JOIN(Client *client, Channel *channel) {
 	(void)channel;
 	std::cout << "cmd join" << std::endl;
-	bool		channelExists = false;
-	std::string	chanName;
-	size_t		pos = 0;
 
+	bool						channelExists = false;
+	std::string					chanName;
+	size_t						pos = 0;
+	size_t						hashtagPos = 0;
+	std::vector<std::string>	channelsToAdd;
+	
 	if (command == ":")
 		return;
 
@@ -180,75 +183,82 @@ void	Server::JOIN(Client *client, Channel *channel) {
 		// if (command == 0)
 		// 	Type /join #<channel> pas besoin gere tout seul
 	// if (pos != std::string::npos || command.find(":") != std::string::npos)
-	size_t	hashtagPos = 0;
+
 	while ((hashtagPos = command.find("#", hashtagPos)) != std::string::npos)
 	{
 		chanName = parseChan(command, hashtagPos);
-		std::cout << "WHILE JOIN command [" + command + "]" << std::endl;
 		std::cout << "WHILE JOIN chanName [" + chanName + "]" << std::endl;
+
+		if (chanName[0] != '#')
+			chanName = '#' + chanName;
+		
+		channelsToAdd.push_back(chanName);
+
 		hashtagPos = hashtagPos + 1;
 	}
-
 
 	// if (pos != std::string::npos)
 	// 	chanName = command.substr(0, pos);
 	// else
 	// 	chanName = command;
 
-	if (chanName[0] != '#')
-		chanName = '#' + chanName;
-
 	// ajouter les channel names au vecteur en push back
 
-	for (std::vector<Channel*>::iterator	it = _channels.begin(); it != _channels.end(); it++)
+	for (std::vector<std::string>::iterator itc = channelsToAdd.begin(); itc != channelsToAdd.end(); itc++)
 	{
-		if (((*it)->getChannelName() == chanName))
+		for (std::vector<Channel*>::iterator	it = _channels.begin(); it != _channels.end(); it++)
 		{
-			std::cout << "Channel [" + chanName + "] already exist. You'll join 'em" << std::endl;
-			currentChannel = (*it);
-			currentChannel->addMember(client);
-			channelExists = true;
-			// client aura un mode 'normal' (pas oper/admin)
-			break;
+			if (((*it)->getChannelName() == (*itc)))
+			{
+				std::cout << "Channel [" + (*itc) + "] already exist. You'll join 'em" << std::endl;
+				currentChannel = (*it);
+				currentChannel->addMember(client);
+				channelExists = true;
+				// client aura un mode 'normal' (pas oper/admin)
+				break;
+			}
 		}
-	}
 
-	if (!channelExists)
-	{
-		currentChannel = addChannel(chanName);
-		std::cout << "Channel [" + chanName + "] created. You'll be a VIP soon." << std::endl;
-		//le client aura un mode operator
-		currentChannel->addMember(client);
-	}
+		if (!channelExists)
+		{
+			currentChannel = addChannel((*itc));
+			std::cout << "Channel [" + (*itc) + "] created. You'll be a VIP soon." << std::endl;
+			//le client aura un mode operator
+			currentChannel->addMember(client);
+		}
 
-	// if (pos != std::string::npos)
-		// chanName = command.substr(0, pos);
+		// if (pos != std::string::npos)
+			// (*itc) = command.substr(0, pos);
 
-	pos = command.find(" :");
-	if (pos != std::string::npos && (std::string::npos + 1) != chanName.size())
-		currentChannel->setTopic(command.substr(pos + 2, command.size()));
+		pos = command.find(" :");
+		if (pos != std::string::npos && (std::string::npos + 1) != (*itc).size())
+			currentChannel->setTopic(command.substr(pos + 2, command.size()));
 
-	// send info to client
-	std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + chanName;
-	sendMsg(msg, client->getFd());
-
-	// send info of all members in the channel
-	msg = ":" + client->getNick() + "@" + client->getHostname() + " = " + chanName + " :" + currentChannel->getAllMembers();
-	sendMsg(msg, client->getFd());
-
-	msg = ":" + chanName + " :End of /NAMES list.";
-	sendMsg(msg, client->getFd());
-
-	msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + chanName;
-	sendMsgToAllMembers(msg, client->getFd());
-
-	if (!currentChannel->getTopic().empty())
-	{
-		msg = "TOPIC " + chanName + " :" + currentChannel->getTopic();
-
+		// send info to client
+		std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + (*itc);
 		sendMsg(msg, client->getFd());
+
+		// send info of all members in the channel
+		msg = ":" + client->getNick() + "@" + client->getHostname() + " = " + (*itc) + " :" + currentChannel->getAllMembers();
+		sendMsg(msg, client->getFd());
+
+		msg = ":" + (*itc) + " :End of /NAMES list.";
+		sendMsg(msg, client->getFd());
+
+		msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + (*itc);
 		sendMsgToAllMembers(msg, client->getFd());
+
+		if (!currentChannel->getTopic().empty())
+		{
+			msg = "TOPIC " + (*itc) + " :" + currentChannel->getTopic();
+
+			sendMsg(msg, client->getFd());
+			sendMsgToAllMembers(msg, client->getFd());
+		}
+
 	}
+
+
 
 	// rest a ajouter lA GESTION DES ERREURS par claire
 
@@ -260,7 +270,7 @@ void	Server::JOIN(Client *client, Channel *channel) {
 
 	// creer une fonction pour creer le channel ou le faire direct la ?
 
-// }
+// }	
 }
 
 void	Server::MODE(Client *client, Channel *channel) { // channel only ? auto gerer par le client lorqu on se connect
