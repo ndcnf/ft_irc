@@ -167,7 +167,7 @@ void	Server::JOIN(Client *client, Channel *channel) {
 	std::cout << "cmd join" << std::endl;
 	bool		channelExists = false;
 	std::string	chanName;
-	size_t		pos = command.find(" ");
+	size_t		pos = 0;
 
 	if (command == ":")
 		return;
@@ -180,10 +180,20 @@ void	Server::JOIN(Client *client, Channel *channel) {
 		// if (command == 0)
 		// 	Type /join #<channel> pas besoin gere tout seul
 	// if (pos != std::string::npos || command.find(":") != std::string::npos)
-	if (pos != std::string::npos)
-		chanName = command.substr(0, pos);
-	else
-		chanName = command;
+	size_t	hashtagPos = 0;
+	while ((hashtagPos = command.find("#", hashtagPos)) != std::string::npos)
+	{
+		chanName = parseChan(command, hashtagPos);
+		std::cout << "WHILE JOIN command [" + command + "]" << std::endl;
+		std::cout << "WHILE JOIN chanName [" + chanName + "]" << std::endl;
+		hashtagPos = hashtagPos + 1;
+	}
+
+
+	// if (pos != std::string::npos)
+	// 	chanName = command.substr(0, pos);
+	// else
+	// 	chanName = command;
 
 	if (chanName[0] != '#')
 		chanName = '#' + chanName;
