@@ -198,13 +198,6 @@ void	Server::JOIN(Client *client, Channel *channel) {
 		hashtagPos = hashtagPos + 1;
 	}
 
-	// if (pos != std::string::npos)
-	// 	chanName = command.substr(0, pos);
-	// else
-	// 	chanName = command;
-
-	// ajouter les channel names au vecteur en push back
-
 	for (std::vector<std::string>::iterator itc = channelsToAdd.begin(); itc != channelsToAdd.end(); itc++)
 	{
 		for (std::vector<Channel*>::iterator	it = _channels.begin(); it != _channels.end(); it++)
@@ -261,19 +254,8 @@ void	Server::JOIN(Client *client, Channel *channel) {
 		}
 	}
 
-
-
 	// rest a ajouter lA GESTION DES ERREURS par claire
-
-// 	Channel	*channel;
-	//lui dire que la commande (requete qui vient apres JOIN)= le nom du channel
-	//comment introduire la classe channel la dedans ?
-
-// 	channel->_nameChannel = command;
-
-	// creer une fonction pour creer le channel ou le faire direct la ?
-
-// }	
+	
 }
 
 void	Server::MODE(Client *client, Channel *channel) { // channel only ? auto gerer par le client lorqu on se connect
@@ -298,6 +280,10 @@ void	Server::MODE(Client *client, Channel *channel) { // channel only ? auto ger
 		//le channel donne n'existe pas ERREUR
 		return ;
 	}
+
+	//Si le user n'est pas operator du channel: vtff
+	if (!channel->isOperator(client))
+		return ;
 
 	pos = chanName.size() + 1;
 	modes = command.substr(pos, command.find(" "));
