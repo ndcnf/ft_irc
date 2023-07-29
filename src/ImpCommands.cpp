@@ -171,6 +171,7 @@ void	Server::JOIN(Client *client, Channel *channel) {
 	size_t						pos = 0;
 	size_t						hashtagPos = 0;
 	std::vector<std::string>	channelsToAdd;
+	std::string					msg;
 	
 	if (command == ":")
 		return;
@@ -222,25 +223,28 @@ void	Server::JOIN(Client *client, Channel *channel) {
 		if (!channelExists)
 		{
 			currentChannel = addChannel((*itc));
-			std::cout << "Channel [" + (*itc) + "] created. You'll be a VIP soon." << std::endl;
-			//le client aura un mode operator
+			std::cout << "Channel [" + (*itc) + "] created. You're a VIP now." << std::endl;
 			currentChannel->addMember(client);
+			currentChannel->addOperator(client);
 		}
-
-		// if (pos != std::string::npos)
-			// (*itc) = command.substr(0, pos);
 
 		pos = command.find(" :");
 		if (pos != std::string::npos && (std::string::npos + 1) != (*itc).size())
-			currentChannel->setTopic(command.substr(pos + 2, command.size()));
+			currentChannel->setTopic(command.substr(pos + 2, command.size()), client);
 
 		// send info to client
-		std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + (*itc);
+		msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + (*itc);
 		sendMsg(msg, client->getFd());
 
 		// send info of all members in the channel
 		msg = ":" + client->getNick() + "@" + client->getHostname() + " = " + (*itc) + " :" + currentChannel->getAllMembers();
 		sendMsg(msg, client->getFd());
+
+		if (!channelExists)
+		{
+			msg = "MODE " + (*itc) + " +o "+ client->getNick();
+			sendMsg(msg, client->getFd());
+		}
 
 		msg = ":" + (*itc) + " :End of /NAMES list.";
 		sendMsg(msg, client->getFd());
@@ -255,7 +259,6 @@ void	Server::JOIN(Client *client, Channel *channel) {
 			sendMsg(msg, client->getFd());
 			sendMsgToAllMembers(msg, client->getFd());
 		}
-
 	}
 
 
@@ -275,8 +278,52 @@ void	Server::JOIN(Client *client, Channel *channel) {
 
 void	Server::MODE(Client *client, Channel *channel) { // channel only ? auto gerer par le client lorqu on se connect
 	std::cout << "cmd mode" << std::endl;
-	(void)client;
-	(void)channel;
+	std::string		msg;
+	std::string		modes;
+	size_t			pos;
+	std::string		chanName;
+	// bool			isMinus = false;
+
+
+	std::cout << "je recois : [" + command + "]" << std::endl;
+
+	if (command == (client->getNick() + " +i"))
+		return;
+
+	chanName = parseChan(command, 0);
+	bool	isChannel = channelExists(chanName);
+
+	if (!isChannel)
+	{
+		//le channel donne n'existe pas ERREUR
+		return ;
+	}
+
+	pos = chanName.size() + 1;
+	modes = command.substr(pos, command.find(" "));
+
+	std::cout << "modes [" + modes + "]" << std::endl;
+
+	if ((pos = modes.find("t") != std::string::npos))
+	{
+		if ((pos - 1) == modes.find("+"))
+		{
+			channel->setTopicMode(true);
+		}
+		else
+		{
+			channel->setTopicMode(false);
+			// isMinus = true;
+		}
+	}
+	
+
+
+	msg = "MODE " + channel->getChannelName() + " " + modes + " " + client->getNick();
+
+	sendMsg(msg, client->getFd());
+
+
 }
 
 // void Server::PRIVMSG(Client *client, Channel *channel) { // ajouter des messages d erreurs ?
@@ -416,7 +463,7 @@ void	Server::TOPIC(Client *client, Channel *channel) {
 	if (command.find("::") != std::string::npos)
 	{
 		msg = ": TOPIC " + channel->getChannelName();
-		channel->setTopic("");
+		channel->setTopic("", client);
 	}
 	else
 	{
@@ -429,7 +476,7 @@ void	Server::TOPIC(Client *client, Channel *channel) {
 		std::cout << "topicName ds topic : [" + topicName + "]" << std::endl;
 		std::cout << "channel name ds topic : [" + channel->getChannelName() + "]" << std::endl;
 
-		channel->setTopic(topicName);
+		channel->setTopic(topicName, client);
 		msg = ": 332 " + client->getNick() + " " + channel->getChannelName() + " :" + channel->getTopic();
 	}
 
