@@ -1,2 +1,4 @@
 ircserv
 *.o
+.DS_Store
+dryrun.log
