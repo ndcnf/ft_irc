@@ -360,33 +360,133 @@ void	Server::MODE(Client *client, Channel *channel) { // channel only ? auto ger
 // }
 
 
-void Server::PRIVMSG(Client *client, Channel *channel) {
+// void Server::PRIVMSG(Client *client, Channel *channel) {
 	
+// 	std::cout << "cmd privmsg" << std::endl;
+// 	if (command.find('#') != std::string::npos) {
+// 		// Recherche de l'indice du ':'
+// 		std::size_t chanPos = command.find("#");
+// 		std::size_t msgPos = command.find(":");
+
+// 		if (msgPos != std::string::npos && chanPos != std::string::npos) {
+// 			// Extraction des sous-chaines apres le # pour le channel et apres le : pour le message'
+// 			std::string chanComp = command.substr(chanPos + 1, msgPos - chanPos - 2);
+// 			std::string allChanMsg = command.substr(msgPos + 1);
+// 			chanComp = '#' + chanComp;
+// 			// Comparaison avec le nom du channel actuel
+// 			if (channel->getChannelName() == chanComp) {
+// 				// Faire quelque chose si c'est le bon channel
+// 				std::string msg = ':' + client->getNick() + '@' + client->getHostname() + " " + token + " " + chanComp + " :" + allChanMsg;
+// 				// sendMsg(msg, client->getFd());
+// 				sendMsgToAllMembers(msg, client->getFd());
+				
+// 			}
+// 			else {
+// 				sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), chanComp, "", "", "");
+// 			}
+// 		}
+// 		else {
+// 			sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
+// 		}
+// 	}
+// 	else if (command.find('#') == std::string::npos) {
+// 		std::size_t msgPos = command.find(":");
+// 		if (msgPos != std::string::npos) {
+// 			std::string privMsg = command.substr(msgPos + 1);
+
+// 			// Recherche de l'indice du premier espace avant le ':'
+// 			std::size_t nickPos = command.find(" ");
+// 			if (nickPos != std::string::npos) {
+// 				// Extraction du nickname
+// 				// std::string nickname = command.substr(nickPos + 1, msgPos - nickPos - 1);
+// 				std::string nickname = command.substr(0, nickPos);
+// 				std::cout << "debug message : " << privMsg << std::endl;
+// 				std::cout << "debug nick a qui : " << nickname << std::endl;
+// 				std::cout << "debug nick moi: " << client->getNick() << std::endl;
+				                
+//                 // Find the recipient client from _clients vector
+//                 Client* recipientClient = NULL;
+//                 for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+//                     if ((*it)->getNick() == nickname) {
+//                         recipientClient = *it;
+//                         break;
+//                     }
+//                 }
+//                 if (recipientClient) {
+// 				// std::string msg = ':' + client->getNick() + "@" + client->getHostname() + " " + token + " " + nickname + " :" + privMsg;
+// 				// std::string msg = ':' + client->getNick() + "!~" + client->getUser() + "@" + client->getHostname() + " " + token + " " + nickname + " :" + privMsg;
+// 				// std::string msg = ':' + client->getNick() + "@" + client->getHostname() + " " + token + " " + nickname + " :" + privMsg;
+// 				// sendMsg(msg, client->getFd());
+// 				std::string privMsgNick = "<" + client->getNick() + "> send you : " + privMsg;
+// 				sendMsg(privMsgNick, recipientClient->getFd());
+// 				}
+// 				else
+// 					sendErrorMsg(ERR_NOSUCHNICK, client->getFd(), client->getNick(), "", "", "");
+// 			} 
+// 			else
+// 				sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
+// 		} 
+// 		else
+// 			sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
+// 	}
+// }
+
+void Server::PRIVMSG(Client *client, Channel *channel) {
 	std::cout << "cmd privmsg" << std::endl;
 	if (command.find('#') != std::string::npos) {
-		// Recherche de l'indice du ':'
-		std::size_t chanPos = command.find("#");
-		std::size_t msgPos = command.find(":");
+		// Extraire tous les mots qui commencent par '#'
+		std::vector<std::string> hashChan;
+		std::string				allChanMsg;
+		std::string				chanName;
+		
+		size_t pos = command.find("#");
 
-		if (msgPos != std::string::npos && chanPos != std::string::npos) {
-			// Extraction des sous-chaines apres le # pour le channel et apres le : pour le message'
-			std::string chanComp = command.substr(chanPos + 1, msgPos - chanPos - 2);
-			std::string allChanMsg = command.substr(msgPos + 1);
-			chanComp = '#' + chanComp;
-			// Comparaison avec le nom du channel actuel
-			if (channel->getChannelName() == chanComp) {
-				// Faire quelque chose si c'est le bon channel
-				std::string msg = ':' + client->getNick() + '@' + client->getHostname() + " " + token + " " + chanComp + " :" + allChanMsg;
-				// sendMsg(msg, client->getFd());
-				sendMsgToAllMembers(msg, client->getFd());
-				
-			}
-			else {
-				sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), chanComp, "", "", "");
-			}
+		if (pos != std::string::npos && (std::string::npos + 1) != command.size()) {
+			size_t        endPos = command.find(" ", pos);
+			chanName = command.substr(pos, endPos - pos);
+			hashChan.push_back(chanName);
 		}
 		else {
-			sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
+			chanName = command;
+			// Extraire le message après le dernier mot commençant par '#'
+			std::cout << "CHANAME : " << chanName << std::endl;
+			hashChan.push_back(chanName);
+		}
+
+			// std::string allChanMsg = command.substr(endPos);
+		if (!hashChan.empty()) {
+			std::string lastHashWord = hashChan.back();
+			std::size_t lastHashPos = command.rfind(lastHashWord);
+			if (lastHashPos != std::string::npos) {
+				allChanMsg = command.substr(lastHashPos + lastHashWord.size() + 2);
+			}
+		}
+			// Now, mots_avec_hashtag contains all words starting with '#'.
+			for (size_t i = 0; i < hashChan.size(); i++) {
+				std::cout << "mot avec # : " << hashChan[i] << std::endl;
+				std::cout << "message a envoyer : " << allChanMsg << std::endl;
+
+				// Comparaison avec le nom du channel actuel
+				//chercher dans le vecteur de channel si le channel parser existe
+				for (size_t i = 0; i < hashChan.size(); ++i) {
+					bool found = false;
+					for (std::vector<Channel*>::iterator it = _channels.begin(); it != _channels.end(); ++it) {
+						if ((*it)->getChannelName() == hashChan[i]) {
+							found = true;
+							break;
+						}
+					}
+				if (found) {
+				// if (channel->getChannelName() == mots_avec_hashtag[i]) { // le nom du channel rechercher corespond a un nom de channel existant !!!
+					// Faire quelque chose si c'est le bon channel
+					std::string msg = ':' + client->getNick() + '@' + client->getHostname() + " " + token + " " + hashChan[i] + " :" + allChanMsg;
+					// sendMsg(msg, client->getFd());
+					sendMsgToAllMembers(msg, client->getFd());
+				} 
+				else {
+					sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), hashChan[i], "", "", "");
+				}
+			}
 		}
 	}
 	else if (command.find('#') == std::string::npos) {
@@ -400,37 +500,60 @@ void Server::PRIVMSG(Client *client, Channel *channel) {
 				// Extraction du nickname
 				// std::string nickname = command.substr(nickPos + 1, msgPos - nickPos - 1);
 				std::string nickname = command.substr(0, nickPos);
-				std::cout << "debug message : " << privMsg << std::endl;
-				std::cout << "debug nick a qui : " << nickname << std::endl;
-				std::cout << "debug nick moi: " << client->getNick() << std::endl;
-				                
-                // Find the recipient client from _clients vector
-                Client* recipientClient = NULL;
-                for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-                    if ((*it)->getNick() == nickname) {
-                        recipientClient = *it;
-                        break;
-                    }
-                }
-                if (recipientClient) {
-				// std::string msg = ':' + client->getNick() + "@" + client->getHostname() + " " + token + " " + nickname + " :" + privMsg;
-				// std::string msg = ':' + client->getNick() + "!~" + client->getUser() + "@" + client->getHostname() + " " + token + " " + nickname + " :" + privMsg;
-				// std::string msg = ':' + client->getNick() + "@" + client->getHostname() + " " + token + " " + nickname + " :" + privMsg;
-				// sendMsg(msg, client->getFd());
-				std::string privMsgNick = "<" + client->getNick() + "> send you : " + privMsg;
-				sendMsg(privMsgNick, recipientClient->getFd());
+				// std::cout << "debug message : " << privMsg << std::endl;
+				// std::cout << "debug nick a qui : " << nickname << std::endl;
+				// std::cout << "debug nick moi: " << client->getNick() << std::endl;
+				
+				// Find the recipient client from _clients vector
+				Client* recipientClient = NULL;
+				for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+					if ((*it)->getNick() == nickname) {
+						recipientClient = *it;
+						break;
+					}
 				}
-				else
+				if (recipientClient) {
+					// std::string msg = ':' + client->getNick() + "@" + client->getHostname() + " " + token + " " + nickname + " :" + privMsg;
+					// std::string msg = ':' + client->getNick() + "!~" + client->getUser() + "@" + client->getHostname() + " " + token + " " + nickname + " :" + privMsg;
+					// std::string msg = ':' + client->getNick() + "@" + client->getHostname() + " " + token + " " + nickname + " :" + privMsg;
+					// sendMsg(msg, client->getFd());
+					std::string privMsgNick = "<" + client->getNick() + "> send you : " + privMsg;
+					sendMsg(privMsgNick, recipientClient->getFd());
+				}
+				else {
 					sendErrorMsg(ERR_NOSUCHNICK, client->getFd(), client->getNick(), "", "", "");
+				}
 			} 
-			else
+			else {
 				sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
+			}
 		} 
-		else
+		else {
 			sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
+		}
 	}
 }
 
+//LA FONCTION SEMBLE FONCTIONNER CORRECTEMENT, MAIS LES MESSAGES S ENVOI TROP SOUVENT ATTENTION A QUI ET QUAND J ENVOIE ET ATTENTION AU PARSING cf printscreen
+
+//tester avec ca pour parser et recuperer la phrase apres le dernier mot #
+//probleme de parsing du message de fin, le parser avant ? Verifier que les message a un seul channel fcontionne tjr
+// std::vector<std::pair<std::string, std::size_t>> hashChanWithPos;
+// size_t pos = 0;
+// while ((pos = command.find("#", pos)) != std::string::npos) {
+//     size_t endPos = command.find(" ", pos);
+//     if (endPos == std::string::npos) {
+//         endPos = command.length();
+//     }
+//     std::string chanName = command.substr(pos, endPos - pos);
+//     hashChanWithPos.push_back(std::make_pair(chanName, endPos));
+//     pos = endPos;
+// }
+
+// if (!hashChanWithPos.empty()) {
+//     std::pair<std::string, std::size_t> lastHashWordWithPos = hashChanWithPos.back();
+//     allChanMsg = command.substr(lastHashWordWithPos.second);
+// }
 
 
 void	Server::NOTICE(Client *client, Channel *channel) { //comme privmsg mais sans les erreurs
