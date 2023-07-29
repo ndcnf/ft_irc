@@ -395,3 +395,14 @@ bool		Server::channelExists(std::string channel)
 	}
 	return false;
 }
+
+bool	Server::isNickUsed(std::string nick)
+{
+	for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+		if ((*it)->getNick() == nick) 
+		{
+			return true;
+		}
+	}
+	return false;
+}

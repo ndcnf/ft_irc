@@ -95,6 +95,24 @@ std::vector<Client*>		Channel::getMember()
 	return _members;
 }
 
+bool	Channel::isMember(Client *client)
+{
+	for (std::vector<Client*>::iterator it = _members.begin(); it != _members.end(); it++)
+	{
+		if ((*it)->getFd() == client->getFd())
+			return true;
+	}
+	return false;
+}
+
+bool Channel::isMember(const std::string& nickname) {
+    for (std::vector<Client*>::iterator it = _members.begin(); it != _members.end(); it++) {
+        if ((*it)->getNick() == nickname)
+            return true;
+    }
+    return false;
+}
+
 void						Channel::setTopicMode(bool mode)
 {
 	_topicOperatorsOnly = mode;

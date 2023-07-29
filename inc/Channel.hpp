@@ -24,6 +24,8 @@ class Channel
 			std::string					getTopic();
 			std::string					getAllMembers();
 			std::vector<Client*>		getMember();
+			bool						isMember(Client *client);
+			bool 						isMember(const std::string& nickname);
 			bool						getTopicMode();
 			bool						isOperator(Client *client);
 

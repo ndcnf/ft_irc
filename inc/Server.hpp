@@ -59,6 +59,7 @@ class Server
 		Channel* 	addChannel(std::string name);
 		void		removeChannel(Channel *channel);
 		bool		channelExists(std::string channel);
+		bool		isNickUsed(std::string nick);
 		void		inputClient(std::string buf, Client *client, Channel *channel);
 		void		cmdSelection(std::string buf, Client *client);
 		void		capOrNOt(Client *client);

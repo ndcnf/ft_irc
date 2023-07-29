@@ -655,9 +655,53 @@ void	Server::KICK(Client *client, Channel *channel) {
 }
 
 void	Server::INVITE(Client *client, Channel *channel) {
-	std::cout << "cmd invite" << std::endl;
-	(void)client;
-	(void)channel;
+		std::cout << "cmd invite" << std::endl;
+
+		size_t	invitedpos = command.find(" ");
+		size_t chanPos = command.find("#");
+
+		if (invitedpos != std::string::npos && chanPos != std::string::npos) {
+				// Extraction des sous-chaines apres le # pour le channel et apres le : pour le message'
+			std::string invited = command.substr(invitedpos + 1);
+			// std::string chanName = command.substr(chanPos + 1);
+			std::string chanName = parseChan(command, chanPos);
+
+		//std::vector<std::string>	params;
+		//comment mettre command dans mon vector params ?
+		/*
+		1. parser la commande : parametre 1 = std::string invited = nickname de l'utilisateur invite dans le channel
+								parametre 2 = #nom du channel
+		
+		2. if (parametre < 2)
+				sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), invited, channelName, "", "");
+		*/
+		if (channel == NULL || !channelExists(chanName))
+		{
+			std::cout << "channel null" << std::endl;
+			sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), chanName, "", "", "");
+			return;
+		}
+
+		if (channel->isMember(client) == false)
+				sendErrorMsg(ERR_NOTONCHANNEL, client->getFd(), chanName, "", "", "");
+
+		if (channel->isOperator(client) == false) //&& que le channel est en mode invitation seulement ??)
+				sendErrorMsg(ERR_CHANOPRIVSNEEDED, client->getFd(), chanName, "", "", "");
+		//Les serveurs PEUVENT rejeter la commande avec la valeur numérique ERR_CHANOPRIVSNEEDED. En particulier, ils DEVRAIENT la rejeter lorsque le canal est en mode "invitation seulement" et que l'utilisateur n'est pas un opérateur du canal.
+		
+		if (isNickUsed(invited) == false)
+				sendErrorMsg(ERR_NOSUCHNICK, client->getFd(), invited, "", "", "");
+
+		if (channel->isMember(invited) == true)
+				sendErrorMsg(ERR_USERONCHANNEL, client->getFd(), chanName, invited, "", "");
+
+		else
+		{
+			std::string msg = "341 " + client->getNick() + " INVITE" + invited + chanName + END_SEQUENCE;
+       		sendMsg(msg, client->getFd());
+			//addinvite -> fonction a creer ?
+		}	
+	}
 }
 
 void	Server::PASS(Client *client, Channel *channel) {
