@@ -391,7 +391,7 @@ void Server::PRIVMSG(Client *client, Channel *channel) {
 			std::string lastHashWord = hashChan.back();
 			std::size_t lastHashPos = command.rfind(lastHashWord);
 			if (lastHashPos != std::string::npos) {
-				allChanMsg = command.substr(lastHashPos + lastHashWord.size());
+				allChanMsg = command.substr(lastHashPos + lastHashWord.size() + 2);
 			}
 		}
 			// Now, mots_avec_hashtag contains all words starting with '#'.
@@ -413,7 +413,7 @@ void Server::PRIVMSG(Client *client, Channel *channel) {
 				// if (channel->getChannelName() == mots_avec_hashtag[i]) { // le nom du channel rechercher corespond a un nom de channel existant !!!
 					// Faire quelque chose si c'est le bon channel
 					std::string msg = ':' + client->getNick() + '@' + client->getHostname() + " " + token + " " + hashChan[i] + " :" + allChanMsg;
-					sendMsg(msg, client->getFd());
+					// sendMsg(msg, client->getFd());
 					sendMsgToAllMembers(msg, client->getFd());
 				} 
 				else {
@@ -433,9 +433,9 @@ void Server::PRIVMSG(Client *client, Channel *channel) {
 				// Extraction du nickname
 				// std::string nickname = command.substr(nickPos + 1, msgPos - nickPos - 1);
 				std::string nickname = command.substr(0, nickPos);
-				std::cout << "debug message : " << privMsg << std::endl;
-				std::cout << "debug nick a qui : " << nickname << std::endl;
-				std::cout << "debug nick moi: " << client->getNick() << std::endl;
+				// std::cout << "debug message : " << privMsg << std::endl;
+				// std::cout << "debug nick a qui : " << nickname << std::endl;
+				// std::cout << "debug nick moi: " << client->getNick() << std::endl;
 				
 				// Find the recipient client from _clients vector
 				Client* recipientClient = NULL;
