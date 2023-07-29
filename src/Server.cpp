@@ -343,6 +343,64 @@ std::string	Server::parseChan(std::string buf, size_t pos)
 	return chanName;
 }
 
+std::vector<std::string>	Server::parseModeCmd(std::string buf)
+{
+	std::vector<std::string>	modeCmds;
+	size_t						firstPos;
+	size_t						lastPos;
+	bool						isAdded;
+	std::string					instruction;
+
+	firstPos = buf.find_first_of("+-");
+	lastPos = buf.find(" ", firstPos);
+
+	if (firstPos != std::string::npos && lastPos != std::string::npos)
+		buf = buf.substr(firstPos, lastPos - firstPos);
+	else if (firstPos != std::string::npos)
+		buf = buf.substr(firstPos);
+	else
+	{
+		// commande invalide
+		modeCmds.push_back("");
+		return modeCmds;
+	}
+
+	std::cout << "APRES -- BUF de PARSEMODECMD [" + buf + "]" << std::endl;
+
+	for (size_t i=0; i < buf.size(); i++)
+	{
+		if (buf[i] == '+')
+			isAdded = true;
+		else if (buf[i] == '-')
+			isAdded = false;
+		
+
+	}
+
+	if (buf[0] == '+')
+		isAdded = true;
+	else if (buf[0] == '-')
+		isAdded = false;
+	else
+	{
+		// commande invalide
+		modeCmds.push_back("");
+		return modeCmds;
+	}
+
+	modeCmds.push_back(buf.substr(2));
+
+	if(isAdded)
+	{
+		std::cout << "c'est plutot positif !" << std::endl;
+	}
+
+	// if (pos = buf.find(""))
+
+	return modeCmds;
+}
+
+
 Channel*	Server::getCurrentChannel(std::string msgBuf)
 {
 	std::string		chanName;

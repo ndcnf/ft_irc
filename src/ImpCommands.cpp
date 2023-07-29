@@ -260,10 +260,13 @@ void	Server::JOIN(Client *client, Channel *channel) {
 
 void	Server::MODE(Client *client, Channel *channel) { // channel only ? auto gerer par le client lorqu on se connect
 	std::cout << "cmd mode" << std::endl;
-	std::string		msg;
-	std::string		modes;
-	size_t			pos;
-	std::string		chanName;
+	std::string					msg;
+	std::string					modes;
+	std::vector<std::string>	modesVec;
+	size_t						pos;
+	// size_t						firstPos;
+	// size_t						lastPos;
+	std::string					chanName;
 	// bool			isMinus = false;
 
 
@@ -286,8 +289,20 @@ void	Server::MODE(Client *client, Channel *channel) { // channel only ? auto ger
 		return ;
 
 	pos = chanName.size() + 1;
-	modes = command.substr(pos, command.find(" "));
+	modes = command.substr(pos, command.find(" ")); // future old way
 
+	// firstPos = command.find(command.find_first_of("+-"), (chanName.size() + 1));
+	// lastPos = command.find(" ", firstPos);
+
+	modesVec = parseModeCmd(command.substr(pos)); // new way
+	if (modesVec.empty())
+	{
+		std::cout << "mode invalide" << std::endl;
+		// commande invalide
+		return ;
+	}
+
+	// future old way
 	std::cout << "modes [" + modes + "]" << std::endl;
 
 	if ((pos = modes.find("t") != std::string::npos))
@@ -302,7 +317,7 @@ void	Server::MODE(Client *client, Channel *channel) { // channel only ? auto ger
 			// isMinus = true;
 		}
 	}
-	
+	// END of future old way	
 
 
 	msg = "MODE " + channel->getChannelName() + " " + modes + " " + client->getNick();
