@@ -349,7 +349,7 @@ std::vector<std::string>	Server::parseModeCmd(std::string buf)
 	size_t						firstPos;
 	size_t						lastPos;
 	bool						isAdded;
-	std::string					instruction;
+	std::string					instruction = "";
 
 	firstPos = buf.find_first_of("+-");
 	lastPos = buf.find(" ", firstPos);
@@ -365,37 +365,31 @@ std::vector<std::string>	Server::parseModeCmd(std::string buf)
 		return modeCmds;
 	}
 
-	std::cout << "APRES -- BUF de PARSEMODECMD [" + buf + "]" << std::endl;
-
 	for (size_t i=0; i < buf.size(); i++)
 	{
 		if (buf[i] == '+')
 			isAdded = true;
 		else if (buf[i] == '-')
 			isAdded = false;
-		
-
+		else
+		{
+			if (isAdded)
+			{
+				instruction = "+";
+				instruction += buf[i];
+				modeCmds.push_back(instruction);
+			}
+			else
+			{
+				instruction = "-";
+				instruction += buf[i];
+				modeCmds.push_back(instruction);
+			}
+		}
 	}
 
-	if (buf[0] == '+')
-		isAdded = true;
-	else if (buf[0] == '-')
-		isAdded = false;
-	else
-	{
-		// commande invalide
-		modeCmds.push_back("");
-		return modeCmds;
-	}
-
-	modeCmds.push_back(buf.substr(2));
-
-	if(isAdded)
-	{
-		std::cout << "c'est plutot positif !" << std::endl;
-	}
-
-	// if (pos = buf.find(""))
+	for (std::vector<std::string>::iterator it = modeCmds.begin(); it != modeCmds.end(); it++)
+		std::cout << "modeCmds : [" + (*it) + "]" << std::endl;
 
 	return modeCmds;
 }
