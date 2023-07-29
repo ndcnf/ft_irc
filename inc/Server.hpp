@@ -78,6 +78,9 @@ class Server
 		void		parseCommand(std::string buf);
 		std::string	parseChan(std::string buf, size_t pos);
 		std::vector<std::string>	parseModeCmd(std::string buf);
+		std::string	modePassword(std::string buf);
+		std::string	modeTargetMember(std::string buf);
+		std::map<char, int>	setArgsByMode();
 		void		sendMsg(std::string message, int fd);
 		void		sendMsgToAllMembers(std::string message, int fd);
 		void		getCapLs(std::string buf);

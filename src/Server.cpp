@@ -388,11 +388,45 @@ std::vector<std::string>	Server::parseModeCmd(std::string buf)
 		}
 	}
 
+	// DEBUG ONLY
 	for (std::vector<std::string>::iterator it = modeCmds.begin(); it != modeCmds.end(); it++)
 		std::cout << "modeCmds : [" + (*it) + "]" << std::endl;
+	// DEBUG ONLY - END
 
 	return modeCmds;
 }
+
+std::map<char, int>	Server::setArgsByMode()
+{
+	std::map<char, int>			argsByMode;
+	
+	argsByMode['i'] = 0;
+	argsByMode['t'] = 0;
+	argsByMode['k'] = 1;
+	argsByMode['o'] = 1;
+	argsByMode['l'] = 1;
+
+	return argsByMode;
+}
+
+std::string	Server::modeTargetMember(std::string buf)
+{
+	size_t	lastParamPos;
+
+	lastParamPos = buf.find_last_of(" ");
+
+	if (lastParamPos != std::string::npos)
+		return(buf.substr(lastParamPos));
+	return "";
+}
+
+// Prochainement lors de la gestion de +/-k
+// std::string	Server::modePassword(std::string buf)
+// {
+
+
+// 	return "";
+// }
 
 
 Channel*	Server::getCurrentChannel(std::string msgBuf)
