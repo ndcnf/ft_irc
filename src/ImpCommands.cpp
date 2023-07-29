@@ -403,7 +403,7 @@ void	Server::MODE(Client *client, Channel *channel) { // channel only ? auto ger
 // 				std::cout << "debug message : " << privMsg << std::endl;
 // 				std::cout << "debug nick a qui : " << nickname << std::endl;
 // 				std::cout << "debug nick moi: " << client->getNick() << std::endl;
-				                
+								
 //                 // Find the recipient client from _clients vector
 //                 Client* recipientClient = NULL;
 //                 for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
@@ -431,61 +431,151 @@ void	Server::MODE(Client *client, Channel *channel) { // channel only ? auto ger
 // 	}
 // }
 
-void Server::PRIVMSG(Client *client, Channel *channel) {
+// void Server::PRIVMSG(Client *client, Channel *channel) {
+// 	std::cout << "cmd privmsg" << std::endl;
+// 	if (command.find('#') != std::string::npos) {
+// 		// Extraire tous les mots qui commencent par '#'
+// 		std::vector<std::string> hashChan;
+// 		std::string				allChanMsg;
+// 		std::string				chanName;
+		
+// 		size_t pos = command.find("#");
+
+// 		while (pos != std::string::npos && (std::string::npos + 1) != command.size()) {
+// 			size_t        endPos = command.find(" ", pos);
+// 			chanName = command.substr(pos, endPos - pos);
+// 			hashChan.push_back(chanName);
+// 			pos = command.find('#', pos + 1);
+// 		}
+// 		// if (command contient plusieurs #) {
+// 		// 	chanName = command;
+// 		// 	// Extraire le message après le dernier mot commençant par '#'
+// 		// 	std::cout << "CHANAME : " << chanName << std::endl;
+// 		// 	hashChan.push_back(chanName);
+// 		// }
+
+// 			// std::string allChanMsg = command.substr(endPos);
+// 		if (!hashChan.empty()) {
+// 			std::string lastHashWord = hashChan.back();
+// 			std::size_t lastHashPos = command.rfind(lastHashWord);
+// 			if (lastHashPos != std::string::npos) {
+// 				allChanMsg = command.substr(lastHashPos + lastHashWord.size() + 2); // soucis de parsing a verifier
+// 			}
+// 		}
+// 			// Now, mots_avec_hashtag contains all words starting with '#'.
+// 			for (size_t i = 0; i < hashChan.size(); i++) {
+// 				std::cout << "mot avec # : " << hashChan[i] << std::endl;
+// 				std::cout << "message a envoyer : " << allChanMsg << std::endl;
+
+// 				// Comparaison avec le nom du channel actuel
+// 				//chercher dans le vecteur de channel si le channel parser existe
+// 				for (size_t i = 0; i < hashChan.size(); ++i) {
+// 					bool found = false;
+// 					for (std::vector<Channel*>::iterator it = _channels.begin(); it != _channels.end(); ++it) {
+// 						if ((*it)->getChannelName() == hashChan[i]) {
+// 							found = true;
+// 							break;
+// 						}
+// 					}
+// 				if (found) {
+// 				// if (channel->getChannelName() == mots_avec_hashtag[i]) { // le nom du channel rechercher corespond a un nom de channel existant !!!
+// 					// Faire quelque chose si c'est le bon channel
+// 					std::string msg = ':' + client->getNick() + '@' + client->getHostname() + " " + token + " " + hashChan[i] + " :" + allChanMsg;
+// 					// sendMsg(msg, client->getFd());
+// 					sendMsgToAllMembers(msg, client->getFd());
+// 				} 
+// 				else {
+// 					sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), hashChan[i], "", "", ""); // ATTENTION LE MESSAGE NE S ENVOI PAS DANS IRSSI MAIS DANS CERR ??
+// 				}
+// 			}
+// 		}
+// 	}
+// 	else if (command.find('#') == std::string::npos) {
+// 		std::size_t msgPos = command.find(":");
+// 		if (msgPos != std::string::npos) {
+// 			std::string privMsg = command.substr(msgPos + 1);
+
+// 			// Recherche de l'indice du premier espace avant le ':'
+// 			std::size_t nickPos = command.find(" ");
+// 			if (nickPos != std::string::npos) {
+// 				// Extraction du nickname
+// 				// std::string nickname = command.substr(nickPos + 1, msgPos - nickPos - 1);
+// 				std::string nickname = command.substr(0, nickPos);
+// 				// std::cout << "debug message : " << privMsg << std::endl;
+// 				// std::cout << "debug nick a qui : " << nickname << std::endl;
+// 				// std::cout << "debug nick moi: " << client->getNick() << std::endl;
+				
+// 				// Find the recipient client from _clients vector
+// 				Client* recipientClient = NULL;
+// 				for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+// 					if ((*it)->getNick() == nickname) {
+// 						recipientClient = *it;
+// 						break;
+// 					}
+// 				}
+// 				if (recipientClient) {
+// 					// std::string msg = ':' + client->getNick() + "@" + client->getHostname() + " " + token + " " + nickname + " :" + privMsg;
+// 					// std::string msg = ':' + client->getNick() + "!~" + client->getUser() + "@" + client->getHostname() + " " + token + " " + nickname + " :" + privMsg;
+// 					// std::string msg = ':' + client->getNick() + "@" + client->getHostname() + " " + token + " " + nickname + " :" + privMsg;
+// 					// sendMsg(msg, client->getFd());
+// 					std::string privMsgNick = "<" + client->getNick() + "> send you : " + privMsg;
+// 					sendMsg(privMsgNick, recipientClient->getFd());
+// 				}
+// 				else {
+// 					sendErrorMsg(ERR_NOSUCHNICK, client->getFd(), client->getNick(), "", "", "");
+// 				}
+// 			} 
+// 			else {
+// 				sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
+// 			}
+// 		} 
+// 		else {
+// 			sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
+// 		}
+// 	}
+// }
+
+void Server::PRIVMSG(Client* client, Channel* channel) {
 	std::cout << "cmd privmsg" << std::endl;
 	if (command.find('#') != std::string::npos) {
-		// Extraire tous les mots qui commencent par '#'
 		std::vector<std::string> hashChan;
-		std::string				allChanMsg;
-		std::string				chanName;
-		
+		std::string allChanMsg;
+
+		// Séparer la commande en mots à l'aide de la fonction parseChan
 		size_t pos = command.find("#");
-
-		if (pos != std::string::npos && (std::string::npos + 1) != command.size()) {
-			size_t        endPos = command.find(" ", pos);
-			chanName = command.substr(pos, endPos - pos);
+		while (pos != std::string::npos) {
+			std::string chanName = parseChan(command, pos);
 			hashChan.push_back(chanName);
-		}
-		else {
-			chanName = command;
-			// Extraire le message après le dernier mot commençant par '#'
-			std::cout << "CHANAME : " << chanName << std::endl;
-			hashChan.push_back(chanName);
+			pos = command.find('#', pos + 1);
 		}
 
-			// std::string allChanMsg = command.substr(endPos);
 		if (!hashChan.empty()) {
 			std::string lastHashWord = hashChan.back();
 			std::size_t lastHashPos = command.rfind(lastHashWord);
 			if (lastHashPos != std::string::npos) {
-				allChanMsg = command.substr(lastHashPos + lastHashWord.size() + 2);
+				allChanMsg = command.substr(lastHashPos + lastHashWord.size() + 2); // soucis de parsing a verifier
 			}
 		}
-			// Now, mots_avec_hashtag contains all words starting with '#'.
-			for (size_t i = 0; i < hashChan.size(); i++) {
-				std::cout << "mot avec # : " << hashChan[i] << std::endl;
-				std::cout << "message a envoyer : " << allChanMsg << std::endl;
 
-				// Comparaison avec le nom du channel actuel
-				//chercher dans le vecteur de channel si le channel parser existe
-				for (size_t i = 0; i < hashChan.size(); ++i) {
-					bool found = false;
-					for (std::vector<Channel*>::iterator it = _channels.begin(); it != _channels.end(); ++it) {
-						if ((*it)->getChannelName() == hashChan[i]) {
-							found = true;
-							break;
-						}
-					}
-				if (found) {
-				// if (channel->getChannelName() == mots_avec_hashtag[i]) { // le nom du channel rechercher corespond a un nom de channel existant !!!
-					// Faire quelque chose si c'est le bon channel
+		for (size_t i = 0; i < hashChan.size(); i++) {
+			std::cout << "mot avec # : " << hashChan[i] << std::endl;
+			std::cout << "message a envoyer : " << allChanMsg << std::endl;
+
+			bool found = false;
+
+			// Comparaison avec les noms de channels existants
+			for (size_t j = 0; j < _channels.size(); ++j) {
+				if (_channels[j]->getChannelName() == hashChan[i]) {
+					found = true;
+					// Envoyer le message à tous les membres du channel correspondant
 					std::string msg = ':' + client->getNick() + '@' + client->getHostname() + " " + token + " " + hashChan[i] + " :" + allChanMsg;
-					// sendMsg(msg, client->getFd());
 					sendMsgToAllMembers(msg, client->getFd());
-				} 
-				else {
-					sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), hashChan[i], "", "", "");
+					// break; // On arrête la recherche dès qu'on a trouvé le channel correspondant
 				}
+			}
+
+			if (!found) {
+				sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), hashChan[i], "", "", "");
 			}
 		}
 	}
