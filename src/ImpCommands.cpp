@@ -337,24 +337,10 @@ size_t countSubstring(const std::string& str, std::string& sub) {
 	for (size_t offset = str.find(sub); offset != std::string::npos;
 		 offset = str.find(sub, offset + 1)) {
 		count++;
-		std::cout << "count : " << count << std::endl;
-		std::cout << "str : " << str << std::endl;
-		std::cout << "SIZE SUB : " << sub.size() << std::endl;
-		std::cout << "offset : " << offset << std::endl;
-		std::cout << "SIZE STR	 : " << str.size() << std::endl;
 	}
 	return count;
 }
 
-// size_t countSubstring(const std::string& str, const std::string& sub) {
-// 	if (sub.length() == 0) return 0;
-// 	size_t count = 0;
-// 	for (size_t offset = str.find(sub); offset < str.length() && offset != std::string::npos;
-// 		 offset = str.find(sub, offset + sub.length())) {
-// 		++count;
-// 	}
-// 	return count;
-// }
 
 void Server::PRIVMSG(Client* client, Channel* channel) {
 	std::cout << "cmd privmsg" << std::endl;
