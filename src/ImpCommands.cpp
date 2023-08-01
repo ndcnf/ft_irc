@@ -657,15 +657,27 @@ void	Server::KICK(Client *client, Channel *channel) {
 void	Server::INVITE(Client *client, Channel *channel) {
 		std::cout << "cmd invite" << std::endl;
 
-		size_t	invitedpos = command.find(" ");
+		size_t	invitedPos = command.find(" ");
 		size_t chanPos = command.find("#");
+		if (invitedPos != std::string::npos && chanPos != std::string::npos) {
+    		std::string invited = command.substr(chanPos + 1, invitedPos - (chanPos + 1));
+    		std::string chanName = command.substr(chanPos + 1);
 
-		if (invitedpos != std::string::npos && chanPos != std::string::npos) {
-				// Extraction des sous-chaines apres le # pour le channel et apres le : pour le message'
-			std::string invited = command.substr(invitedpos + 1);
-			// std::string chanName = command.substr(chanPos + 1);
-			std::string chanName = parseChan(command, chanPos);
+    	// Trouver la position de l'espace après le nom du canal (#chan)
+    		size_t spacePos = chanName.find(" ");
+    		if (spacePos != std::string::npos) {
+        // Supprimer tout ce qui suit le nom du canal (ignorer les espaces supplémentaires)
+        	chanName = chanName.substr(0, spacePos);
+    }
+		// if (invitedpos != std::string::npos && chanPos != std::string::npos) {
+		// 		// Extraction des sous-chaines apres le # pour le channel et apres le : pour le message'
+		// 	std::string invited = command.substr(invitedpos + 1);
+		// 	std::string chanName = command.substr(chanPos + 1);
+			//std::string chanName = parseChan(command, chanPos);
 
+		std::cout << "invited" << invited << std::endl;
+		std::cout << "channame" << chanName << std::endl;
+		 
 		//std::vector<std::string>	params;
 		//comment mettre command dans mon vector params ?
 		/*
@@ -675,24 +687,25 @@ void	Server::INVITE(Client *client, Channel *channel) {
 		2. if (parametre < 2)
 				sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), invited, channelName, "", "");
 		*/
-		if (channel == NULL || !channelExists(chanName))
+		//if (channel == NULL) || !channelExists(chanName))
+		if (!channelExists(chanName))
 		{
 			std::cout << "channel null" << std::endl;
 			sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), chanName, "", "", "");
 			return;
 		}
 
-		if (channel->isMember(client) == false)
+		else if (channel->isMember(client) == false)
 				sendErrorMsg(ERR_NOTONCHANNEL, client->getFd(), chanName, "", "", "");
 
-		if (channel->isOperator(client) == false) //&& que le channel est en mode invitation seulement ??)
+		else if (channel->isOperator(client) == false) //&& que le channel est en mode invitation seulement ??)
 				sendErrorMsg(ERR_CHANOPRIVSNEEDED, client->getFd(), chanName, "", "", "");
 		//Les serveurs PEUVENT rejeter la commande avec la valeur numérique ERR_CHANOPRIVSNEEDED. En particulier, ils DEVRAIENT la rejeter lorsque le canal est en mode "invitation seulement" et que l'utilisateur n'est pas un opérateur du canal.
 		
-		if (isNickUsed(invited) == false)
+		else if (isNickUsed(invited) == false)
 				sendErrorMsg(ERR_NOSUCHNICK, client->getFd(), invited, "", "", "");
 
-		if (channel->isMember(invited) == true)
+		else if (channel->isMember(invited) == true)
 				sendErrorMsg(ERR_USERONCHANNEL, client->getFd(), chanName, invited, "", "");
 
 		else
