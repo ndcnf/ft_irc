@@ -266,8 +266,6 @@ void	Server::MODE(Client *client, Channel *channel) {
 	size_t						pos = 0;
 	size_t						endPos;
 	std::string					chanName;
-	int							argsNum = 0;
-	// std::map<char, int>			argsByMode = setArgsByMode();
 	std::vector<std::string>	args;
 
 	std::cout << "command recue [" + command + "]" << std::endl;
@@ -303,6 +301,10 @@ void	Server::MODE(Client *client, Channel *channel) {
 		return ;
 	}
 
+	// DEBUG ONLY
+	for (std::vector<std::string>::iterator it = modesVec.begin(); it != modesVec.end(); it++)
+		std::cout << "modesVec : [" + (*it) + "] : " <<  modesVec.size() << std::endl;	
+	// DEBUG ONLY - END
 	
 	std::string	tempura;
 
@@ -314,16 +316,16 @@ void	Server::MODE(Client *client, Channel *channel) {
 			endPos = command.size();
 		tempura = command.substr((pos + 1), ((endPos - pos) - 1));
 		args.push_back(tempura);
-		// argsNum++;
 		pos = endPos;
 	}
 
 	std::cout << "ARGS SIZE " << args.size() << std::endl;
 
+
 	for (std::vector<std::string>::iterator it=args.begin(); it != args.end(); it++)
 		std::cout << "voila des arguments en beton [" + (*it) + "]" << std::endl;
 
-	if (argsNum > 3)
+	if (args.size() > 3)
 	{
 		//trop d'arguments pour notre realite
 		return;

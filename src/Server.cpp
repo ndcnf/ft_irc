@@ -361,6 +361,7 @@ std::vector<std::string>	Server::parseModeCmd(std::string buf)
 
 	firstPos = buf.find_first_of("+-");
 	lastPos = buf.find(" ", firstPos);
+	modeCmds.clear();
 
 	if (firstPos != std::string::npos && lastPos != std::string::npos)
 		buf = buf.substr(firstPos, lastPos - firstPos);
@@ -369,7 +370,7 @@ std::vector<std::string>	Server::parseModeCmd(std::string buf)
 	else
 	{
 		// commande invalide
-		modeCmds.push_back("");
+		// modeCmds.push_back("");
 		return modeCmds;
 	}
 
@@ -395,7 +396,8 @@ std::vector<std::string>	Server::parseModeCmd(std::string buf)
 			if (!validArg)
 			{
 				// lettre/commande pas prise en compte, erreur
-				modeCmds.push_back("");
+				modeCmds.clear();
+				// modeCmds.push_back("");
 				return modeCmds;
 			}
 
@@ -418,7 +420,6 @@ std::vector<std::string>	Server::parseModeCmd(std::string buf)
 	for (std::vector<std::string>::iterator it = modeCmds.begin(); it != modeCmds.end(); it++)
 		std::cout << "modeCmds : [" + (*it) + "]" << std::endl;	
 	// DEBUG ONLY - END
-
 
 	return modeCmds;
 }
