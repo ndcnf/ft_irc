@@ -336,8 +336,16 @@ void	Server::MODE(Client *client, Channel *channel) {
 		}
 		else if ((*it).find("o") != std::string::npos)
 		{
+			if (args.size() == 0)
+			{
+				//pas assez d'arguments
+				sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), "", "", "", "");
+				return ;
+			}
+
 			if (channel->setOperator(isAdded, args.back()))
 				msg = "MODE " + channel->getChannelName() + " " + (*it) + " " + args.back() + " " + client->getNick();
+			
 		}
 
 		if (!msg.empty())
