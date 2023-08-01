@@ -17,7 +17,10 @@ class Channel
 			void						removeMember(Client *client, int fd);
 			void						setTopic(std::string topic, Client *client);
 			void						setTopicMode(bool mode);
-			void						addOperator(Client *client);
+			bool						setOperator(bool mode, std::string username);
+			bool						addOperator(Client *client);
+			bool						removeOperator(Client *client);
+			
 			void						sendToAllMembers(std::string msg);
 
 			std::string					getChannelName();

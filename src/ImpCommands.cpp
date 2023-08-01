@@ -202,13 +202,6 @@ void	Server::JOIN(Client *client, Channel *channel) {
 		hashtagPos = hashtagPos + 1;
 	}
 
-	// if (pos != std::string::npos)
-	// 	chanName = command.substr(0, pos);
-	// else
-	// 	chanName = command;
-
-	// ajouter les channel names au vecteur en push back
-
 	for (std::vector<std::string>::iterator itc = channelsToAdd.begin(); itc != channelsToAdd.end(); itc++)
 	{
 		for (std::vector<Channel*>::iterator	it = _channels.begin(); it != _channels.end(); it++)
@@ -265,32 +258,24 @@ void	Server::JOIN(Client *client, Channel *channel) {
 		}
 	}
 
-
-
 	// rest a ajouter lA GESTION DES ERREURS par claire
-
-// 	Channel	*channel;
-	//lui dire que la commande (requete qui vient apres JOIN)= le nom du channel
-	//comment introduire la classe channel la dedans ?
-
-// 	channel->_nameChannel = command;
-
-	// creer une fonction pour creer le channel ou le faire direct la ?
-
-// }	
+	
 }
 
-void	Server::MODE(Client *client, Channel *channel) { // channel only ? auto gerer par le client lorqu on se connect
+void	Server::MODE(Client *client, Channel *channel) {
 	std::cout << "cmd mode" << std::endl;
-	std::string		msg;
-	std::string		modes;
-	size_t			pos;
-	std::string		chanName;
-	// bool			isMinus = false;
+	std::string					msg = "";
+	std::string					modes;
+	std::string					chanName;
+	std::vector<std::string>	modesVec;
+	std::vector<std::string>	args;
+	size_t						pos = 0;
+	size_t						endPos;
+	bool						isAdded = false;
 
+	std::cout << "command recue [" + command + "]" << std::endl;
 
-	std::cout << "je recois : [" + command + "]" << std::endl;
-
+	// lors de la connexion initiale
 	if (command == (client->getNick() + " +i"))
 		return;
 
@@ -303,29 +288,78 @@ void	Server::MODE(Client *client, Channel *channel) { // channel only ? auto ger
 		return ;
 	}
 
+	//Si le user n'est pas operator du channel: vtff
+	if (!channel->isOperator(client))
+		return ;
+
 	pos = chanName.size() + 1;
-	modes = command.substr(pos, command.find(" "));
+	modes = command.substr(pos, command.find(" ")); // future old way
 
-	std::cout << "modes [" + modes + "]" << std::endl;
-
-	if ((pos = modes.find("t") != std::string::npos))
+	modesVec = parseModeCmd(command.substr(pos)); // new way
+	if (modesVec.empty())
 	{
-		if ((pos - 1) == modes.find("+"))
-		{
-			channel->setTopicMode(true);
-		}
-		else
-		{
-			channel->setTopicMode(false);
-			// isMinus = true;
-		}
+		std::cout << "mode invalide" << std::endl;
+		// commande invalide
+		return ;
 	}
 	
+	std::string	tempura;
+
+	while ((pos = command.find(" ", pos)) != std::string::npos && pos < command.size())
+	{
+		endPos = command.find(" ", (pos + 1));
+		if (endPos == std::string::npos)
+			endPos = command.size();
+		tempura = command.substr((pos + 1), ((endPos - pos) - 1));
+		args.push_back(tempura);
+		pos = endPos;
+	}
+
+	// for (std::vector<std::string>::iterator it=args.begin(); it != args.end(); it++)
+	// 	std::cout << "voila des arguments en beton [" + (*it) + "]" << std::endl;
+
+	if (args.size() > 3)
+	{
+		//trop d'arguments pour notre realite
+		std::cout << "trop d'arguments" << std::endl;
+		return;
+	}
+
+	pos = 0;
+	for (std::vector<std::string>::iterator it = modesVec.begin(); it != modesVec.end(); it++)
+	{
+		if ((*it).find("+") != std::string::npos)
+			isAdded = true;
+		else
+			isAdded = false;
+
+		if ((*it).find("t") != std::string::npos)
+		{
+			channel->setTopicMode(isAdded);
+			msg = "MODE " + channel->getChannelName() + " " + (*it) + " " + client->getNick();
+		}
+		else if ((*it).find("o") != std::string::npos)
+		{
+			if (args.size() == 0)
+			{
+				//pas assez d'arguments
+				sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), "", "", "", "");
+				return ;
+			}
+
+			if (channel->setOperator(isAdded, args.back()))
+				msg = "MODE " + channel->getChannelName() + " " + (*it) + " " + args.back() + " " + client->getNick();
+		}
+
+		if (!msg.empty())
+		{
+			sendMsg(msg, client->getFd());
+			sendMsgToAllMembers(msg, client->getFd());
+		}
+	}
 
 
-	msg = "MODE " + channel->getChannelName() + " " + modes + " " + client->getNick();
 
-	sendMsg(msg, client->getFd());
 
 
 }
