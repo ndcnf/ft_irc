@@ -345,7 +345,6 @@ void	Server::MODE(Client *client, Channel *channel) {
 
 			if (channel->setOperator(isAdded, args.back()))
 				msg = "MODE " + channel->getChannelName() + " " + (*it) + " " + args.back() + " " + client->getNick();
-			
 		}
 
 		if (!msg.empty())
