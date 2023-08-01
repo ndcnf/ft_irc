@@ -260,7 +260,7 @@ void	Server::JOIN(Client *client, Channel *channel) {
 
 void	Server::MODE(Client *client, Channel *channel) {
 	std::cout << "cmd mode" << std::endl;
-	std::string					msg;
+	std::string					msg = "";
 	std::string					modes;
 	std::string					chanName;
 	std::vector<std::string>	modesVec;
@@ -298,11 +298,6 @@ void	Server::MODE(Client *client, Channel *channel) {
 		// commande invalide
 		return ;
 	}
-
-	// // DEBUG ONLY
-	// for (std::vector<std::string>::iterator it = modesVec.begin(); it != modesVec.end(); it++)
-	// 	std::cout << "modesVec : [" + (*it) + "] : " <<  modesVec.size() << std::endl;	
-	// // DEBUG ONLY - END
 	
 	std::string	tempura;
 
@@ -316,11 +311,8 @@ void	Server::MODE(Client *client, Channel *channel) {
 		pos = endPos;
 	}
 
-	std::cout << "ARGS SIZE " << args.size() << std::endl;
-
-
-	for (std::vector<std::string>::iterator it=args.begin(); it != args.end(); it++)
-		std::cout << "voila des arguments en beton [" + (*it) + "]" << std::endl;
+	// for (std::vector<std::string>::iterator it=args.begin(); it != args.end(); it++)
+	// 	std::cout << "voila des arguments en beton [" + (*it) + "]" << std::endl;
 
 	if (args.size() > 3)
 	{
@@ -330,7 +322,6 @@ void	Server::MODE(Client *client, Channel *channel) {
 	}
 
 	pos = 0;
-
 	for (std::vector<std::string>::iterator it = modesVec.begin(); it != modesVec.end(); it++)
 	{
 		if ((*it).find("+") != std::string::npos)
@@ -345,11 +336,15 @@ void	Server::MODE(Client *client, Channel *channel) {
 		}
 		else if ((*it).find("o") != std::string::npos)
 		{
-			//set le mode de passe ici (+o et -o): arguments : nom du user et +/-
-			msg = "MODE " + channel->getChannelName() + " " + (*it) + " " + args.back() + " " + client->getNick();
+			if (channel->setOperator(isAdded, args.back()))
+				msg = "MODE " + channel->getChannelName() + " " + (*it) + " " + args.back() + " " + client->getNick();
 		}
 
-		sendMsg(msg, client->getFd());
+		if (!msg.empty())
+		{
+			sendMsg(msg, client->getFd());
+			sendMsgToAllMembers(msg, client->getFd());
+		}
 	}
 
 

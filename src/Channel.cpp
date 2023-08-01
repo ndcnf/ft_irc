@@ -105,7 +105,25 @@ bool						Channel::getTopicMode()
 	return _topicOperatorsOnly;
 }
 
-void				Channel::addOperator(Client *client)
+bool						Channel::setOperator(bool mode, std::string username)
+{
+	for(std::vector<Client*>::iterator it=_members.begin(); it != _members.end(); it++)
+	{
+		if (mode)
+		{
+			if ((*it)->getNick() == username)
+				return (addOperator(*it));
+		}
+		else
+		{
+			if ((*it)->getNick() == username)
+				return (removeOperator(*it));
+		}
+	}
+	return (false);
+}
+
+bool				Channel::addOperator(Client *client)
 {
 	bool		isMember = false;
 	std::string	msg;
@@ -126,18 +144,53 @@ void				Channel::addOperator(Client *client)
 			if (client->getFd() == (*itc)->getFd())
 			{
 				std::cout << "already operator :" + (*itc)->getNick() << std::endl; // erreur existe deja ou osef
-				return ;
+				return (false);
 			}
 		}
 		_operators.push_back(client);
-		return ;
-		
-
-
+		return (true);
 	}
 	// pas un membre donc erreur
 	std::cout << "Nice try, not a member : " + client->getNick() << std::endl; // erreur existe deja ou osef
-	return ;
+	return (false);
+
+}
+
+bool				Channel::removeOperator(Client *client)
+{
+	bool		isMember = false;
+	std::string	msg;
+
+	for (std::vector<Client*>::iterator it = _members.begin(); it != _members.end(); it++)
+	{
+		if (client->getFd() == (*it)->getFd())
+		{
+			isMember = true;
+			break ;
+		}
+	}
+
+	if (isMember)
+	{
+		for (std::vector<Client*>::iterator itc = _operators.begin(); itc != _operators.end(); itc++)
+		{
+			if (client->getFd() == (*itc)->getFd())
+			{
+				if (_operators.size() == 1)
+				{
+					//dernier operator dans le channel, on refuse
+					std::cout << "il faut un admin ici, tu restes." << std::endl;
+					return (false);
+				}
+				std::cout << "operator removed :" + (*itc)->getNick() << std::endl; // erreur existe deja ou osef
+				_operators.erase(itc);
+				return (true);
+			}
+		}
+	}
+	// pas un membre donc erreur
+	std::cout << "Nice try, not a member : " + client->getNick() << std::endl; // erreur existe deja ou osef
+	return (false);
 
 }
 
