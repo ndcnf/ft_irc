@@ -326,15 +326,24 @@ void	Server::MODE(Client *client, Channel *channel) { // channel only ? auto ger
 
 }
 
-
-size_t countSubstring(const std::string& str, const std::string& sub) {
-    if (sub.length() == 0) return 0;
-    size_t count = 0;
-    for (size_t offset = str.find(sub); offset != std::string::npos;
-         offset = str.find(sub, offset + 1)) {
-        ++count;
-    }
-    return count;
+size_t countSubstring(const std::string& str, std::string& sub) {
+	if (sub.length() == 0) 
+		return 0;
+	size_t count = 0;
+	std::size_t lastChar = sub.find_last_not_of(' ');
+	if (lastChar != std::string::npos) {
+		sub = sub.substr(0, lastChar + 1);
+	}
+	for (size_t offset = str.find(sub); offset != std::string::npos;
+		 offset = str.find(sub, offset + 1)) {
+		count++;
+		std::cout << "count : " << count << std::endl;
+		std::cout << "str : " << str << std::endl;
+		std::cout << "SIZE SUB : " << sub.size() << std::endl;
+		std::cout << "offset : " << offset << std::endl;
+		std::cout << "SIZE STR	 : " << str.size() << std::endl;
+	}
+	return count;
 }
 
 // size_t countSubstring(const std::string& str, const std::string& sub) {
