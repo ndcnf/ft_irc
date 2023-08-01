@@ -52,6 +52,7 @@ class Server
 		std::string	token; //@Verena to have the token
 		std::string	command; //@Verena ... to arrete de se faire chier
 		bool		nickSet; // to set the nick once at the begining // a voir si devait etre enlever ou surtout pas (Nadia)
+		bool		passIsValid; //pour forcer l utilisation d un mot de passe
 
 		bool		createSocket();
 		bool		connection();
