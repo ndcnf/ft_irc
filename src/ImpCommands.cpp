@@ -657,24 +657,7 @@ void	Server::KICK(Client *client, Channel *channel) {
 void	Server::INVITE(Client *client, Channel *channel) {
 		std::cout << "cmd invite" << std::endl;
 
-		// size_t	invitedPos = command.find(" ");
-		// size_t chanPos = command.find("#");
-
-	// 	if (invitedPos != std::string::npos && chanPos != std::string::npos) {
-    // 		std::string invited = command.substr(chanPos + 1, invitedPos - (chanPos + 1));
-    // 		std::string chanName = command.substr(chanPos + 1);
-
-    // 	// Trouver la position de l'espace après le nom du canal (#chan)
-    // 		size_t spacePos = chanName.find(" ");
-    // 		if (spacePos != std::string::npos) {
-    //     // Supprimer tout ce qui suit le nom du canal (ignorer les espaces supplémentaires)
-    //     	chanName = chanName.substr(0, spacePos);
-    // }
-		// if (invitedpos != std::string::npos && chanPos != std::string::npos) {
-		// 		// Extraction des sous-chaines apres le # pour le channel et apres le : pour le message'
-		// 	std::string invited = command.substr(invitedpos + 1);
-		// 	std::string chanName = command.substr(chanPos + 1);
-			//std::string chanName = parseChan(command, chanPos);
+		
 	size_t chanPos = command.find("#");
 	if (chanPos != std::string::npos) {
 		std::string invited = command.substr(0, chanPos - 1);
@@ -726,9 +709,10 @@ void	Server::INVITE(Client *client, Channel *channel) {
 				sendErrorMsg(ERR_USERONCHANNEL, client->getFd(), chanName, invited, "", "");
 		else
 		{
-			std::string msg = "341 :" + client->getNick() + " INVITE " + invited + " " + chanName + END_SEQUENCE;
+			//std::string msg = "341 :" + client->getNick() + " INVITE " + invited + " " + chanName + END_SEQUENCE;
+			std::string msg = ":" + client->getNick() + "!~" + client->getHostname() + " " + token + " " + invited + " " + chanName;
        		sendMsg(msg, client->getFd());
-		//	sendMsgToAllMembers(msg, client->getFd());
+			sendMsgToAllMembers(msg, client->getFd());
 
 			for(std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); it++)
 			{
@@ -737,11 +721,19 @@ void	Server::INVITE(Client *client, Channel *channel) {
 					channel->addMember(*it);
 					break ;
 				}
-				msg = ":" + invited + "@" + client->getHostname() + " JOIN " + (chanName);
-				sendMsg(msg, client->getFd());
-				currentChannel->getChannelName() = chanName;
-				msg = ":" + invited + "@" + client->getHostname() + " = " + (chanName) + " :" + currentChannel->getAllMembers();
-				sendMsg(msg, client->getFd());
+				// msg = ":" + invited + "@" + client->getHostname() + " JOIN " + (chanName);
+				// sendMsg(msg, client->getFd());
+				// currentChannel->getChannelName() = chanName;
+				// msg = ":" + invited + "@" + client->getHostname() + " = " + (chanName) + " :" + currentChannel->getAllMembers();
+				// sendMsg(msg, client->getFd());
+				// sendMsgToAllMembers(msg, client->getFd());
+						// send info to client
+				// msg = client->getNick() + "invites you to " + chanName;
+				// sendMsg(msg, (*it)->getFd());
+
+				// // send info of all members in the channel
+				// msg = ":" + invited + "@" + client->getHostname() + " = " + (chanName) + " :" + currentChannel->getAllMembers();
+				// sendMsg(msg, client->getFd());				
 			}
 		}	
 	}
