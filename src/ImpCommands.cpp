@@ -539,9 +539,39 @@ void	Server::PART(Client *client, Channel *channel){
 
 void	Server::KICK(Client *client, Channel *channel) {
 	std::cout << "cmd Kick" << std::endl;
-	(void)channel;
-	if (command.find(':'))
-		command.substr();
+
+	//PARSING CHAN
+	std::string chan = parseChan(command, 0);
+	if (channel->isOperator(client) == true) {
+		//CHECK IF THE CHAN EXIST
+		if (!channelExists(chan))
+			sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), channel->getChannelName(), "", "", "");
+		//PARSING REASON
+		size_t doublePoints = command.find(':');
+		std::string reason = command.substr(doublePoints + 1);
+		//PARSING NICK
+		size_t startPos = command.find(chan) + chan.size() + 1; 
+		size_t endPos = command.find(" :");
+		std::string nick = command.substr(startPos, endPos - startPos);
+		if (!channel->isMembre(client))
+			sendErrorMsg(ERR_NOTONCHANNEL, client->getFd(), channel->getChannelName(), "", "", "");
+		if (!channel->isNickMembre(nick))
+			sendErrorMsg(ERR_USERNOTINCHANNEL, client->getFd(), client->getNick(), channel->getChannelName(), "", "");
+		// 	std::string reason = command.substr(doublePoints);
+		// std::cout << "Chan : [" << chan << ']' << std::endl;
+		// std::cout << "Nick : [" << nick << ']' << std::endl;
+		// std::cout << "reason : [" << reason << ']' << std::endl;
+		//SEND MSG
+		std::string msg = ':' + client->getNick() + "!~" + client->getHostname() + ' ' + token + ' ' + chan + ' ' + nick + " :" + reason;
+		if (chan.empty() || nick.empty())
+			sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), chan, nick, "", "");
+		sendMsg(msg, client->getFd());
+		sendMsgToAllMembers(msg, client->getFd());
+	}
+	else {
+		// std::string msg = channel->getChannelName() + " You must be a channel operator";
+		sendErrorMsg(ERR_CHANOPRIVSNEEDED, client->getFd(), client->getNick(), chan, "Not allowed", "");
+	}
 }
 
 void	Server::INVITE(Client *client, Channel *channel) {
