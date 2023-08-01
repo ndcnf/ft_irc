@@ -258,20 +258,21 @@ void	Server::JOIN(Client *client, Channel *channel) {
 	
 }
 
-void	Server::MODE(Client *client, Channel *channel) { // channel only ? auto gerer par le client lorqu on se connect
+void	Server::MODE(Client *client, Channel *channel) {
 	std::cout << "cmd mode" << std::endl;
 	std::string					msg;
 	std::string					modes;
 	std::vector<std::string>	modesVec;
-	size_t						pos;
-	// size_t						firstPos;
-	// size_t						lastPos;
+	size_t						pos = 0;
+	size_t						endPos;
 	std::string					chanName;
-	// bool			isMinus = false;
+	int							argsNum = 0;
+	// std::map<char, int>			argsByMode = setArgsByMode();
+	std::vector<std::string>	args;
 
+	std::cout << "command recue [" + command + "]" << std::endl;
 
-	std::cout << "je recois : [" + command + "]" << std::endl;
-
+	// lors de la connexion initiale
 	if (command == (client->getNick() + " +i"))
 		return;
 
@@ -302,21 +303,51 @@ void	Server::MODE(Client *client, Channel *channel) { // channel only ? auto ger
 		return ;
 	}
 
-	// future old way
-	std::cout << "modes [" + modes + "]" << std::endl;
+	
+	std::string	tempura;
 
-	if ((pos = modes.find("t") != std::string::npos))
+	while ((pos = command.find(" ", pos)) != std::string::npos && pos < command.size())
 	{
-		if ((pos - 1) == modes.find("+"))
-		{
-			channel->setTopicMode(true);
-		}
-		else
-		{
-			channel->setTopicMode(false);
-			// isMinus = true;
-		}
+		std::cout << "la verite est ailleurs" << std::endl;
+		endPos = command.find(" ", (pos + 1));
+		if (endPos == std::string::npos)
+			endPos = command.size();
+		tempura = command.substr((pos + 1), ((endPos - pos) - 1));
+		args.push_back(tempura);
+		// argsNum++;
+		pos = endPos;
 	}
+
+	std::cout << "ARGS SIZE " << args.size() << std::endl;
+
+	for (std::vector<std::string>::iterator it=args.begin(); it != args.end(); it++)
+		std::cout << "voila des arguments en beton [" + (*it) + "]" << std::endl;
+
+	if (argsNum > 3)
+	{
+		//trop d'arguments pour notre realite
+		return;
+	}
+
+
+	
+	// modeTargetMember(command.substr(pos));
+
+	// future old way
+	// std::cout << "modes [" + modes + "]" << std::endl;
+
+	// if ((pos = modes.find("t") != std::string::npos))
+	// {
+	// 	if ((pos - 1) == modes.find("+"))
+	// 	{
+	// 		channel->setTopicMode(true);
+	// 	}
+	// 	else
+	// 	{
+	// 		channel->setTopicMode(false);
+	// 		// isMinus = true;
+	// 	}
+	// }
 	// END of future old way	
 
 

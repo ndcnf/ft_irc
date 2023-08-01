@@ -349,7 +349,15 @@ std::vector<std::string>	Server::parseModeCmd(std::string buf)
 	size_t						firstPos;
 	size_t						lastPos;
 	bool						isAdded;
+	bool						validArg;
 	std::string					instruction = "";
+	std::map<int, char>			argsByMode;
+
+	argsByMode['i'] = 0;
+	argsByMode['t'] = 0;
+	argsByMode['k'] = 1;
+	argsByMode['o'] = 1;
+	argsByMode['l'] = 1;
 
 	firstPos = buf.find_first_of("+-");
 	lastPos = buf.find(" ", firstPos);
@@ -367,12 +375,30 @@ std::vector<std::string>	Server::parseModeCmd(std::string buf)
 
 	for (size_t i=0; i < buf.size(); i++)
 	{
+		
 		if (buf[i] == '+')
 			isAdded = true;
 		else if (buf[i] == '-')
 			isAdded = false;
 		else
 		{
+			validArg = false;
+			for (std::map<int, char>::iterator it = argsByMode.begin(); it != argsByMode.end(); it++)
+			{
+				if (buf[i] == (*it).first)
+				{
+					validArg = true;
+					break ;
+				}
+			}
+
+			if (!validArg)
+			{
+				// lettre/commande pas prise en compte, erreur
+				modeCmds.push_back("");
+				return modeCmds;
+			}
+
 			if (isAdded)
 			{
 				instruction = "+";
@@ -390,24 +416,25 @@ std::vector<std::string>	Server::parseModeCmd(std::string buf)
 
 	// DEBUG ONLY
 	for (std::vector<std::string>::iterator it = modeCmds.begin(); it != modeCmds.end(); it++)
-		std::cout << "modeCmds : [" + (*it) + "]" << std::endl;
+		std::cout << "modeCmds : [" + (*it) + "]" << std::endl;	
 	// DEBUG ONLY - END
+
 
 	return modeCmds;
 }
 
-std::map<char, int>	Server::setArgsByMode()
-{
-	std::map<char, int>			argsByMode;
+// std::map<char, int>	Server::setArgsByMode()
+// {
+// 	std::map<char, int>			argsByMode;
 	
-	argsByMode['i'] = 0;
-	argsByMode['t'] = 0;
-	argsByMode['k'] = 1;
-	argsByMode['o'] = 1;
-	argsByMode['l'] = 1;
+// 	argsByMode['i'] = 0;
+// 	argsByMode['t'] = 0;
+// 	argsByMode['k'] = 1;
+// 	argsByMode['o'] = 1;
+// 	argsByMode['l'] = 1;
 
-	return argsByMode;
-}
+// 	return argsByMode;
+// }
 
 std::string	Server::modeTargetMember(std::string buf)
 {
