@@ -210,9 +210,10 @@ void	Server::JOIN(Client *client, Channel *channel) {
 			{
 				std::cout << "Channel [" + (*itc) + "] already exist. You'll join 'em" << std::endl;
 				currentChannel = (*it);
+				//verifier ici si la limite est 1. set et si oui, 2. atteinte
+				//verifier s'il y invitation seulement et si oui, si la personne est sur la liste.
 				currentChannel->addMember(client);
 				channelExists = true;
-				// client aura un mode 'normal' (pas oper/admin)
 				break;
 			}
 		}
