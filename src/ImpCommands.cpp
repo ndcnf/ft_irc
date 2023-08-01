@@ -85,9 +85,6 @@ void Server::NICK(Client *client, Channel *channel) {
 	}
 	if (client->nickSet == false) {
 		std::string nickname = command;
-		// int numberFd = client->getFd();
-		// static_cast<std::string>(numberFd);
-		// nickname = nickname + numberFd;
 		int numberFd = client->getFd();
 		std::stringstream ss;
 		ss << numberFd;
@@ -416,11 +413,7 @@ void Server::PRIVMSG(Client* client, Channel* channel) {
 			std::size_t nickPos = command.find(" ");
 			if (nickPos != std::string::npos) {
 				// Extraction du nickname
-				// std::string nickname = command.substr(nickPos + 1, msgPos - nickPos - 1);
 				std::string nickname = command.substr(0, nickPos);
-				// std::cout << "debug message : " << privMsg << std::endl;
-				// std::cout << "debug nick a qui : " << nickname << std::endl;
-				// std::cout << "debug nick moi: " << client->getNick() << std::endl;
 				
 				// Find the recipient client from _clients vector
 				Client* recipientClient = NULL;
@@ -577,7 +570,7 @@ void	Server::PASS(Client *client, Channel *channel) {
 		else {
 			client->setIsAuthenticated(true);
 			passIsValid = true;
-				// first_message(client);
+				// first_message(client); fait apres dans USER qui arrive apres NICK
 		}
 	}
 }
