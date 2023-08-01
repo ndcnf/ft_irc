@@ -267,6 +267,7 @@ void	Server::MODE(Client *client, Channel *channel) {
 	std::vector<std::string>	args;
 	size_t						pos = 0;
 	size_t						endPos;
+	bool						isAdded = false;
 
 	std::cout << "command recue [" + command + "]" << std::endl;
 
@@ -290,9 +291,6 @@ void	Server::MODE(Client *client, Channel *channel) {
 	pos = chanName.size() + 1;
 	modes = command.substr(pos, command.find(" ")); // future old way
 
-	// firstPos = command.find(command.find_first_of("+-"), (chanName.size() + 1));
-	// lastPos = command.find(" ", firstPos);
-
 	modesVec = parseModeCmd(command.substr(pos)); // new way
 	if (modesVec.empty())
 	{
@@ -301,10 +299,10 @@ void	Server::MODE(Client *client, Channel *channel) {
 		return ;
 	}
 
-	// DEBUG ONLY
-	for (std::vector<std::string>::iterator it = modesVec.begin(); it != modesVec.end(); it++)
-		std::cout << "modesVec : [" + (*it) + "] : " <<  modesVec.size() << std::endl;	
-	// DEBUG ONLY - END
+	// // DEBUG ONLY
+	// for (std::vector<std::string>::iterator it = modesVec.begin(); it != modesVec.end(); it++)
+	// 	std::cout << "modesVec : [" + (*it) + "] : " <<  modesVec.size() << std::endl;	
+	// // DEBUG ONLY - END
 	
 	std::string	tempura;
 
@@ -331,36 +329,31 @@ void	Server::MODE(Client *client, Channel *channel) {
 		return;
 	}
 
+	pos = 0;
 
-	
-	// modeTargetMember(command.substr(pos));
+	for (std::vector<std::string>::iterator it = modesVec.begin(); it != modesVec.end(); it++)
+	{
+		if ((*it).find("+") != std::string::npos)
+			isAdded = true;
+		else
+			isAdded = false;
 
-	// future old way
-	// std::cout << "modes [" + modes + "]" << std::endl;
+		if ((*it).find("t") != std::string::npos)
+		{
+			channel->setTopicMode(isAdded);
+			msg = "MODE " + channel->getChannelName() + " " + (*it) + " " + client->getNick();
 
-	// if ((pos = modes.find("t") != std::string::npos))
-	// {
-	// 	if ((pos - 1) == modes.find("+"))
-	// 	{
-	// 		channel->setTopicMode(true);
-	// 	}
-	// 	else
-	// 	{
-	// 		channel->setTopicMode(false);
-	// 		// isMinus = true;
-	// 	}
-	// }
-	// END of future old way
+		}
+		else if ((*it).find("o") != std::string::npos)
+		{
+			std::cout << "Ohlalala" << std::endl;
+		}
 
-	// for (std::vector<std::string>::iterator it = modesVec.begin(); it != modesVec.end(); it++)
-	// {
-
-	// }
+		sendMsg(msg, client->getFd());
+	}
 
 
-	msg = "MODE " + channel->getChannelName() + " " + modes + " " + client->getNick();
 
-	sendMsg(msg, client->getFd());
 
 
 }
