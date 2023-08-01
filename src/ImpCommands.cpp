@@ -342,11 +342,11 @@ void	Server::MODE(Client *client, Channel *channel) {
 		{
 			channel->setTopicMode(isAdded);
 			msg = "MODE " + channel->getChannelName() + " " + (*it) + " " + client->getNick();
-
 		}
 		else if ((*it).find("o") != std::string::npos)
 		{
-			std::cout << "Ohlalala" << std::endl;
+			//set le mode de passe ici (+o et -o): arguments : nom du user et +/-
+			msg = "MODE " + channel->getChannelName() + " " + (*it) + " " + args.back() + " " + client->getNick();
 		}
 
 		sendMsg(msg, client->getFd());
