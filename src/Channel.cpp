@@ -205,6 +205,26 @@ bool		Channel::isOperator(Client *client)
 	return false;
 }
 
+bool		Channel::isMembre(Client *client)
+{
+	for (std::vector<Client*>::iterator it = _members.begin(); it != _members.end(); it++)
+	{
+		if ((*it)->getFd() == client->getFd())
+			return true;
+	}
+	return false;
+}
+
+bool		Channel::isNickMembre(std::string nickname)
+{
+	for (std::vector<Client*>::iterator it = _members.begin(); it != _members.end(); it++)
+	{
+		if ((*it)->getNick() == nickname)
+			return true;
+	}
+	return false;
+}
+
 // void	Channel::sendToAllMembers(std::string msg)
 // {
 // 	for (std::vector<Client>::iterator it=_members.begin(); it != _members.end(); it++)

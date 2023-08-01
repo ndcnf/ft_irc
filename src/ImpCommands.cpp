@@ -389,7 +389,7 @@ void Server::PRIVMSG(Client* client, Channel* channel) {
 		// Check how many times the channel name appears in the command
 		std::size_t count = countSubstring(command, channelName);
 		if (count > 1) {
-			std::cout << "2 count donc prive : " << channelName << std::endl;
+			// std::cout << "2 count donc prive : " << channelName << std::endl;
 			// juste parse message apres les : et envoie
 			std::cout << "messCHan :" << messChan << std::endl;
 			
@@ -398,7 +398,7 @@ void Server::PRIVMSG(Client* client, Channel* channel) {
 			sendMsgToAllMembers(msg, client->getFd());
 		}
 	if (command.find('#') != std::string::npos && count == 1) {
-		std::cout << "1 count donc channel : " << channelName << std::endl;
+		// std::cout << "1 count donc channel : " << channelName << std::endl;
 
 		std::vector<std::string> hashChan;
 		std::string allChanMsg;
@@ -573,8 +573,35 @@ void	Server::PART(Client *client, Channel *channel){
 
 void	Server::KICK(Client *client, Channel *channel) {
 	std::cout << "cmd Kick" << std::endl;
-	(void)client;
-	(void)channel;
+
+	//PARSING CHAN
+	std::string chan = parseChan(command, 0);
+	if (channel->isOperator(client) == true) {
+		//CHECK IF THE CHAN EXIST
+		if (!channelExists(chan))
+			sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), channel->getChannelName(), "", "", "");
+		//PARSING REASON
+		size_t doublePoints = command.find(':');
+		std::string reason = command.substr(doublePoints + 1);
+		//PARSING NICK
+		size_t startPos = command.find(chan) + chan.size() + 1; 
+		size_t endPos = command.find(" :");
+		std::string nick = command.substr(startPos, endPos - startPos);
+		if (!channel->isMembre(client))
+			sendErrorMsg(ERR_NOTONCHANNEL, client->getFd(), channel->getChannelName(), "", "", "");
+		if (!channel->isNickMembre(nick))
+			sendErrorMsg(ERR_USERNOTINCHANNEL, client->getFd(), client->getNick(), channel->getChannelName(), "", "");
+		//SEND MSG
+		std::string msg = ':' + client->getNick() + "!~" + client->getHostname() + ' ' + token + ' ' + chan + ' ' + nick + " :" + reason;
+		if (chan.empty() || nick.empty())
+			sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), chan, nick, "", "");
+		sendMsg(msg, client->getFd());
+		sendMsgToAllMembers(msg, client->getFd());
+	}
+	else {
+		// std::string msg = channel->getChannelName() + " You must be a channel operator";
+		sendErrorMsg(ERR_CHANOPRIVSNEEDED, client->getFd(), client->getNick(), chan, "Not allowed", "");
+	}
 }
 
 void	Server::INVITE(Client *client, Channel *channel) {
@@ -608,27 +635,6 @@ void	Server::PASS(Client *client, Channel *channel) {
 		}
 	}
 }
-
-// void	Server::PASS(Client *client, Channel *channel) {
-// 	(void)channel;
-
-// 	if (client->isAuthenticated()){
-// 		//std::cout << "PASS" << std::endl;
-// 		sendErrorMsg(ERR_ALREADYREGISTERED, client->getFd(),"", "", "", "");
-// 	}
-
-// 	if (_password != getPassword()){
-// 		std::cout << "PASS" << std::endl;
-// 		sendErrorMsg(ERR_PASSWDMISMATCH, client->getFd(),"", "", "", "");
-// 	}
-// 	if (_password.empty()){
-// 		std::cout << "PASS" << std::endl;
-// 		sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), client->getNick(), "COMMANDE A IMPLEMENTER", "", "");
-// 	}
-// 	client->setIsAuthenticated(true);
-// 	if (client->isAuthenticated() && !client->getUser().empty() && !client->getNick().empty())
-// 		first_message(client);
-// }
 
 void Server::QUIT(Client *client, Channel *channel) {
 	(void)channel;
