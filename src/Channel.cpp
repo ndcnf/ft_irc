@@ -7,11 +7,13 @@ Channel::Channel(){
 	_channelName = "";
 	_topic = "";
 	_topicOperatorsOnly = false;
+	_isLimitSet = false;
 }
 
 Channel::Channel(std::string name): _channelName(name) {
 	_topic = "";
 	_topicOperatorsOnly = false;
+	_isLimitSet = false;
 }
 
 Channel::Channel(Channel const &cpy){
@@ -25,6 +27,8 @@ Channel &Channel::operator=(Channel const &rhs){
 	_banned = rhs._banned;
 	_topic = rhs._topic;
 	_topicOperatorsOnly = rhs._topicOperatorsOnly;
+	_isLimitSet = rhs._isLimitSet;
+	_nbLimit = rhs._nbLimit;
 
 	return (*this);
 }
@@ -98,6 +102,18 @@ std::vector<Client*>		Channel::getMember()
 void						Channel::setTopicMode(bool mode)
 {
 	_topicOperatorsOnly = mode;
+}
+
+void						Channel::setLimit(bool mode, int limit)
+{
+	_isLimitSet = mode;
+
+	if (mode)
+		_nbLimit = limit;
+	// else
+	// 	_nbLimit = 1000;
+	
+	std::cout << "Limit = " << _nbLimit << std::endl;
 }
 
 bool						Channel::getTopicMode()

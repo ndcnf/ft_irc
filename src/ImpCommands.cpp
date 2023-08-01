@@ -350,6 +350,20 @@ void	Server::MODE(Client *client, Channel *channel) {
 			if (channel->setOperator(isAdded, args.back()))
 				msg = "MODE " + channel->getChannelName() + " " + (*it) + " " + args.back() + " " + client->getNick();
 		}
+		else if ((*it).find("l") != std::string::npos)
+		{
+			if (args.size() == 0)
+			{
+				//pas assez d'arguments
+				sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), "", "", "", "");
+				return ;
+			}
+
+			channel->setLimit(isAdded, std::atoi(args.front().c_str()));
+			msg = "MODE " + channel->getChannelName() + " " + (*it) + " " + args.front() + " " + client->getNick();
+
+			
+		}
 
 		if (!msg.empty())
 		{

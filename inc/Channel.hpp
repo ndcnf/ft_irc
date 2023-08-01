@@ -17,6 +17,7 @@ class Channel
 			void						removeMember(Client *client, int fd);
 			void						setTopic(std::string topic, Client *client);
 			void						setTopicMode(bool mode);
+			void						setLimit(bool mode, int limit);
 			bool						setOperator(bool mode, std::string username);
 			bool						addOperator(Client *client);
 			bool						removeOperator(Client *client);
@@ -39,6 +40,8 @@ class Channel
 			std::vector<Client*>		_operators;
 			std::vector<int>			_banned;
 			bool						_topicOperatorsOnly;
+			bool						_isLimitSet;
+			int							_nbLimit;
 };
 
 #endif
