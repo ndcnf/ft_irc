@@ -355,7 +355,7 @@ void Server::PRIVMSG(Client* client, Channel* channel) {
 		// Check how many times the channel name appears in the command
 		std::size_t count = countSubstring(command, channelName);
 		if (count > 1) {
-			std::cout << "2 count donc prive : " << channelName << std::endl;
+			// std::cout << "2 count donc prive : " << channelName << std::endl;
 			// juste parse message apres les : et envoie
 			std::cout << "messCHan :" << messChan << std::endl;
 			
@@ -364,7 +364,7 @@ void Server::PRIVMSG(Client* client, Channel* channel) {
 			sendMsgToAllMembers(msg, client->getFd());
 		}
 	if (command.find('#') != std::string::npos && count == 1) {
-		std::cout << "1 count donc channel : " << channelName << std::endl;
+		// std::cout << "1 count donc channel : " << channelName << std::endl;
 
 		std::vector<std::string> hashChan;
 		std::string allChanMsg;
@@ -557,10 +557,6 @@ void	Server::KICK(Client *client, Channel *channel) {
 			sendErrorMsg(ERR_NOTONCHANNEL, client->getFd(), channel->getChannelName(), "", "", "");
 		if (!channel->isNickMembre(nick))
 			sendErrorMsg(ERR_USERNOTINCHANNEL, client->getFd(), client->getNick(), channel->getChannelName(), "", "");
-		// 	std::string reason = command.substr(doublePoints);
-		// std::cout << "Chan : [" << chan << ']' << std::endl;
-		// std::cout << "Nick : [" << nick << ']' << std::endl;
-		// std::cout << "reason : [" << reason << ']' << std::endl;
 		//SEND MSG
 		std::string msg = ':' + client->getNick() + "!~" + client->getHostname() + ' ' + token + ' ' + chan + ' ' + nick + " :" + reason;
 		if (chan.empty() || nick.empty())
