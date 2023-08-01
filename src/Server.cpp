@@ -3,7 +3,8 @@
 #include "../inc/Messages.hpp"
 
 
-Server::Server():	_socket(0),
+Server::Server():	passIsValid(false),
+					_socket(0),
 					_validity(0),
 					_port(0)
 					// _quit(false)
@@ -21,6 +22,7 @@ Server	&Server::operator=(Server const &rhs)
 	token = rhs.token;
 	command = rhs.command;
 	nickSet = rhs.nickSet;
+	passIsValid = rhs.passIsValid;
 
 	_socket = rhs._socket;
 	_validity = rhs._validity;
@@ -361,7 +363,6 @@ Channel*	Server::getCurrentChannel(std::string msgBuf)
 	return (NULL);
 
 }
-
 
 std::string	Server::getPassword() {
 	return _password;
