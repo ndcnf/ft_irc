@@ -262,11 +262,11 @@ void	Server::MODE(Client *client, Channel *channel) {
 	std::cout << "cmd mode" << std::endl;
 	std::string					msg;
 	std::string					modes;
+	std::string					chanName;
 	std::vector<std::string>	modesVec;
+	std::vector<std::string>	args;
 	size_t						pos = 0;
 	size_t						endPos;
-	std::string					chanName;
-	std::vector<std::string>	args;
 
 	std::cout << "command recue [" + command + "]" << std::endl;
 
@@ -310,7 +310,6 @@ void	Server::MODE(Client *client, Channel *channel) {
 
 	while ((pos = command.find(" ", pos)) != std::string::npos && pos < command.size())
 	{
-		std::cout << "la verite est ailleurs" << std::endl;
 		endPos = command.find(" ", (pos + 1));
 		if (endPos == std::string::npos)
 			endPos = command.size();
@@ -328,6 +327,7 @@ void	Server::MODE(Client *client, Channel *channel) {
 	if (args.size() > 3)
 	{
 		//trop d'arguments pour notre realite
+		std::cout << "trop d'arguments" << std::endl;
 		return;
 	}
 
@@ -350,7 +350,12 @@ void	Server::MODE(Client *client, Channel *channel) {
 	// 		// isMinus = true;
 	// 	}
 	// }
-	// END of future old way	
+	// END of future old way
+
+	// for (std::vector<std::string>::iterator it = modesVec.begin(); it != modesVec.end(); it++)
+	// {
+
+	// }
 
 
 	msg = "MODE " + channel->getChannelName() + " " + modes + " " + client->getNick();
