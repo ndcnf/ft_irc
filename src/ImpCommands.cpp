@@ -724,13 +724,25 @@ void	Server::INVITE(Client *client, Channel *channel) {
 
 		else if (channel->isMember(invited) == true)
 				sendErrorMsg(ERR_USERONCHANNEL, client->getFd(), chanName, invited, "", "");
-
 		else
 		{
 			std::string msg = "341 :" + client->getNick() + " INVITE " + invited + " " + chanName + END_SEQUENCE;
        		sendMsg(msg, client->getFd());
-			//channel->addMember(client);
-			channel->addInvite(invited);
+		//	sendMsgToAllMembers(msg, client->getFd());
+
+			for(std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); it++)
+			{
+				if (invited == (*it)->getNick())
+				{
+					channel->addMember(*it);
+					break ;
+				}
+				msg = ":" + invited + "@" + client->getHostname() + " JOIN " + (chanName);
+				sendMsg(msg, client->getFd());
+				currentChannel->getChannelName() = chanName;
+				msg = ":" + invited + "@" + client->getHostname() + " = " + (chanName) + " :" + currentChannel->getAllMembers();
+				sendMsg(msg, client->getFd());
+			}
 		}	
 	}
 }

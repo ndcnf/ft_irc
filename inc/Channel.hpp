@@ -24,7 +24,7 @@ class Channel
 			std::string					getTopic();
 			std::string					getAllMembers();
 			std::vector<Client*>		getMember();
-			void						addInvite(Client *invited);
+//			void						addInvite(std::string *invited);
 			bool						isMember(Client *client);
 			bool 						isMember(const std::string& nickname);
 			bool						getTopicMode();

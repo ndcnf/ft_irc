@@ -184,15 +184,3 @@ bool		Channel::isOperator(Client *client)
 // 	_channels.push_back(*channel);
 // 	return channel;
 // }
-
-void	Channel::addInvite(Client *invited)
-{
-	_members[invited->getFd()] = invited;
-	_invite.push_back(invited);
-	invited++;
-	std::cout << "invited" << invited->getNick() << std::endl;
-	for (size_t i = 0; i < _invite.size(); i++)
-	{
-		std:: cout << _invite[i]->getNick() << std::endl;
-	}
-}
