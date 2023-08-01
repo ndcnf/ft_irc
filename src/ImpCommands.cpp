@@ -657,26 +657,42 @@ void	Server::KICK(Client *client, Channel *channel) {
 void	Server::INVITE(Client *client, Channel *channel) {
 		std::cout << "cmd invite" << std::endl;
 
-		size_t	invitedPos = command.find(" ");
-		size_t chanPos = command.find("#");
-		if (invitedPos != std::string::npos && chanPos != std::string::npos) {
-    		std::string invited = command.substr(chanPos + 1, invitedPos - (chanPos + 1));
-    		std::string chanName = command.substr(chanPos + 1);
+		// size_t	invitedPos = command.find(" ");
+		// size_t chanPos = command.find("#");
 
-    	// Trouver la position de l'espace après le nom du canal (#chan)
-    		size_t spacePos = chanName.find(" ");
-    		if (spacePos != std::string::npos) {
-        // Supprimer tout ce qui suit le nom du canal (ignorer les espaces supplémentaires)
-        	chanName = chanName.substr(0, spacePos);
-    }
+	// 	if (invitedPos != std::string::npos && chanPos != std::string::npos) {
+    // 		std::string invited = command.substr(chanPos + 1, invitedPos - (chanPos + 1));
+    // 		std::string chanName = command.substr(chanPos + 1);
+
+    // 	// Trouver la position de l'espace après le nom du canal (#chan)
+    // 		size_t spacePos = chanName.find(" ");
+    // 		if (spacePos != std::string::npos) {
+    //     // Supprimer tout ce qui suit le nom du canal (ignorer les espaces supplémentaires)
+    //     	chanName = chanName.substr(0, spacePos);
+    // }
 		// if (invitedpos != std::string::npos && chanPos != std::string::npos) {
 		// 		// Extraction des sous-chaines apres le # pour le channel et apres le : pour le message'
 		// 	std::string invited = command.substr(invitedpos + 1);
 		// 	std::string chanName = command.substr(chanPos + 1);
 			//std::string chanName = parseChan(command, chanPos);
+	size_t chanPos = command.find("#");
+	if (chanPos != std::string::npos) {
+		std::string invited = command.substr(0, chanPos - 1);
+		
+		// Trouver la position du premier espace après le nom du canal (#chan)
+		size_t spacePos = command.find(" ", chanPos + 1);
+		std::string chanName;
+		if (spacePos != std::string::npos) {
+			// Si un espace est trouvé, extraire le nom du canal (#chan)
+			chanName = command.substr(chanPos, spacePos - (chanPos + 1));
+		} else {
+			// Sinon, le reste de la commande est le nom du canal (#chan)
+			chanName = command.substr(chanPos);
+		}
 
-		std::cout << "invited" << invited << std::endl;
-		std::cout << "channame" << chanName << std::endl;
+		std::cout << "invited [" << invited << "]" << std::endl;
+		std::cout << "channame [" << chanName << "]" << std::endl;
+		std::cout << "channelExists " << channelExists(chanName) << std::endl;
 		 
 		//std::vector<std::string>	params;
 		//comment mettre command dans mon vector params ?
@@ -687,8 +703,9 @@ void	Server::INVITE(Client *client, Channel *channel) {
 		2. if (parametre < 2)
 				sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), invited, channelName, "", "");
 		*/
-		//if (channel == NULL) || !channelExists(chanName))
-		if (!channelExists(chanName))
+		//if (channel == NULL || !channelExists(chanName))
+		//if (channel == NULL || chanName != channel->getChannelName())
+		if (channelExists(chanName) == 0)
 		{
 			std::cout << "channel null" << std::endl;
 			sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), chanName, "", "", "");
@@ -710,9 +727,10 @@ void	Server::INVITE(Client *client, Channel *channel) {
 
 		else
 		{
-			std::string msg = "341 " + client->getNick() + " INVITE" + invited + chanName + END_SEQUENCE;
+			std::string msg = "341 :" + client->getNick() + " INVITE " + invited + " " + chanName + END_SEQUENCE;
        		sendMsg(msg, client->getFd());
-			//addinvite -> fonction a creer ?
+			//channel->addMember(client);
+			channel->addInvite(invited);
 		}	
 	}
 }

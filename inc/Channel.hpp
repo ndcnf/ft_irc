@@ -24,6 +24,7 @@ class Channel
 			std::string					getTopic();
 			std::string					getAllMembers();
 			std::vector<Client*>		getMember();
+			void						addInvite(Client *invited);
 			bool						isMember(Client *client);
 			bool 						isMember(const std::string& nickname);
 			bool						getTopicMode();
@@ -32,6 +33,7 @@ class Channel
 	private:
 			// std::string 				_nameMembers; //a quoi sert-il ?
 			std::vector<Client*>		_members;
+			std::vector<Client*>		_invite;
 			std::string 				_channelName;
 			std::string					_topic;
 
