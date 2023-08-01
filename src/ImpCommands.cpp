@@ -539,8 +539,9 @@ void	Server::PART(Client *client, Channel *channel){
 
 void	Server::KICK(Client *client, Channel *channel) {
 	std::cout << "cmd Kick" << std::endl;
-	(void)client;
 	(void)channel;
+	if (command.find(':'))
+		command.substr();
 }
 
 void	Server::INVITE(Client *client, Channel *channel) {
@@ -574,27 +575,6 @@ void	Server::PASS(Client *client, Channel *channel) {
 		}
 	}
 }
-
-// void	Server::PASS(Client *client, Channel *channel) {
-// 	(void)channel;
-
-// 	if (client->isAuthenticated()){
-// 		//std::cout << "PASS" << std::endl;
-// 		sendErrorMsg(ERR_ALREADYREGISTERED, client->getFd(),"", "", "", "");
-// 	}
-
-// 	if (_password != getPassword()){
-// 		std::cout << "PASS" << std::endl;
-// 		sendErrorMsg(ERR_PASSWDMISMATCH, client->getFd(),"", "", "", "");
-// 	}
-// 	if (_password.empty()){
-// 		std::cout << "PASS" << std::endl;
-// 		sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), client->getNick(), "COMMANDE A IMPLEMENTER", "", "");
-// 	}
-// 	client->setIsAuthenticated(true);
-// 	if (client->isAuthenticated() && !client->getUser().empty() && !client->getNick().empty())
-// 		first_message(client);
-// }
 
 void Server::QUIT(Client *client, Channel *channel) {
 	(void)channel;
