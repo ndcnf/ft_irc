@@ -27,7 +27,7 @@ void    Server::first_message(Client *client) {
 	sendMsg(msg, client->getFd());
 }
 
-void Server::sendErrorMsg(int errorCode, int fd, std::string param1="", std::string param2="", std::string param3="", std::string info="")
+void Server::sendErrorMsg(int errorCode, int fd, std::string param1, std::string param2, std::string param3, std::string info)
 {
 	std::stringstream ss;
 	ss << errorCode;
@@ -115,6 +115,6 @@ void Server::sendErrorMsg(int errorCode, int fd, std::string param1="", std::str
 			errorminator += " " + param1 + " :Unknown error";
 			break;
 	}
-	errorminator = ": " + errorminator + "\r\n" ;
+	errorminator = ": " + errorminator + END_SEQUENCE ;
 	sendMsg(errorminator, fd);
 }

@@ -148,34 +148,37 @@ void Server::NICK(Client *client, Channel *channel) {
 	}
 }
 
-void	Server::USER(Client *client, Channel *channel) { // passe dedant ?
+void	Server::USER(Client *client, Channel *channel) {
 	(void)channel;
 	std::cout << "cmd user" << std::endl; // info only
-		if (passIsValid == false) {
+
+	if (passIsValid == false) {
 		sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), client->getNick(), "PASSWORD REQUIERED", "", "");
 		exit(EXIT_FAILURE);
 	}
 
-		std::size_t colonPos = command.find(':');
-		if (colonPos != std::string::npos) {
-			std::string UserContent = command.substr(colonPos + 1);
-			std::string	msg = "USER : " + UserContent + END_SEQUENCE;
-			client->setUser(UserContent);
-			// if (client->isAuthenticated() && !client->getUser().empty() && !client->getNick().empty())
-			first_message(client);
-			}
+	std::size_t colonPos = command.find(':');
+	if (colonPos != std::string::npos) {
+		std::string UserContent = command.substr(colonPos + 1);
+		std::string	msg = "USER : " + UserContent + END_SEQUENCE;
+		client->setUser(UserContent);
+		// if (client->isAuthenticated() && !client->getUser().empty() && !client->getNick().empty())
+		first_message(client);
 		}
+	}
 
 void	Server::JOIN(Client *client, Channel *channel) {
 	(void)channel;
 	std::cout << "cmd join" << std::endl;
 
 	bool						channelExists = false;
+	bool						clientCanJoin = false;
 	std::string					chanName;
 	size_t						pos = 0;
 	size_t						hashtagPos = 0;
 	std::vector<std::string>	channelsToAdd;
 	std::string					msg;
+	std::string					passwordEntered;
 	
 	if (command == ":")
 		return;
@@ -202,18 +205,58 @@ void	Server::JOIN(Client *client, Channel *channel) {
 		hashtagPos = hashtagPos + 1;
 	}
 
+	// WIP - verifier s'il y a un mot de passe entre lors du join
+	// if (pos = command.find(" ") != std::string::npos && )
+	// 	passwordEntered = command.substr(pos + 1);
+
 	for (std::vector<std::string>::iterator itc = channelsToAdd.begin(); itc != channelsToAdd.end(); itc++)
 	{
 		for (std::vector<Channel*>::iterator	it = _channels.begin(); it != _channels.end(); it++)
 		{
 			if (((*it)->getChannelName() == (*itc)))
 			{
-				std::cout << "Channel [" + (*itc) + "] already exist. You'll join 'em" << std::endl;
-				currentChannel = (*it);
-				currentChannel->addMember(client);
 				channelExists = true;
-				// client aura un mode 'normal' (pas oper/admin)
-				break;
+
+				if (channel->getLimitMode())
+				{
+					//Si opti (notamment si clientCanJoin obsolete) au lieu de la condition actuelle:
+					// if (static_cast<int>(channel->getMember().size()) >= channel->getNbLimit())
+					// {
+					// 	sendErrorMsg(ERR_CHANNELISFULL, client->getFd(), client->getNick(), channel->getChannelName(), "", "");
+					// 	return ;
+					// }
+
+
+
+					if (static_cast<int>(channel->getMember().size()) < channel->getNbLimit())
+						clientCanJoin = true;
+					else
+					{
+						sendErrorMsg(ERR_CHANNELISFULL, client->getFd(), client->getNick(), channel->getChannelName(), "", "");
+						clientCanJoin = false;
+						return ;
+					}
+				}
+				else
+					// pour l'instant, c'est bon. Autre verifications pour invitations-only + mot de passe correct
+					clientCanJoin = true;
+
+				// WIP - verifier s'il y a le mode mot de passe, puis verifier le mot de passe avec celui entre lors du join
+				// if (channel->getPassMode())
+				// {
+				// 	// if ()
+				// }
+
+				//verifier s'il y invitation seulement et si oui, si la personne est sur la liste.
+				//verifier si mot de passe et si ok, si oui.
+
+				if (clientCanJoin)
+				{
+					std::cout << "Channel [" + (*itc) + "] already exist. You'll join 'em" << std::endl;
+					currentChannel = (*it);
+					currentChannel->addMember(client);
+					break;
+				}
 			}
 		}
 
@@ -315,9 +358,6 @@ void	Server::MODE(Client *client, Channel *channel) {
 		pos = endPos;
 	}
 
-	// for (std::vector<std::string>::iterator it=args.begin(); it != args.end(); it++)
-	// 	std::cout << "voila des arguments en beton [" + (*it) + "]" << std::endl;
-
 	if (args.size() > 3)
 	{
 		//trop d'arguments pour notre realite
@@ -336,19 +376,81 @@ void	Server::MODE(Client *client, Channel *channel) {
 		if ((*it).find("t") != std::string::npos)
 		{
 			channel->setTopicMode(isAdded);
-			msg = "MODE " + channel->getChannelName() + " " + (*it) + " " + client->getNick();
+			if (isAdded)
+				msg = ":" + client->getNick() + " MODE " + channel->getChannelName() + " " + (*it) + " :Channel topic is restricted to operator(s)";
+			else
+				msg = ":" + client->getNick() + " MODE " + channel->getChannelName() + " " + (*it) + " :Channel topic can be set by everyone";	
 		}
 		else if ((*it).find("o") != std::string::npos)
 		{
 			if (args.size() == 0)
 			{
-				//pas assez d'arguments
-				sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), "", "", "", "");
+				sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), channel->getChannelName(), "Invalid channel limit", "", "");
 				return ;
 			}
 
 			if (channel->setOperator(isAdded, args.back()))
-				msg = "MODE " + channel->getChannelName() + " " + (*it) + " " + args.back() + " " + client->getNick();
+			{
+				if (isAdded)
+					msg = ":" + client->getNick() + " MODE " + channel->getChannelName() + " " + (*it) + " " + args.back() + " :has been granted operator status.";			
+				else
+					msg = ":" + client->getNick() + " MODE " + channel->getChannelName() + " " + (*it) + " " + args.back() + " :has been removed from operators";		
+			}
+		}
+		else if ((*it).find("l") != std::string::npos)
+		{
+			if (args.size() == 0 && (isAdded))
+			{
+				sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), "", "", "", "");
+				return ;
+			}
+
+			if (isAdded)
+			{
+				int limit = std::atoi(args.front().c_str());
+				if (limit <= 0)
+				{
+					sendErrorMsg(ERR_UNKNOWNMODE, client->getFd(), "", "", "", "");
+					return ;
+				}
+				channel->setLimit(isAdded, limit);
+				msg = ":" + client->getNick() + " MODE " + channel->getChannelName() + " " + (*it) + " " + args.front() + " :Channel limit set to " + args.front();			
+			}
+			else
+			{
+				channel->setLimit(isAdded, 0);
+				msg = ":" + client->getNick() + " MODE " + channel->getChannelName() + " " + (*it) + " :Channel limit removed";
+			}
+		}
+		else if ((*it).find("k") != std::string::npos)
+		{
+			if (args.size() == 0 && (isAdded))
+			{
+				sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), "", "", "", "");
+				return ;
+			}
+			
+
+			if (isAdded)
+			{
+				std::string	password;
+				if (args.size() == 1)
+					password = args.front();
+				else if (args.size() == 2)
+				{
+					if (channel->isNumber(args.front()))
+						password = args[1];
+					else
+						password = args.front();
+				}
+				else
+					password = args[1];
+
+				channel->setChannelPassword(password);
+			}
+
+			channel->setPassMode(isAdded);
+
 		}
 
 		if (!msg.empty())
@@ -382,6 +484,7 @@ size_t countSubstring(const std::string& str, std::string& sub) {
 
 void Server::PRIVMSG(Client* client, Channel* channel) {
 	std::cout << "cmd privmsg" << std::endl;
+
 		size_t parsePoint = command.find(':');
 		std::string channelName = command.substr(1, parsePoint - 1);  // Get the channel name
 		std::string messChan = command.substr(parsePoint + 1);;  // Get the message

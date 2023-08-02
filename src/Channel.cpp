@@ -7,11 +7,13 @@ Channel::Channel(){
 	_channelName = "";
 	_topic = "";
 	_topicOperatorsOnly = false;
+	_isLimitSet = false;
 }
 
 Channel::Channel(std::string name): _channelName(name) {
 	_topic = "";
 	_topicOperatorsOnly = false;
+	_isLimitSet = false;
 }
 
 Channel::Channel(Channel const &cpy){
@@ -22,9 +24,10 @@ Channel &Channel::operator=(Channel const &rhs){
 	_channelName = rhs._channelName;
 	_members = rhs._members;
 	_operators = rhs._operators;
-	_banned = rhs._banned;
 	_topic = rhs._topic;
 	_topicOperatorsOnly = rhs._topicOperatorsOnly;
+	_isLimitSet = rhs._isLimitSet;
+	_nbLimit = rhs._nbLimit;
 
 	return (*this);
 }
@@ -33,6 +36,9 @@ Channel::~Channel(){
 
 }
 
+/*---------------------------------------------------------------------------------------------*/
+// GETTERS
+/*---------------------------------------------------------------------------------------------*/
 std::string	Channel::getChannelName()
 {
 	return (_channelName);
@@ -43,40 +49,10 @@ std::string	Channel::getTopic()
 	return (_topic);
 }
 
-void	Channel::setTopic(std::string topic, Client *client)
+std::string	Channel::getPassword()
 {
-	if (_topicOperatorsOnly && (!isOperator(client)))
-	{
-		//Erreur t'as pas les droits
-		return ;
-	}
-	_topic = topic;
+	return _password;
 }
-
-void Channel::addMember(Client *client)
-{
-	// if (client->isAuthenticated())
-		_members.push_back(client);
-		// std::cout << "new member" << std::endl;
-	// else {
-
-		return;
-	// }
-}
-
-void	Channel::removeMember(Client *client, int fd)
-{
-	(void)client;
-	for (std::vector<Client*>::iterator it=_members.begin(); it != _members.end(); it++)
-	{
-		if ((*it)->getFd() == fd)
-		{
-			_members.erase(it);
-			return;
-		}
-	}
-}
-
 
 std::string	Channel::getAllMembers()
 {
@@ -90,22 +66,62 @@ std::string	Channel::getAllMembers()
 	return allMembers;
 }
 
-std::vector<Client*>		Channel::getMember()
+std::vector<Client*>	Channel::getMember()
 {
 	return _members;
 }
 
-void						Channel::setTopicMode(bool mode)
-{
-	_topicOperatorsOnly = mode;
-}
-
-bool						Channel::getTopicMode()
+bool	Channel::getTopicMode()
 {
 	return _topicOperatorsOnly;
 }
 
-bool						Channel::setOperator(bool mode, std::string username)
+bool	Channel::getLimitMode()
+{
+	return _isLimitSet;
+}
+
+bool	Channel::getPassMode()
+{
+	return _isPasswordSet;
+}
+
+int	Channel::getNbLimit()
+{
+	return _nbLimit;
+}
+
+/*---------------------------------------------------------------------------------------------*/
+// SETTERS
+/*---------------------------------------------------------------------------------------------*/
+void	Channel::setTopic(std::string topic, Client *client)
+{
+	if (_topicOperatorsOnly && (!isOperator(client)))
+	{
+		//Erreur t'as pas les droits
+		return ;
+	}
+	_topic = topic;
+}
+
+void	Channel::setTopicMode(bool mode)
+{
+	_topicOperatorsOnly = mode;
+}
+
+void	Channel::setLimit(bool mode, int limit)
+{
+	_isLimitSet = mode;
+
+	if (mode)
+		_nbLimit = limit;
+	else
+		_nbLimit = -1;
+	
+	std::cout << "Limit = " << _nbLimit << std::endl;
+}
+
+bool	Channel::setOperator(bool mode, std::string username)
 {
 	for(std::vector<Client*>::iterator it=_members.begin(); it != _members.end(); it++)
 	{
@@ -123,7 +139,42 @@ bool						Channel::setOperator(bool mode, std::string username)
 	return (false);
 }
 
-bool				Channel::addOperator(Client *client)
+void	Channel::setPassMode(bool mode)
+{
+	_isPasswordSet = mode;
+}
+
+void Channel::setChannelPassword(std::string password)
+{
+	_password = password;
+}
+
+
+
+/*---------------------------------------------------------------------------------------------*/
+// METHODS
+/*---------------------------------------------------------------------------------------------*/
+void Channel::addMember(Client *client)
+{
+	_members.push_back(client);
+
+	return;
+}
+
+void	Channel::removeMember(Client *client, int fd)
+{
+	(void)client;
+	for (std::vector<Client*>::iterator it=_members.begin(); it != _members.end(); it++)
+	{
+		if ((*it)->getFd() == fd)
+		{
+			_members.erase(it);
+			return;
+		}
+	}
+}
+
+bool	Channel::addOperator(Client *client)
 {
 	bool		isMember = false;
 	std::string	msg;
@@ -156,7 +207,7 @@ bool				Channel::addOperator(Client *client)
 
 }
 
-bool				Channel::removeOperator(Client *client)
+bool	Channel::removeOperator(Client *client)
 {
 	bool		isMember = false;
 	std::string	msg;
@@ -194,7 +245,6 @@ bool				Channel::removeOperator(Client *client)
 
 }
 
-
 bool		Channel::isOperator(Client *client)
 {
 	for (std::vector<Client*>::iterator it = _operators.begin(); it != _operators.end(); it++)
@@ -204,6 +254,16 @@ bool		Channel::isOperator(Client *client)
 	}
 	return false;
 }
+
+bool	Channel::isNumber(std::string arg)
+{
+	for (unsigned int i = 0; i < arg.length(); i++)
+	{
+		if (!isdigit(arg[i]))
+			return false;
+	}
+	return true;
+}				
 
 bool		Channel::isMembre(Client *client)
 {
@@ -224,19 +284,3 @@ bool		Channel::isNickMembre(std::string nickname)
 	}
 	return false;
 }
-
-// void	Channel::sendToAllMembers(std::string msg)
-// {
-// 	for (std::vector<Client>::iterator it=_members.begin(); it != _members.end(); it++)
-// 	{
-// 		sendMsg(msg, (*it).getFd());
-// 	}
-// }
-
-
-// Channel* Channel::addChannel(std::string name)
-// {
-// 	Channel* channel = new Channel(name); // Allouer dynamiquement un nouvel objet Channel
-// 	_channels.push_back(*channel);
-// 	return channel;
-// }
