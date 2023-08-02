@@ -33,11 +33,11 @@ class Channel
 			void						setInviteMode(bool mode);
 			void						setChannelPassword(std::string password);
 			void						setLimit(bool mode, int limit);
-			void						setGuests(Client *client);
 			bool						setOperator(bool mode, std::string username);
 
 			// METHODS
 			void						addMember(Client *client);
+			void						addGuest(Client *client);
 			void						removeMember(Client *client, int fd);
 			void						sendToAllMembers(std::string msg);
 			bool						addOperator(Client *client);
@@ -46,7 +46,7 @@ class Channel
 			bool						isNumber(std::string arg);						
 			bool						isMembre(Client *client);
 			bool						isNickMembre(std::string nickname);
-
+			bool						isGuest(Client *client);
 
 	private:
 			std::vector<Client*>		_members;
@@ -60,6 +60,7 @@ class Channel
 			bool						_topicOperatorsOnly;
 			bool						_isLimitSet;
 			bool						_isPasswordSet;
+			bool						_isInviteOnly;
 
 			int							_nbLimit;
 };

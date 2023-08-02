@@ -86,6 +86,11 @@ bool	Channel::getPassMode()
 	return _isPasswordSet;
 }
 
+bool	Channel::getInviteMode()
+{
+	return _isInviteOnly;
+}
+
 int	Channel::getNbLimit()
 {
 	return _nbLimit;
@@ -144,12 +149,15 @@ void	Channel::setPassMode(bool mode)
 	_isPasswordSet = mode;
 }
 
-void Channel::setChannelPassword(std::string password)
+void	Channel::setChannelPassword(std::string password)
 {
 	_password = password;
 }
 
-
+void	Channel::setInviteMode(bool mode)
+{
+	_isInviteOnly = mode;
+}
 
 /*---------------------------------------------------------------------------------------------*/
 // METHODS
@@ -157,7 +165,12 @@ void Channel::setChannelPassword(std::string password)
 void Channel::addMember(Client *client)
 {
 	_members.push_back(client);
+	return;
+}
 
+void Channel::addGuest(Client *client)
+{
+	_guests.push_back(client);
 	return;
 }
 
@@ -282,5 +295,17 @@ bool		Channel::isNickMembre(std::string nickname)
 		if ((*it)->getNick() == nickname)
 			return true;
 	}
+	return false;
+}
+
+
+bool	Channel::isGuest(Client *client)
+{
+	for (std::vector<Client*>::iterator it = _guests.begin(); it != _guests.end(); it++)
+	{
+		if ((*it)->getFd() == client->getFd())
+			return true;
+	}
+
 	return false;
 }

@@ -239,7 +239,21 @@ void	Server::JOIN(Client *client, Channel *channel) {
 				}
 
 				//verifier s'il y invitation seulement et si oui, si la personne est sur la liste.
+				if (channel->getInviteMode())
+				{
+					if (channel->isMembre(client))
+					{
+						sendErrorMsg(ERR_USERONCHANNEL, client->getFd(), client->getNick(), channel->getChannelName(), "", "");
+						return ;
+					}
 
+					if (!(channel->isGuest(client)))
+					{
+						sendErrorMsg(ERR_INVITEONLYCHAN, client->getFd(),client->getNick(), channel->getChannelName(), "", "");
+						return ;
+					}
+					std::cout << "Oh, you're on our list. You may proceed." << std::endl;
+				}
 
 				std::cout << "Channel [" + (*itc) + "] already exist. You'll join 'em" << std::endl;
 				currentChannel = (*it);
