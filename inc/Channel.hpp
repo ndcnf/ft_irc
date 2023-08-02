@@ -40,6 +40,9 @@ class Channel
 			bool						removeOperator(Client *client);
 			bool						isOperator(Client *client);
 			bool						isNumber(std::string arg);						
+			bool						isMembre(Client *client);
+			bool						isNickMembre(std::string nickname);
+
 
 	private:
 			std::vector<Client*>		_members;
