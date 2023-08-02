@@ -418,6 +418,7 @@ void	Server::MODE(Client *client, Channel *channel) {
 				sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), "", "", "", "");
 				return ;
 			}
+			
 
 			if (isAdded)
 			{
@@ -433,10 +434,11 @@ void	Server::MODE(Client *client, Channel *channel) {
 				}
 				else
 					password = args[1];
-					
-				std::cout << "VERIF PASSWORD ENTRE : " + password << std::endl;
+
+				channel->setPassword(password);
 			}
 
+			channel->setPassMode(isAdded);
 
 		}
 
