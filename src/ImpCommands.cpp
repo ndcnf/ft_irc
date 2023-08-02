@@ -619,12 +619,12 @@ void Server::NOTICE(Client *client, Channel *channel) {
 			std::cout << "mot avec # : " << hashChan[i] << std::endl;
 			std::cout << "message a envoyer : " << allChanMsg << std::endl;
 
-			bool found = false;
+			// bool found = false;
 
 			// Comparaison avec les noms de channels existants
 			for (size_t j = 0; j < _channels.size(); ++j) {
 				if (_channels[j]->getChannelName() == hashChan[i]) {
-					found = true;
+					// found = true;
 					// Envoyer le message à tous les membres du channel correspondant
 					std::string msg = ':' + client->getNick() + '@' + client->getHostname() + " " + token + " " + hashChan[i] + " :" + allChanMsg;
 					sendMsgToAllMembers(msg, client->getFd());
