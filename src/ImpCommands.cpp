@@ -484,25 +484,19 @@ size_t countSubstring(const std::string& str, std::string& sub) {
 
 void Server::PRIVMSG(Client* client, Channel* channel) {
 	std::cout << "cmd privmsg" << std::endl;
-
-		size_t parsePoint = command.find(':');
-		std::string channelName = command.substr(1, parsePoint - 1);  // Get the channel name
-		std::string messChan = command.substr(parsePoint + 1);;  // Get the message
-		channelName = '#' + channelName;
-		// Check how many times the channel name appears in the command
-		std::size_t count = countSubstring(command, channelName);
-		if (count > 1) {
-			// std::cout << "2 count donc prive : " << channelName << std::endl;
-			// juste parse message apres les : et envoie
-			std::cout << "messCHan :" << messChan << std::endl;
-			
-			std::string msg = ':' + client->getNick() + '@' + client->getHostname() + " " + token + " " + channelName + " :" + messChan;
-			// sendMsg(msg, client->getFd());
-			sendMsgToAllMembers(msg, client->getFd());
-		}
+	size_t parsePoint = command.find(':');
+	std::string channelName = command.substr(1, parsePoint - 1);  // Get the channel name
+	std::string messChan = command.substr(parsePoint + 1);;  // Get the message
+	channelName = '#' + channelName;
+	// Check how many times the channel name appears in the command
+	std::size_t count = countSubstring(command, channelName);
+	if (count > 1) {
+		std::cout << "messCHan :" << messChan << std::endl;
+		
+		std::string msg = ':' + client->getNick() + '@' + client->getHostname() + " " + token + " " + channelName + " :" + messChan;
+		sendMsgToAllMembers(msg, client->getFd());
+	}
 	if (command.find('#') != std::string::npos && count == 1) {
-		// std::cout << "1 count donc channel : " << channelName << std::endl;
-
 		std::vector<std::string> hashChan;
 		std::string allChanMsg;
 
@@ -529,11 +523,17 @@ void Server::PRIVMSG(Client* client, Channel* channel) {
 			// Comparaison avec les noms de channels existants
 			for (size_t j = 0; j < _channels.size(); ++j) {
 				if (_channels[j]->getChannelName() == hashChan[i]) {
-					found = true;
-					// Envoyer le message à tous les membres du channel correspondant
-					std::string msg = ':' + client->getNick() + '@' + client->getHostname() + " " + token + " " + hashChan[i] + " :" + allChanMsg;
-					sendMsgToAllMembers(msg, client->getFd());
-					// break; // On arrête la recherche dès qu'on a trouvé le channel correspondant du coup non !! 
+					// Check if the client is a member of the channel
+					if (_channels[j]->isMember(client)) {
+						found = true;
+						// Send the message to all members of the corresponding channel
+						std::string msg = ':' + client->getNick() + '@' + client->getHostname() + " " + token + " " + hashChan[i] + " :" + allChanMsg;
+						sendMsgToAllMembers(msg, client->getFd());
+						break;
+					} else {
+						// The client is not a member of the channel
+						sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
+					}
 				}
 			}
 			if (!found) {
@@ -561,10 +561,6 @@ void Server::PRIVMSG(Client* client, Channel* channel) {
 					}
 				}
 				if (recipientClient) {
-					// std::string msg = ':' + client->getNick() + "@" + client->getHostname() + " " + token + " " + nickname + " :" + privMsg;
-					// std::string msg = ':' + client->getNick() + "!~" + client->getUser() + "@" + client->getHostname() + " " + token + " " + nickname + " :" + privMsg;
-					// std::string msg = ':' + client->getNick() + "@" + client->getHostname() + " " + token + " " + nickname + " :" + privMsg;
-					// sendMsg(msg, client->getFd());
 					std::string privMsgNick = "<" + client->getNick() + "> send you : " + privMsg;
 					sendMsg(privMsgNick, recipientClient->getFd());
 				}
@@ -619,21 +615,26 @@ void Server::NOTICE(Client *client, Channel *channel) {
 			std::cout << "mot avec # : " << hashChan[i] << std::endl;
 			std::cout << "message a envoyer : " << allChanMsg << std::endl;
 
-			// bool found = false;
+			bool found = false;
 
 			// Comparaison avec les noms de channels existants
 			for (size_t j = 0; j < _channels.size(); ++j) {
 				if (_channels[j]->getChannelName() == hashChan[i]) {
-					// found = true;
-					// Envoyer le message à tous les membres du channel correspondant
-					std::string msg = ':' + client->getNick() + '@' + client->getHostname() + " " + token + " " + hashChan[i] + " :" + allChanMsg;
-					sendMsgToAllMembers(msg, client->getFd());
-					break;
+					// Check if the client is a member of the channel
+					if (_channels[j]->isMember(client)) {
+						found = true;
+						// Send the message to all members of the corresponding channel
+						std::string msg = ':' + client->getNick() + '@' + client->getHostname() + " " + token + " " + hashChan[i] + " :" + allChanMsg;
+						sendMsgToAllMembers(msg, client->getFd());
+						break;
+					} else {
+						// The client is not a member of the channel
+						sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
+					}
 				}
 			}
 		}
-	}
-	else if (command.find('#') == std::string::npos) {
+	} else if (command.find('#') == std::string::npos) {
 		std::size_t msgPos = command.find(":");
 		if (msgPos != std::string::npos) {
 			std::string privMsg = command.substr(msgPos + 1);
@@ -763,7 +764,7 @@ void	Server::KICK(Client *client, Channel *channel) {
 		size_t startPos = command.find(chan) + chan.size() + 1; 
 		size_t endPos = command.find(" :");
 		std::string nick = command.substr(startPos, endPos - startPos);
-		if (!channel->isMembre(client))
+		if (!channel->isMember(client))
 			sendErrorMsg(ERR_NOTONCHANNEL, client->getFd(), channel->getChannelName(), "", "", "");
 		if (!channel->isNickMembre(nick))
 			sendErrorMsg(ERR_USERNOTINCHANNEL, client->getFd(), client->getNick(), channel->getChannelName(), "", "");
