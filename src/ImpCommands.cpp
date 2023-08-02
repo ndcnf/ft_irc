@@ -171,6 +171,7 @@ void	Server::JOIN(Client *client, Channel *channel) {
 	std::cout << "cmd join" << std::endl;
 
 	bool						channelExists = false;
+	bool						clientCanJoin = false;
 	std::string					chanName;
 	size_t						pos = 0;
 	size_t						hashtagPos = 0;
@@ -208,13 +209,35 @@ void	Server::JOIN(Client *client, Channel *channel) {
 		{
 			if (((*it)->getChannelName() == (*itc)))
 			{
-				std::cout << "Channel [" + (*itc) + "] already exist. You'll join 'em" << std::endl;
-				currentChannel = (*it);
-				//verifier ici si la limite est 1. set et si oui, 2. atteinte
-				//verifier s'il y invitation seulement et si oui, si la personne est sur la liste.
-				currentChannel->addMember(client);
 				channelExists = true;
-				break;
+				
+				//verifier ici si la limite est 1. set et si oui, 2. atteinte
+				if (channel->getLimitMode())
+				{
+					if (static_cast<int>(channel->getMember().size()) < channel->getNbLimit())
+						clientCanJoin = true;
+					else
+					{
+						std::cout << "Non, y'a trop de monde. Tu rentres pas." << std::endl;
+						sendErrorMsg(ERR_CHANNELISFULL, client->getFd(), "", "", "", "");
+						clientCanJoin = false;
+						return ;
+					}
+				}
+				else
+					// pour l'instant, c'est bon. Autre verifications pour invitations-only + mot de passe correct
+					clientCanJoin = true;
+
+				//verifier s'il y invitation seulement et si oui, si la personne est sur la liste.
+				//verifier si mot de passe et si ok, si oui.
+
+				if (clientCanJoin)
+				{
+					std::cout << "Channel [" + (*itc) + "] already exist. You'll join 'em" << std::endl;
+					currentChannel = (*it);
+					currentChannel->addMember(client);
+					break;
+				}
 			}
 		}
 

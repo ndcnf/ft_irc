@@ -94,34 +94,44 @@ std::string	Channel::getAllMembers()
 	return allMembers;
 }
 
-std::vector<Client*>		Channel::getMember()
+std::vector<Client*>	Channel::getMember()
 {
 	return _members;
 }
 
-void						Channel::setTopicMode(bool mode)
+void	Channel::setTopicMode(bool mode)
 {
 	_topicOperatorsOnly = mode;
 }
 
-void						Channel::setLimit(bool mode, int limit)
+void	Channel::setLimit(bool mode, int limit)
 {
 	_isLimitSet = mode;
 
 	if (mode)
 		_nbLimit = limit;
-	// else
-	// 	_nbLimit = 1000;
+	else
+		_nbLimit = -1;
 	
 	std::cout << "Limit = " << _nbLimit << std::endl;
 }
 
-bool						Channel::getTopicMode()
+bool	Channel::getTopicMode()
 {
 	return _topicOperatorsOnly;
 }
 
-bool						Channel::setOperator(bool mode, std::string username)
+bool	Channel::getLimitMode()
+{
+	return _isLimitSet;
+}
+
+int	Channel::getNbLimit()
+{
+	return _nbLimit;
+}
+
+bool	Channel::setOperator(bool mode, std::string username)
 {
 	for(std::vector<Client*>::iterator it=_members.begin(); it != _members.end(); it++)
 	{
@@ -139,7 +149,7 @@ bool						Channel::setOperator(bool mode, std::string username)
 	return (false);
 }
 
-bool				Channel::addOperator(Client *client)
+bool	Channel::addOperator(Client *client)
 {
 	bool		isMember = false;
 	std::string	msg;
@@ -172,7 +182,7 @@ bool				Channel::addOperator(Client *client)
 
 }
 
-bool				Channel::removeOperator(Client *client)
+bool	Channel::removeOperator(Client *client)
 {
 	bool		isMember = false;
 	std::string	msg;

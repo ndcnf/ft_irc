@@ -28,7 +28,9 @@ class Channel
 			std::string					getTopic();
 			std::string					getAllMembers();
 			std::vector<Client*>		getMember();
+			int							getNbLimit();
 			bool						getTopicMode();
+			bool						getLimitMode();
 			bool						isOperator(Client *client);
 
 	private:
