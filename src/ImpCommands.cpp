@@ -218,9 +218,9 @@ void	Server::JOIN(Client *client, Channel *channel) {
 					else
 					{
 						std::cout << "Non, y'a trop de monde. Tu rentres pas." << std::endl;
-						// sendErrorMsg(ERR_CHANNELISFULL, client->getFd(), "", "", "", "");
-						msg = ": 471 " + client->getNick() + " " + channel->getChannelName() + " :cannot join channel (+l)";
-						sendMsg(msg, client->getFd());
+						sendErrorMsg(ERR_CHANNELISFULL, client->getFd(), client->getNick(), channel->getChannelName(), "", "");
+						// msg = ": 471 " + client->getNick() + " " + channel->getChannelName() + " :cannot join channel (+l)";
+						// sendMsg(msg, client->getFd());
 						clientCanJoin = false;
 						return ;
 					}
