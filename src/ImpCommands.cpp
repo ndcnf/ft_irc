@@ -266,7 +266,6 @@ void	Server::JOIN(Client *client, Channel *channel) {
 void	Server::MODE(Client *client, Channel *channel) {
 	std::cout << "cmd mode" << std::endl;
 	std::string					msg = "";
-	std::string					msgToAll = "";
 	std::string					modes;
 	std::string					chanName;
 	std::vector<std::string>	modesVec;
@@ -317,9 +316,6 @@ void	Server::MODE(Client *client, Channel *channel) {
 		pos = endPos;
 	}
 
-	// for (std::vector<std::string>::iterator it=args.begin(); it != args.end(); it++)
-	// 	std::cout << "voila des arguments en beton [" + (*it) + "]" << std::endl;
-
 	if (args.size() > 3)
 	{
 		//trop d'arguments pour notre realite
@@ -338,40 +334,52 @@ void	Server::MODE(Client *client, Channel *channel) {
 		if ((*it).find("t") != std::string::npos)
 		{
 			channel->setTopicMode(isAdded);
-			msg = "MODE " + channel->getChannelName() + " " + (*it) + " " + client->getNick();
+			if (isAdded)
+				msg = ":" + client->getNick() + " MODE " + channel->getChannelName() + " " + (*it) + " :Channel topic is restricted to operator(s)";
+			else
+				msg = ":" + client->getNick() + " MODE " + channel->getChannelName() + " " + (*it) + " :Channel topic can be set by everyone";	
 		}
 		else if ((*it).find("o") != std::string::npos)
 		{
 			if (args.size() == 0)
 			{
-				//pas assez d'arguments
 				sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), "", "", "", "");
 				return ;
 			}
 
 			if (channel->setOperator(isAdded, args.back()))
-				msg = "MODE " + channel->getChannelName() + " " + (*it) + " " + args.back() + " " + client->getNick();
+			{
+				if (isAdded)
+					msg = ":" + client->getNick() + " MODE " + channel->getChannelName() + " " + (*it) + " " + args.back() + " :has been granted operator status.";			
+				else
+					msg = ":" + client->getNick() + " MODE " + channel->getChannelName() + " " + (*it) + " " + args.back() + " :has been removed from operators";			
+			}
 		}
 		else if ((*it).find("l") != std::string::npos)
 		{
-			if (args.size() == 0)
+			if (args.size() == 0 && (isAdded))
 			{
-				//pas assez d'arguments
 				sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), "", "", "", "");
 				return ;
 			}
 
-			int limit = std::atoi(args.front().c_str());
-			channel->setLimit(isAdded, limit);
-			msg = "MODE " + channel->getChannelName() + " " + (*it) + " " + args.front() + " " + client->getNick();
-			msgToAll = ":" + client->getNick() + " MODE " + channel->getChannelName() + " " + (*it) + " " + args.front() + " :Channel limit set to " + args.front();			
+			if (isAdded)
+			{
+				int limit = std::atoi(args.front().c_str());
+				channel->setLimit(isAdded, limit);
+				msg = ":" + client->getNick() + " MODE " + channel->getChannelName() + " " + (*it) + " " + args.front() + " :Channel limit set to " + args.front();			
+			}
+			else
+			{
+				channel->setLimit(isAdded, 0);
+				msg = ":" + client->getNick() + " MODE " + channel->getChannelName() + " " + (*it) + " :Channel limit removed";
+			}
 		}
 
 		if (!msg.empty())
 		{
 			sendMsg(msg, client->getFd());
-			sendMsgToAllMembers(msgToAll, client->getFd());
-			// sendMsgToAllMembers(msg, client->getFd());
+			sendMsgToAllMembers(msg, client->getFd());
 		}
 	}
 
