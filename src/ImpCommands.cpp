@@ -210,8 +210,7 @@ void	Server::JOIN(Client *client, Channel *channel) {
 			if (((*it)->getChannelName() == (*itc)))
 			{
 				channelExists = true;
-				
-				//verifier ici si la limite est 1. set et si oui, 2. atteinte
+
 				if (channel->getLimitMode())
 				{
 					if (static_cast<int>(channel->getMember().size()) < channel->getNbLimit())
@@ -219,7 +218,9 @@ void	Server::JOIN(Client *client, Channel *channel) {
 					else
 					{
 						std::cout << "Non, y'a trop de monde. Tu rentres pas." << std::endl;
-						sendErrorMsg(ERR_CHANNELISFULL, client->getFd(), "", "", "", "");
+						// sendErrorMsg(ERR_CHANNELISFULL, client->getFd(), "", "", "", "");
+						msg = ": 471 " + client->getNick() + " " + channel->getChannelName() + " :cannot join channel (+l)";
+						sendMsg(msg, client->getFd());
 						clientCanJoin = false;
 						return ;
 					}
@@ -366,7 +367,7 @@ void	Server::MODE(Client *client, Channel *channel) {
 		{
 			if (args.size() == 0)
 			{
-				sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), "", "", "", "");
+				sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), channel->getChannelName(), "Invalid channel limit", "", "");
 				return ;
 			}
 
@@ -389,6 +390,11 @@ void	Server::MODE(Client *client, Channel *channel) {
 			if (isAdded)
 			{
 				int limit = std::atoi(args.front().c_str());
+				if (limit <= 0)
+				{
+					sendErrorMsg(ERR_UNKNOWNMODE, client->getFd(), "", "", "", "");
+					return ;
+				}
 				channel->setLimit(isAdded, limit);
 				msg = ":" + client->getNick() + " MODE " + channel->getChannelName() + " " + (*it) + " " + args.front() + " :Channel limit set to " + args.front();			
 			}
@@ -430,6 +436,7 @@ size_t countSubstring(const std::string& str, std::string& sub) {
 
 void Server::PRIVMSG(Client* client, Channel* channel) {
 	std::cout << "cmd privmsg" << std::endl;
+
 		size_t parsePoint = command.find(':');
 		std::string channelName = command.substr(1, parsePoint - 1);  // Get the channel name
 		std::string messChan = command.substr(parsePoint + 1);;  // Get the message
