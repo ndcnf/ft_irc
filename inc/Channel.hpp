@@ -19,17 +19,21 @@ class Channel
 			std::string					getPassword();
 			std::string					getAllMembers();
 			std::vector<Client*>		getMember();
+			std::vector<Client*>		getGuests();
 			int							getNbLimit();
 			bool						getTopicMode();
 			bool						getLimitMode();
 			bool						getPassMode();
+			bool						getInviteMode();
 
 			// SETTERS
 			void						setTopic(std::string topic, Client *client);
 			void						setTopicMode(bool mode);
 			void						setPassMode(bool mode);
+			void						setInviteMode(bool mode);
 			void						setChannelPassword(std::string password);
 			void						setLimit(bool mode, int limit);
+			void						setGuests(Client *client);
 			bool						setOperator(bool mode, std::string username);
 
 			// METHODS
@@ -47,6 +51,7 @@ class Channel
 	private:
 			std::vector<Client*>		_members;
 			std::vector<Client*>		_operators;
+			std::vector<Client*>		_guests;
 
 			std::string 				_channelName;
 			std::string					_topic;
