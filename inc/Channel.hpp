@@ -29,7 +29,7 @@ class Channel
 			std::vector<Client*>		getMember();
 			bool						getTopicMode();
 			bool						isOperator(Client *client);
-			bool						isMembre(Client *client);
+			bool						isMember(Client *client);
 			bool						isNickMembre(std::string nickname);
 
 	private:

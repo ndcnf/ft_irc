@@ -205,7 +205,7 @@ bool		Channel::isOperator(Client *client)
 	return false;
 }
 
-bool		Channel::isMembre(Client *client)
+bool		Channel::isMember(Client *client)
 {
 	for (std::vector<Client*>::iterator it = _members.begin(); it != _members.end(); it++)
 	{
