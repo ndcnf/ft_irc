@@ -178,6 +178,7 @@ void	Server::JOIN(Client *client, Channel *channel) {
 	size_t						hashtagPos = 0;
 	std::vector<std::string>	channelsToAdd;
 	std::string					msg;
+	std::string					passwordEntered;
 	
 	if (command == ":")
 		return;
@@ -203,6 +204,10 @@ void	Server::JOIN(Client *client, Channel *channel) {
 
 		hashtagPos = hashtagPos + 1;
 	}
+
+	// WIP - verifier s'il y a un mot de passe entre lors du join
+	// if (pos = command.find(" ") != std::string::npos && )
+	// 	passwordEntered = command.substr(pos + 1);
 
 	for (std::vector<std::string>::iterator itc = channelsToAdd.begin(); itc != channelsToAdd.end(); itc++)
 	{
@@ -235,6 +240,12 @@ void	Server::JOIN(Client *client, Channel *channel) {
 				else
 					// pour l'instant, c'est bon. Autre verifications pour invitations-only + mot de passe correct
 					clientCanJoin = true;
+
+				// WIP - verifier s'il y a le mode mot de passe, puis verifier le mot de passe avec celui entre lors du join
+				// if (channel->getPassMode())
+				// {
+				// 	// if ()
+				// }
 
 				//verifier s'il y invitation seulement et si oui, si la personne est sur la liste.
 				//verifier si mot de passe et si ok, si oui.
@@ -435,7 +446,7 @@ void	Server::MODE(Client *client, Channel *channel) {
 				else
 					password = args[1];
 
-				channel->setPassword(password);
+				channel->setChannelPassword(password);
 			}
 
 			channel->setPassMode(isAdded);

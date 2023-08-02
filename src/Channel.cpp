@@ -139,6 +139,18 @@ bool	Channel::setOperator(bool mode, std::string username)
 	return (false);
 }
 
+void	Channel::setPassMode(bool mode)
+{
+	_isPasswordSet = mode;
+}
+
+void Channel::setChannelPassword(std::string password)
+{
+	_password = password;
+}
+
+
+
 /*---------------------------------------------------------------------------------------------*/
 // METHODS
 /*---------------------------------------------------------------------------------------------*/

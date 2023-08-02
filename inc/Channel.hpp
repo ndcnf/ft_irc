@@ -26,9 +26,9 @@ class Channel
 
 			// SETTERS
 			void						setTopic(std::string topic, Client *client);
-			void						setPassword(std::string password);
 			void						setTopicMode(bool mode);
 			void						setPassMode(bool mode);
+			void						setChannelPassword(std::string password);
 			void						setLimit(bool mode, int limit);
 			bool						setOperator(bool mode, std::string username);
 
