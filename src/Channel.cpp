@@ -64,6 +64,12 @@ void Channel::addMember(Client *client)
 	// }
 }
 
+void Channel::addGuest(Client *client)
+{
+		_guests.push_back(client);
+		return;
+}
+
 void	Channel::removeMember(Client *client, int fd)
 {
 	(void)client;

@@ -677,17 +677,7 @@ void	Server::INVITE(Client *client, Channel *channel) {
 		std::cout << "channame [" << chanName << "]" << std::endl;
 		std::cout << "channelExists " << channelExists(chanName) << std::endl;
 		 
-		//std::vector<std::string>	params;
-		//comment mettre command dans mon vector params ?
-		/*
-		1. parser la commande : parametre 1 = std::string invited = nickname de l'utilisateur invite dans le channel
-								parametre 2 = #nom du channel
 		
-		2. if (parametre < 2)
-				sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), invited, channelName, "", "");
-		*/
-		//if (channel == NULL || !channelExists(chanName))
-		//if (channel == NULL || chanName != channel->getChannelName())
 		if (channelExists(chanName) == 0)
 		{
 			std::cout << "channel null" << std::endl;
@@ -709,31 +699,61 @@ void	Server::INVITE(Client *client, Channel *channel) {
 				sendErrorMsg(ERR_USERONCHANNEL, client->getFd(), chanName, invited, "", "");
 		else
 		{
-			//std::string msg = "341 :" + client->getNick() + " INVITE " + invited + " " + chanName + END_SEQUENCE;
-			std::string msg = ":" + client->getNick() + "!~" + client->getHostname() + " " + token + " " + invited + " " + chanName;
-       		sendMsg(msg, client->getFd());
-			sendMsgToAllMembers(msg, client->getFd());
+			//1//std::string msg = "341 :" + client->getNick() + " " + token + " " + invited + " " + chanName + END_SEQUENCE;
+			//2//std::string msg = ":" + client->getNick() + " " + token + " " + invited + " " + chanName + END_SEQUENCE;
+
+			//3//std::string msg = "341 :" + client->getNick() + " " + token + " " + invited + " " + chanName;
+			//4//std::string msg = ":" + client->getNick() + " " + token + " " + invited + " " + chanName;
+
+			//5//std::string msg = "341 :" + client->getNick() + "!~" + client->getHostname() + " " + token + " " + invited + " " + chanName;
+			//6//std::string msg = ":" + client->getNick() + "!~" + client->getHostname() + " " + token + " " + invited + " " + chanName;
+
+			//7//std::string msg = "341 :" + client->getNick() + "@" + client->getHostname() + " " + token + " " + invited + " " + chanName;
+			//8//std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " " + token + " " + invited + " " + chanName;
+
+       		// sendMsg(msg, client->getFd());
+			// sendMsgToAllMembers(msg, client->getFd());
 
 			for(std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); it++)
 			{
 				if (invited == (*it)->getNick())
 				{
-					channel->addMember(*it);
-					break ;
-				}
-				// msg = ":" + invited + "@" + client->getHostname() + " JOIN " + (chanName);
-				// sendMsg(msg, client->getFd());
-				// currentChannel->getChannelName() = chanName;
-				// msg = ":" + invited + "@" + client->getHostname() + " = " + (chanName) + " :" + currentChannel->getAllMembers();
-				// sendMsg(msg, client->getFd());
-				// sendMsgToAllMembers(msg, client->getFd());
-						// send info to client
-				// msg = client->getNick() + "invites you to " + chanName;
-				// sendMsg(msg, (*it)->getFd());
+					channel->addGuest(*it);
 
-				// // send info of all members in the channel
-				// msg = ":" + invited + "@" + client->getHostname() + " = " + (chanName) + " :" + currentChannel->getAllMembers();
-				// sendMsg(msg, client->getFd());				
+					//9//std::string msg = "341 :" + client->getNick() + token + " " + invited + " " + chanName + END_SEQUENCE;
+					//10//std::string msg = ":" + client->getNick() + token + " " + invited + " " + chanName + END_SEQUENCE;
+
+					//11//std::string msg = "341 :" + client->getNick() + " " + token + " " + invited + " " + chanName;
+					//12//std::string msg = ":" + client->getNick() + " " + token + " " + invited + " " + chanName;
+
+					//13//std::string msg = "341 :" + client->getNick() + "!~" + client->getHostname() + " " + token + " " + invited + " " + chanName;
+					//14//std::string msg = ":" + client->getNick() + "!~" + client->getHostname() + " " + token + " " + invited + " " + chanName;
+
+					//15//std::string msg = "341 :" + client->getNick() + "@" + client->getHostname() + " " + token + " " + invited + " " + chanName;
+					//16//std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " " + token + " " + invited + " " + chanName;
+
+					// sendMsg(msg, client->getFd());
+					// sendMsgToAllMembers(msg, client->getFd());
+					break ;
+				}	
+					//17//std::string msg = "341 :" + client->getNick() + " " + token + " " + invited + " " + chanName + END_SEQUENCE;
+					//18//std::string msg = ":" + client->getNick() + " " + token + " " + invited + " " + chanName + END_SEQUENCE;
+
+					// std::string msg = "341 :" + client->getNick() + " " + token + " " + invited + " " + chanName;
+					// //sendMsg(msg, client->getFd());
+					// sendMsgToAllMembers(msg, client->getFd());
+					// std::string msg2 = ":" + client->getNick() + " " + token + " " + invited + " " + chanName;
+					// sendMsg(msg2, client->getFd());
+					// //sendMsgToAllMembers(msg2, client->getFd());
+
+					//21//std::string msg = "341 :" + client->getNick() + "!~" + client->getHostname() + " " + token + " " + invited + " " + chanName;
+					//22//std::string msg = ":" + client->getNick() + "!~" + client->getHostname() + " " + token + " " + invited + " " + chanName;
+
+					//23//std::string msg = "341 :" + client->getNick() + "@" + client->getHostname() + " " + token + " " + invited + " " + chanName;
+					//24//std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " " + token + " " + invited + " " + chanName;
+
+					// sendMsg(msg, client->getFd());
+					// sendMsgToAllMembers(msg, client->getFd());		
 			}
 		}	
 	}
