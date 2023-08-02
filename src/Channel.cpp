@@ -24,7 +24,6 @@ Channel &Channel::operator=(Channel const &rhs){
 	_channelName = rhs._channelName;
 	_members = rhs._members;
 	_operators = rhs._operators;
-	_banned = rhs._banned;
 	_topic = rhs._topic;
 	_topicOperatorsOnly = rhs._topicOperatorsOnly;
 	_isLimitSet = rhs._isLimitSet;
@@ -37,6 +36,9 @@ Channel::~Channel(){
 
 }
 
+/*---------------------------------------------------------------------------------------------*/
+// GETTERS
+/*---------------------------------------------------------------------------------------------*/
 std::string	Channel::getChannelName()
 {
 	return (_channelName);
@@ -46,41 +48,6 @@ std::string	Channel::getTopic()
 {
 	return (_topic);
 }
-
-void	Channel::setTopic(std::string topic, Client *client)
-{
-	if (_topicOperatorsOnly && (!isOperator(client)))
-	{
-		//Erreur t'as pas les droits
-		return ;
-	}
-	_topic = topic;
-}
-
-void Channel::addMember(Client *client)
-{
-	// if (client->isAuthenticated())
-		_members.push_back(client);
-		// std::cout << "new member" << std::endl;
-	// else {
-
-		return;
-	// }
-}
-
-void	Channel::removeMember(Client *client, int fd)
-{
-	(void)client;
-	for (std::vector<Client*>::iterator it=_members.begin(); it != _members.end(); it++)
-	{
-		if ((*it)->getFd() == fd)
-		{
-			_members.erase(it);
-			return;
-		}
-	}
-}
-
 
 std::string	Channel::getAllMembers()
 {
@@ -97,6 +64,45 @@ std::string	Channel::getAllMembers()
 std::vector<Client*>	Channel::getMember()
 {
 	return _members;
+}
+
+bool	Channel::getTopicMode()
+{
+	return _topicOperatorsOnly;
+}
+
+bool	Channel::getLimitMode()
+{
+	return _isLimitSet;
+}
+
+bool	Channel::getPassMode()
+{
+	return _isPasswordSet;
+}
+
+std::string	Channel::getPassword()
+{
+	return _password;
+}
+
+
+int	Channel::getNbLimit()
+{
+	return _nbLimit;
+}
+
+/*---------------------------------------------------------------------------------------------*/
+// SETTERS
+/*---------------------------------------------------------------------------------------------*/
+void	Channel::setTopic(std::string topic, Client *client)
+{
+	if (_topicOperatorsOnly && (!isOperator(client)))
+	{
+		//Erreur t'as pas les droits
+		return ;
+	}
+	_topic = topic;
 }
 
 void	Channel::setTopicMode(bool mode)
@@ -116,21 +122,6 @@ void	Channel::setLimit(bool mode, int limit)
 	std::cout << "Limit = " << _nbLimit << std::endl;
 }
 
-bool	Channel::getTopicMode()
-{
-	return _topicOperatorsOnly;
-}
-
-bool	Channel::getLimitMode()
-{
-	return _isLimitSet;
-}
-
-int	Channel::getNbLimit()
-{
-	return _nbLimit;
-}
-
 bool	Channel::setOperator(bool mode, std::string username)
 {
 	for(std::vector<Client*>::iterator it=_members.begin(); it != _members.end(); it++)
@@ -147,6 +138,29 @@ bool	Channel::setOperator(bool mode, std::string username)
 		}
 	}
 	return (false);
+}
+
+/*---------------------------------------------------------------------------------------------*/
+// METHODS
+/*---------------------------------------------------------------------------------------------*/
+void Channel::addMember(Client *client)
+{
+	_members.push_back(client);
+
+	return;
+}
+
+void	Channel::removeMember(Client *client, int fd)
+{
+	(void)client;
+	for (std::vector<Client*>::iterator it=_members.begin(); it != _members.end(); it++)
+	{
+		if ((*it)->getFd() == fd)
+		{
+			_members.erase(it);
+			return;
+		}
+	}
 }
 
 bool	Channel::addOperator(Client *client)
@@ -220,7 +234,6 @@ bool	Channel::removeOperator(Client *client)
 
 }
 
-
 bool		Channel::isOperator(Client *client)
 {
 	for (std::vector<Client*>::iterator it = _operators.begin(); it != _operators.end(); it++)
@@ -230,19 +243,3 @@ bool		Channel::isOperator(Client *client)
 	}
 	return false;
 }
-
-// void	Channel::sendToAllMembers(std::string msg)
-// {
-// 	for (std::vector<Client>::iterator it=_members.begin(); it != _members.end(); it++)
-// 	{
-// 		sendMsg(msg, (*it).getFd());
-// 	}
-// }
-
-
-// Channel* Channel::addChannel(std::string name)
-// {
-// 	Channel* channel = new Channel(name); // Allouer dynamiquement un nouvel objet Channel
-// 	_channels.push_back(*channel);
-// 	return channel;
-// }

@@ -13,36 +13,45 @@ class Channel
 			Channel &operator=(Channel const &rhs);
 			~Channel();
 
-			void						addMember(Client *client);
-			void						removeMember(Client *client, int fd);
-			void						setTopic(std::string topic, Client *client);
-			void						setTopicMode(bool mode);
-			void						setLimit(bool mode, int limit);
-			bool						setOperator(bool mode, std::string username);
-			bool						addOperator(Client *client);
-			bool						removeOperator(Client *client);
-			
-			void						sendToAllMembers(std::string msg);
-
+			// GETTERS
 			std::string					getChannelName();
 			std::string					getTopic();
+			std::string					getPassword();
 			std::string					getAllMembers();
 			std::vector<Client*>		getMember();
 			int							getNbLimit();
 			bool						getTopicMode();
 			bool						getLimitMode();
+			bool						getPassMode();
+
+			// SETTERS
+			void						setTopic(std::string topic, Client *client);
+			void						setPassword(std::string password);
+			void						setTopicMode(bool mode);
+			void						setPassMode(bool mode);
+			void						setLimit(bool mode, int limit);
+			bool						setOperator(bool mode, std::string username);
+
+			// METHODS
+			void						addMember(Client *client);
+			void						removeMember(Client *client, int fd);
+			void						sendToAllMembers(std::string msg);
+			bool						addOperator(Client *client);
+			bool						removeOperator(Client *client);
 			bool						isOperator(Client *client);
 
 	private:
-			// std::string 				_nameMembers; //a quoi sert-il ?
 			std::vector<Client*>		_members;
+			std::vector<Client*>		_operators;
+
 			std::string 				_channelName;
 			std::string					_topic;
+			std::string					_password;
 
-			std::vector<Client*>		_operators;
-			std::vector<int>			_banned;
 			bool						_topicOperatorsOnly;
 			bool						_isLimitSet;
+			bool						_isPasswordSet;
+
 			int							_nbLimit;
 };
 
