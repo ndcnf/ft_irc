@@ -266,6 +266,7 @@ void	Server::JOIN(Client *client, Channel *channel) {
 void	Server::MODE(Client *client, Channel *channel) {
 	std::cout << "cmd mode" << std::endl;
 	std::string					msg = "";
+	std::string					msgToAll = "";
 	std::string					modes;
 	std::string					chanName;
 	std::vector<std::string>	modesVec;
@@ -360,16 +361,17 @@ void	Server::MODE(Client *client, Channel *channel) {
 				return ;
 			}
 
-			channel->setLimit(isAdded, std::atoi(args.front().c_str()));
+			int limit = std::atoi(args.front().c_str());
+			channel->setLimit(isAdded, limit);
 			msg = "MODE " + channel->getChannelName() + " " + (*it) + " " + args.front() + " " + client->getNick();
-
-			
+			msgToAll = ":" + client->getNick() + " MODE " + channel->getChannelName() + " " + (*it) + " " + args.front() + " :Channel limit set to " + args.front();			
 		}
 
 		if (!msg.empty())
 		{
 			sendMsg(msg, client->getFd());
-			sendMsgToAllMembers(msg, client->getFd());
+			sendMsgToAllMembers(msgToAll, client->getFd());
+			// sendMsgToAllMembers(msg, client->getFd());
 		}
 	}
 
