@@ -148,23 +148,24 @@ void Server::NICK(Client *client, Channel *channel) {
 	}
 }
 
-void	Server::USER(Client *client, Channel *channel) { // passe dedant ?
+void	Server::USER(Client *client, Channel *channel) {
 	(void)channel;
 	std::cout << "cmd user" << std::endl; // info only
-		if (passIsValid == false) {
+
+	if (passIsValid == false) {
 		sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), client->getNick(), "PASSWORD REQUIERED", "", "");
 		exit(EXIT_FAILURE);
 	}
 
-		std::size_t colonPos = command.find(':');
-		if (colonPos != std::string::npos) {
-			std::string UserContent = command.substr(colonPos + 1);
-			std::string	msg = "USER : " + UserContent + END_SEQUENCE;
-			client->setUser(UserContent);
-			// if (client->isAuthenticated() && !client->getUser().empty() && !client->getNick().empty())
-			first_message(client);
-			}
+	std::size_t colonPos = command.find(':');
+	if (colonPos != std::string::npos) {
+		std::string UserContent = command.substr(colonPos + 1);
+		std::string	msg = "USER : " + UserContent + END_SEQUENCE;
+		client->setUser(UserContent);
+		// if (client->isAuthenticated() && !client->getUser().empty() && !client->getNick().empty())
+		first_message(client);
 		}
+	}
 
 void	Server::JOIN(Client *client, Channel *channel) {
 	(void)channel;
@@ -213,14 +214,20 @@ void	Server::JOIN(Client *client, Channel *channel) {
 
 				if (channel->getLimitMode())
 				{
+					//Si opti (notamment si clientCanJoin obsolete) au lieu de la condition actuelle:
+					// if (static_cast<int>(channel->getMember().size()) >= channel->getNbLimit())
+					// {
+					// 	sendErrorMsg(ERR_CHANNELISFULL, client->getFd(), client->getNick(), channel->getChannelName(), "", "");
+					// 	return ;
+					// }
+
+
+
 					if (static_cast<int>(channel->getMember().size()) < channel->getNbLimit())
 						clientCanJoin = true;
 					else
 					{
-						std::cout << "Non, y'a trop de monde. Tu rentres pas." << std::endl;
 						sendErrorMsg(ERR_CHANNELISFULL, client->getFd(), client->getNick(), channel->getChannelName(), "", "");
-						// msg = ": 471 " + client->getNick() + " " + channel->getChannelName() + " :cannot join channel (+l)";
-						// sendMsg(msg, client->getFd());
 						clientCanJoin = false;
 						return ;
 					}
