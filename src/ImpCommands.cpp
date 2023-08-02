@@ -172,7 +172,7 @@ void	Server::JOIN(Client *client, Channel *channel) {
 	std::cout << "cmd join" << std::endl;
 
 	bool						channelExists = false;
-	bool						clientCanJoin = false;
+	// bool						clientCanJoin = false;
 	std::string					chanName;
 	size_t						pos = 0;
 	size_t						hashtagPos = 0;
@@ -205,9 +205,13 @@ void	Server::JOIN(Client *client, Channel *channel) {
 		hashtagPos = hashtagPos + 1;
 	}
 
-	// WIP - verifier s'il y a un mot de passe entre lors du join
-	// if (pos = command.find(" ") != std::string::npos && )
-	// 	passwordEntered = command.substr(pos + 1);
+	if ((pos = command.find(" ")) != std::string::npos)
+	{
+		if (command.find(":") == std::string::npos)
+			passwordEntered = command.substr(pos + 1);
+	}
+
+	std::cout << "Passwor entered : [" + passwordEntered + "]" << std::endl;
 
 	for (std::vector<std::string>::iterator itc = channelsToAdd.begin(); itc != channelsToAdd.end(); itc++)
 	{
@@ -220,43 +224,46 @@ void	Server::JOIN(Client *client, Channel *channel) {
 				if (channel->getLimitMode())
 				{
 					//Si opti (notamment si clientCanJoin obsolete) au lieu de la condition actuelle:
-					// if (static_cast<int>(channel->getMember().size()) >= channel->getNbLimit())
-					// {
-					// 	sendErrorMsg(ERR_CHANNELISFULL, client->getFd(), client->getNick(), channel->getChannelName(), "", "");
-					// 	return ;
-					// }
-
-
-
-					if (static_cast<int>(channel->getMember().size()) < channel->getNbLimit())
-						clientCanJoin = true;
-					else
+					if (static_cast<int>(channel->getMember().size()) >= channel->getNbLimit())
 					{
 						sendErrorMsg(ERR_CHANNELISFULL, client->getFd(), client->getNick(), channel->getChannelName(), "", "");
-						clientCanJoin = false;
 						return ;
 					}
+
+					// if (static_cast<int>(channel->getMember().size()) < channel->getNbLimit())
+					// 	clientCanJoin = true;
+					// else
+					// {
+					// 	sendErrorMsg(ERR_CHANNELISFULL, client->getFd(), client->getNick(), channel->getChannelName(), "", "");
+					// 	clientCanJoin = false;
+					// 	return ;
+					// }
 				}
-				else
-					// pour l'instant, c'est bon. Autre verifications pour invitations-only + mot de passe correct
-					clientCanJoin = true;
+				// else
+				// 	// pour l'instant, c'est bon. Autre verifications pour invitations-only + mot de passe correct
+				// 	clientCanJoin = true;
 
 				// WIP - verifier s'il y a le mode mot de passe, puis verifier le mot de passe avec celui entre lors du join
-				// if (channel->getPassMode())
-				// {
-				// 	// if ()
-				// }
+				if (channel->getPassMode())
+				{
+					if (passwordEntered != channel->getPassword())
+					{
+						sendErrorMsg(ERR_BADCHANNELKEY, client->getFd(), "", "", "", "");
+						return ;
+					}
+					// clientCanJoin = true;
+				}
 
 				//verifier s'il y invitation seulement et si oui, si la personne est sur la liste.
 				//verifier si mot de passe et si ok, si oui.
 
-				if (clientCanJoin)
-				{
+				// if (clientCanJoin)
+				// {
 					std::cout << "Channel [" + (*itc) + "] already exist. You'll join 'em" << std::endl;
 					currentChannel = (*it);
 					currentChannel->addMember(client);
 					break;
-				}
+				// }
 			}
 		}
 
