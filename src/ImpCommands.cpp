@@ -418,7 +418,6 @@ void	Server::MODE(Client *client, Channel *channel) {
 				return ;
 			}
 			
-
 			if (isAdded)
 			{
 				std::string	password;
@@ -438,7 +437,38 @@ void	Server::MODE(Client *client, Channel *channel) {
 			}
 
 			channel->setPassMode(isAdded);
+			if (isAdded)
+				msg = ":" + client->getNick() + " MODE " + channel->getChannelName() + " " + (*it) + " :a password has been set for this channel";			
+			else
+				msg = ":" + client->getNick() + " MODE " + channel->getChannelName() + " " + (*it) + " :the channel password has been removed";
+		}
+		else if ((*it).find("i") != std::string::npos)
+		{
+			//INVITATION-ONLY - guest list
 
+			// if (isAdded)
+			// {
+			// 	std::string	password;
+			// 	if (args.size() == 1)
+			// 		password = args.front();
+			// 	else if (args.size() == 2)
+			// 	{
+			// 		if (channel->isNumber(args.front()))
+			// 			password = args[1];
+			// 		else
+			// 			password = args.front();
+			// 	}
+			// 	else
+			// 		password = args[1];
+
+			// 	channel->setChannelPassword(password);
+			// }
+
+			// channel->setPassMode(isAdded);
+			if (isAdded)
+				msg = ":" + client->getNick() + " MODE " + channel->getChannelName() + " " + (*it) + " :the channel is now on invitation-only";			
+			else
+				msg = ":" + client->getNick() + " MODE " + channel->getChannelName() + " " + (*it) + " :the channel is no longer on invitation-only";
 		}
 
 		if (!msg.empty())
