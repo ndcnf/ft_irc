@@ -39,6 +39,7 @@ class Channel
 			bool						addOperator(Client *client);
 			bool						removeOperator(Client *client);
 			bool						isOperator(Client *client);
+			bool						isNumber(std::string arg);						
 
 	private:
 			std::vector<Client*>		_members;

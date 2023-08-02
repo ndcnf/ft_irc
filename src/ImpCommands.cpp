@@ -383,7 +383,7 @@ void	Server::MODE(Client *client, Channel *channel) {
 				if (isAdded)
 					msg = ":" + client->getNick() + " MODE " + channel->getChannelName() + " " + (*it) + " " + args.back() + " :has been granted operator status.";			
 				else
-					msg = ":" + client->getNick() + " MODE " + channel->getChannelName() + " " + (*it) + " " + args.back() + " :has been removed from operators";			
+					msg = ":" + client->getNick() + " MODE " + channel->getChannelName() + " " + (*it) + " " + args.back() + " :has been removed from operators";		
 			}
 		}
 		else if ((*it).find("l") != std::string::npos)
@@ -410,6 +410,34 @@ void	Server::MODE(Client *client, Channel *channel) {
 				channel->setLimit(isAdded, 0);
 				msg = ":" + client->getNick() + " MODE " + channel->getChannelName() + " " + (*it) + " :Channel limit removed";
 			}
+		}
+		else if ((*it).find("k") != std::string::npos)
+		{
+			if (args.size() == 0 && (isAdded))
+			{
+				sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), "", "", "", "");
+				return ;
+			}
+
+			if (isAdded)
+			{
+				std::string	password;
+				if (args.size() == 1)
+					password = args.front();
+				else if (args.size() == 2)
+				{
+					if (channel->isNumber(args.front()))
+						password = args[1];
+					else
+						password = args.front();
+				}
+				else
+					password = args[1];
+					
+				std::cout << "VERIF PASSWORD ENTRE : " + password << std::endl;
+			}
+
+
 		}
 
 		if (!msg.empty())

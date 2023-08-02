@@ -49,6 +49,11 @@ std::string	Channel::getTopic()
 	return (_topic);
 }
 
+std::string	Channel::getPassword()
+{
+	return _password;
+}
+
 std::string	Channel::getAllMembers()
 {
 	std::string	allMembers;
@@ -80,12 +85,6 @@ bool	Channel::getPassMode()
 {
 	return _isPasswordSet;
 }
-
-std::string	Channel::getPassword()
-{
-	return _password;
-}
-
 
 int	Channel::getNbLimit()
 {
@@ -243,3 +242,14 @@ bool		Channel::isOperator(Client *client)
 	}
 	return false;
 }
+
+bool	Channel::isNumber(std::string arg)
+{
+	for (unsigned int i = 0; i < arg.length(); i++)
+	{
+		if (!isdigit(arg[i]))
+			return false;
+	}
+	return true;
+}				
+
