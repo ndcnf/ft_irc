@@ -249,7 +249,7 @@ void	Server::JOIN(Client *client, Channel *channel) {
 
 					if (!(channel->isGuest(client)))
 					{
-						sendErrorMsg(ERR_INVITEONLYCHAN, client->getFd(),client->getNick(), channel->getChannelName(), "", "");
+						sendErrorMsg(ERR_INVITEONLYCHAN, client->getFd(), channel->getChannelName(), client->getNick(), "", "");
 						return ;
 					}
 					std::cout << "Oh, you're on our list. You may proceed." << std::endl;
