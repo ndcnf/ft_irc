@@ -563,20 +563,23 @@ void Server::PRIVMSG(Client* client, Channel* channel) {
 				std::string nickname = command.substr(0, nickPos);
 				
 				// Find the recipient client from _clients vector
-				Client* recipientClient = NULL;
+				// Client* recipientClient = NULL;
 				for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
 					if ((*it)->getNick() == nickname) {
-						recipientClient = *it;
+						// recipientClient = *it;
+					// if (recipientClient && channel->isMember(client)) { //verifier si il appartient bien a un channel pour envozer un msg prive
+					// if (nickname = (*it)->getNick()) { //verifier si il appartient bien a un channel pour envozer un msg prive
+						// std::string privMsgNick = "<" + client->getNick() + "> send you : " + privMsg;
+						std::string privMsgNick = token + " " + client->getNick() + " :" + privMsg;
+						std::cout << "ca rentre dedant et le nick d envoi est : " << client->getNick() << std::endl;
+						// std::string privMsgNick = ":" + client->getNick() + "!~" + client->getUser() + "@" + client->getHostname() + " " + token + " " + recipientClient->getNick() + " :" + privMsg;
+						sendMsg(privMsgNick, (*it)->getFd());
+					}
+						else {
+							sendErrorMsg(ERR_NOSUCHNICK, client->getFd(), client->getNick(), "", "", "");
+						}
 						break;
 					}
-				}
-				if (recipientClient && channel->isMember(client)) { //verifier si il appartient bien a un channel pour envozer un msg prive
-					// std::string privMsgNick = "<" + client->getNick() + "> send you : " + privMsg;
-					std::string privMsgNick = token + "" + nickname + " :" + privMsg;
-					sendMsg(privMsgNick, recipientClient->getFd());
-				}
-				else {
-					sendErrorMsg(ERR_NOSUCHNICK, client->getFd(), client->getNick(), "", "", "");
 				}
 			} 
 			else {
@@ -587,7 +590,6 @@ void Server::PRIVMSG(Client* client, Channel* channel) {
 			sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
 		}
 	}
-}
 
 
 void Server::NOTICE(Client *client, Channel *channel) { 
