@@ -174,6 +174,12 @@ void Channel::addGuest(Client *client)
 	return;
 }
 
+void Channel::addGuest(Client *client)
+{
+		_guests.push_back(client);
+		return;
+}
+
 void	Channel::removeMember(Client *client, int fd)
 {
 	(void)client;
@@ -185,6 +191,51 @@ void	Channel::removeMember(Client *client, int fd)
 			return;
 		}
 	}
+}
+
+std::string	Channel::getAllMembers()
+{
+	std::string	allMembers;
+
+	for (std::vector<Client*>::iterator it=_members.begin(); it != _members.end(); it++)
+	{
+		allMembers += (*it)->getNick() + "@" + (*it)->getHostname() + " ";
+	}
+	// std::cout << "ALLMEMBERS = [" + allMembers + "]" << std::endl;
+	return allMembers;
+}
+
+std::vector<Client*>		Channel::getMember()
+{
+	return _members;
+}
+
+bool	Channel::isMember(Client *client)
+{
+	for (std::vector<Client*>::iterator it = _members.begin(); it != _members.end(); it++)
+	{
+		if ((*it)->getFd() == client->getFd())
+			return true;
+	}
+	return false;
+}
+
+bool Channel::isMember(const std::string& nickname) {
+    for (std::vector<Client*>::iterator it = _members.begin(); it != _members.end(); it++) {
+        if ((*it)->getNick() == nickname)
+            return true;
+    }
+    return false;
+}
+
+void						Channel::setTopicMode(bool mode)
+{
+	_topicOperatorsOnly = mode;
+}
+
+bool						Channel::getTopicMode()
+{
+	return _topicOperatorsOnly;
 }
 
 bool	Channel::addOperator(Client *client)

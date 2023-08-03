@@ -60,6 +60,10 @@ class Server
 		Channel* 	addChannel(std::string name);
 		void		removeChannel(Channel *channel);
 		bool		channelExists(std::string channel);
+		bool		isNickUsed(std::string nick);
+		Client* 	findClientByNick(const std::string& nick);
+		void		addInvite(std::string &invited, Channel *channel);
+		
 		bool		canTheyJoinThisChannel(Client *client); // en construction dans JOIN
 		void		inputClient(std::string buf, Client *client, Channel *channel);
 		void		cmdSelection(std::string buf, Client *client);

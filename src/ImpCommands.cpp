@@ -795,9 +795,63 @@ void	Server::KICK(Client *client, Channel *channel) {
 }
 
 void	Server::INVITE(Client *client, Channel *channel) {
-	std::cout << "cmd invite" << std::endl;
-	(void)client;
-	(void)channel;
+		std::cout << "cmd invite" << std::endl;
+
+		
+	size_t chanPos = command.find("#");
+	if (chanPos != std::string::npos) {
+		std::string invited = command.substr(0, chanPos - 1);
+		
+		size_t spacePos = command.find(" ", chanPos + 1);
+		std::string chanName;
+		if (spacePos != std::string::npos) {
+			chanName = command.substr(chanPos, spacePos - (chanPos + 1));
+		} else {
+			chanName = command.substr(chanPos);
+		}		 
+		
+		if (channelExists(chanName) == 0)
+		{
+			std::cout << "channel null" << std::endl;
+			sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), chanName, "", "", "");
+			return;
+		}
+
+		else if (channel->isMember(client) == false)
+				sendErrorMsg(ERR_NOTONCHANNEL, client->getFd(), chanName, "", "", "");
+
+		else if (channel->isOperator(client) == false)
+				sendErrorMsg(ERR_CHANOPRIVSNEEDED, client->getFd(), chanName, "", "", "");
+		
+		else if (isNickUsed(invited) == false)
+				sendErrorMsg(ERR_NOSUCHNICK, client->getFd(), invited, "", "", "");
+
+		else if (channel->isMember(invited) == true)
+				sendErrorMsg(ERR_USERONCHANNEL, client->getFd(), chanName, invited, "", "");
+		else
+		{
+			
+			for(std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); it++)
+			{
+				if (invited == (*it)->getNick())
+				{
+					channel->addGuest(*it);
+					std::string	rply = "341 " + client->getNick() + " " + invited + " " + chanName + END_SEQUENCE;
+					sendMsg(rply, client->getFd()); // ca permet d'avoir le msg 
+
+					std::string msg = ":" + client->getNick() + " " + token + " " + invited + " " + chanName;
+					sendMsg(msg, client->getFd()); // la ce me fait le message dans le chan
+
+					std::string msg2 = ":" + client->getNick() + " " + token + " " + invited + " " + chanName;
+					sendMsg(msg2, (*it)->getFd()); // ca ca envoie le msg a momo
+
+					break ;
+				}	
+
+	
+			}
+		}	
+	}
 }
 
 void	Server::PASS(Client *client, Channel *channel) {

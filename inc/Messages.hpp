@@ -45,4 +45,6 @@
 // # define x 650
 # define ERR_INVALIDMODEPARAM 696
 
+#define RPL_INVITING(chan, nick) " 341 " + chan + " " + nick
+
 #endif
