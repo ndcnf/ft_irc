@@ -719,7 +719,17 @@ void	Server::PART(Client *client, Channel *channel){
 		return;
 	}
 
-	channel->removeMember(client, client->getFd());
+	if (channel->isGuest(client))
+		(channel->removeGuest(client));
+
+	if (channel->isOperator(client))
+		(channel->removeOperator(client));
+
+	if (channel->isMember(client))
+		channel->removeMember((client), client->getFd());
+
+
+	// channel->removeMember(client, client->getFd());
 	std::cout << "Members still on the channel: " << channel->getMember().size() << std::endl;
 
 	std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " PART " + channel->getChannelName();
