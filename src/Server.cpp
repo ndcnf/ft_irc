@@ -41,8 +41,17 @@ Server	&Server::operator=(Server const &rhs)
 
 Server::~Server()
 {
-	delete currentClient;
-	delete currentChannel; // a verifier
+	if (currentClient != NULL)
+	{
+		delete currentClient;
+		currentClient = NULL;
+	}
+
+	if (currentChannel != NULL)
+	{
+		delete currentChannel;
+		currentChannel = NULL;
+	}
 }
 
 void	Server::setPort(int port)
@@ -208,9 +217,20 @@ bool	Server::connection()
 						{
 							if ((*it)->getFd() == _pfds[i].fd)
 							{
-								_clients.erase(it);
-								// delete &(*it);
-								break;
+								// for (std::vector<Channel*>::iterator itc = _channels.begin(); itc != _channels.end(); itc++)
+								// {
+								// 	if ((*itc)->isMember(*it))
+								// 		(*itc)->removeMember((*it), (*it)->getFd());
+
+								// 	if ((*itc)->isOperator(*it))
+								// 		((*itc)->removeOperator(*it));
+
+								// 	if ((*itc)->isGuest(*it))
+								// 		((*itc)->removeGuest(*it));
+								// }
+								delete (*it);
+								it = _clients.erase(it);
+								// break;
 							}
 						}
 						msgBuf[_pfds[i].fd].clear();
