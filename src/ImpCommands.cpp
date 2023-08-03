@@ -274,8 +274,8 @@ void	Server::JOIN(Client *client, Channel *channel) {
 		sendMsg(msg, client->getFd());
 
 		// send info of all members in the channel
-		msg = ":" + client->getNick() + "@" + client->getHostname() + " = " + (*itc) + " :" + currentChannel->getAllMembers();
-		sendMsg(msg, client->getFd());
+		// msg = ":" + client->getNick() + "@" + client->getHostname() + " = " + (*itc) + " :" + currentChannel->getAllMembers();
+		// sendMsg(msg, client->getFd());
 
 		if (!channelExists)
 		{
@@ -283,8 +283,8 @@ void	Server::JOIN(Client *client, Channel *channel) {
 			sendMsg(msg, client->getFd());
 		}
 
-		msg = ":" + (*itc) + " :End of /NAMES list.";
-		sendMsg(msg, client->getFd());
+		// msg = ":" + (*itc) + " :End of /NAMES list.";
+		// sendMsg(msg, client->getFd());
 
 		msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + (*itc);
 		sendMsgToAllMembers(msg, client->getFd());
@@ -862,9 +862,25 @@ void Server::QUIT(Client *client, Channel *channel) {
 	int clientSocket = client->getFd();
 	close(clientSocket);
 
+	for (std::vector<Channel*>::iterator it = _channels.begin(); it != _channels.end(); it++)
+	{
+		if ((*it)->isGuest(client))
+			((*it)->removeGuest(client));
+
+		if ((*it)->isOperator(client))
+			((*it)->removeOperator(client));
+
+		if ((*it)->isMember(client))
+			(*it)->removeMember((client), client->getFd());
+	}
+
+	// delete (client);
+	// _clients.erase(client);
+
 	// Supprimer l'objet Client du vecteur _clients
 	for (size_t i = 0; i < _clients.size(); i++) {
 		if (_clients[i]->getFd() == clientSocket) {
+			delete (client);
 			_clients.erase(_clients.begin() + i);
 			break;
 		}
