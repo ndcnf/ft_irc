@@ -327,16 +327,6 @@ bool	Channel::isNumber(std::string arg)
 			return false;
 	}
 	return true;
-}				
-
-bool		Channel::isMember(Client *client)
-{
-	for (std::vector<Client*>::iterator it = _members.begin(); it != _members.end(); it++)
-	{
-		if ((*it)->getFd() == client->getFd())
-			return true;
-	}
-	return false;
 }
 
 bool		Channel::isNickMembre(std::string nickname)
