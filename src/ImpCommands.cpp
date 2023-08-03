@@ -335,7 +335,7 @@ void	Server::MODE(Client *client, Channel *channel) {
 	modesVec = parseModeCmd(command.substr(pos));
 	if (modesVec.empty())
 	{
-		sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), client->getNick(), "", "", "");
+		sendErrorMsg(ERR_UNKNOWNMODE, client->getFd(), "", "", "", "");
 		return ;
 	}
 	
@@ -454,6 +454,11 @@ void	Server::MODE(Client *client, Channel *channel) {
 				msg = ":" + client->getNick() + " MODE " + channel->getChannelName() + " " + (*it) + " :the channel is now on invitation-only";			
 			else
 				msg = ":" + client->getNick() + " MODE " + channel->getChannelName() + " " + (*it) + " :the channel is no longer on invitation-only";
+		}
+		else
+		{
+			sendErrorMsg(ERR_UNKNOWNMODE, client->getFd(), "", "", "", "");
+			return;
 		}
 
 		if (!msg.empty())

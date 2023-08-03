@@ -370,11 +370,7 @@ std::vector<std::string>	Server::parseModeCmd(std::string buf)
 	else if (firstPos != std::string::npos)
 		buf = buf.substr(firstPos);
 	else
-	{
-		// commande invalide
-		// modeCmds.push_back("");
 		return modeCmds;
-	}
 
 	for (size_t i=0; i < buf.size(); i++)
 	{
@@ -397,9 +393,7 @@ std::vector<std::string>	Server::parseModeCmd(std::string buf)
 
 			if (!validArg)
 			{
-				// lettre/commande pas prise en compte, erreur
 				modeCmds.clear();
-				// modeCmds.push_back("");
 				return modeCmds;
 			}
 
