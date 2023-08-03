@@ -565,13 +565,15 @@ void Server::PRIVMSG(Client* client, Channel* channel) {
 				// Find the recipient client from _clients vector
 				// Client* recipientClient = NULL;
 				for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-					if ((*it)->getNick() == nickname) {
+					if ((*it)->getNick() == nickname || (*it)->getNick() == client->getNick()) {
 						// recipientClient = *it;
 					// if (recipientClient && channel->isMember(client)) { //verifier si il appartient bien a un channel pour envozer un msg prive
 					// if (nickname = (*it)->getNick()) { //verifier si il appartient bien a un channel pour envozer un msg prive
 						// std::string privMsgNick = "<" + client->getNick() + "> send you : " + privMsg;
-						std::string privMsgNick = token + " " + client->getNick() + " :" + privMsg;
+						// std::string privMsgNick = token + " " + client->getNick() + " :" + privMsg;
+						std::string privMsgNick = ":" + (*it)->getNick() + "!~" + client->getUser() + "@" + client->getHostname() + " " + token + " " + client->getNick() + " :" + privMsg;
 						std::cout << "ca rentre dedant et le nick d envoi est : " << client->getNick() << std::endl;
+						std::cout << "Trying to send message to: " << (*it)->getNick() << std::endl;
 						// std::string privMsgNick = ":" + client->getNick() + "!~" + client->getUser() + "@" + client->getHostname() + " " + token + " " + recipientClient->getNick() + " :" + privMsg;
 						sendMsg(privMsgNick, (*it)->getFd());
 					}
