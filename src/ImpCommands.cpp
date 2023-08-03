@@ -150,7 +150,6 @@ void Server::NICK(Client *client, Channel *channel) {
 
 void	Server::USER(Client *client, Channel *channel) {
 	(void)channel;
-	std::cout << "cmd user" << std::endl; // info only
 
 	if (passIsValid == false) {
 		sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), client->getNick(), "PASSWORD REQUIERED", "", "");
@@ -671,14 +670,6 @@ void	Server::TOPIC(Client *client, Channel *channel) {
 	std::string		msg;
 	size_t			pos = command.find(":");
 
-//	La commande TOPIC peut comporter deux formes :
-
-//	TOPIC #nom_du_canal :nouveau_sujet (pour définir un nouveau sujet)
-//	TOPIC #nom_du_canal (pour récupérer le sujet actuel) // gere automatiquement
-
-// Nouveau sujet uniquement pour les operators
-// Gestion d'erreur: le channel n'existe pas, pas les droits, texte trop long
-
 	if (channel == NULL)
 	{
 		sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), "", "", "", "");
@@ -712,8 +703,6 @@ void	Server::TOPIC(Client *client, Channel *channel) {
 
 }
 
-// surement ici qu'il faudra erase() le member -> _members.erase(it);
-// si plus personne, _members.size() == 0, il faudra aussi _channels.erase(it);
 void	Server::PART(Client *client, Channel *channel){
 	if (channel == NULL){
 		std::cout << "channel null" << std::endl;
@@ -730,25 +719,6 @@ void	Server::PART(Client *client, Channel *channel){
 		sendMsgToAllMembers(msg, client->getFd());
 	else if (channel->getMember().size() == 0)
 		removeChannel(channel);
-
-	// if (channel->getMember().size() > 1)
-	// //if (members.size() > 2)
-	// {
-	// 	// std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " PART " + channel->getChannelName();
-	// 	sendMsg(msg, client->getFd());
-	// 	sendMsgToAllMembers(msg, client->getFd());
-	// }
-	// else if (channel->getMember().size() == 1)
-	// //else if (members.size() == 1)
-	// {
-	// 	// std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " PART " + channel->getChannelName();
-	// 	sendMsg(msg, client->getFd());
-	// }
-	// else if (channel->getMember().size() == 0)
-	// {
-	// 	sendMsg(msg, client->getFd());
-	// 	removeChannel(channel);
-	// }
 }
 
 void	Server::KICK(Client *client, Channel *channel) {
@@ -792,7 +762,6 @@ void	Server::INVITE(Client *client, Channel *channel) {
 
 void	Server::PASS(Client *client, Channel *channel) {
 	(void)channel;
-	std::cout << "password enregistrer chez nous : " << getPassword() << std::endl;
 	std::string pass = command;
 	if (pass.empty()){
 		std::cout << "PASS" << std::endl;
@@ -805,13 +774,11 @@ void	Server::PASS(Client *client, Channel *channel) {
 	}
 	else {
 		if (client->isAuthenticated()){
-			//std::cout << "PASS" << std::endl;
 			sendErrorMsg(ERR_ALREADYREGISTERED, client->getFd(),"", "", "", "");
 		}
 		else {
 			client->setIsAuthenticated(true);
 			passIsValid = true;
-				// first_message(client); fait apres dans USER qui arrive apres NICK
 		}
 	}
 }
