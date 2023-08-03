@@ -150,7 +150,6 @@ void Server::NICK(Client *client, Channel *channel) {
 
 void	Server::USER(Client *client, Channel *channel) {
 	(void)channel;
-	std::cout << "cmd user" << std::endl; // info only
 
 	if (passIsValid == false) {
 		sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), client->getNick(), "PASSWORD REQUIERED", "", "");
@@ -182,19 +181,9 @@ void	Server::JOIN(Client *client, Channel *channel) {
 	if (command == ":")
 		return;
 
-	// if (chanName == channel.getName()) { // juste ?
-	// 	message d'erreur ce channel existe deja voir avec le mess erreur claire
-	// Nadia: Non, pas de message d'erreur, mais joindre le channel existant en verifiant si droits
-	// }
-	// else {
-		// if (command == 0)
-		// 	Type /join #<channel> pas besoin gere tout seul
-	// if (pos != std::string::npos || command.find(":") != std::string::npos)
-
 	while ((hashtagPos = command.find("#", hashtagPos)) != std::string::npos)
 	{
 		chanName = parseChan(command, hashtagPos);
-		std::cout << "WHILE JOIN chanName [" + chanName + "]" << std::endl;
 
 		if (chanName[0] != '#')
 			chanName = '#' + chanName;
@@ -202,6 +191,12 @@ void	Server::JOIN(Client *client, Channel *channel) {
 		channelsToAdd.push_back(chanName);
 
 		hashtagPos = hashtagPos + 1;
+	}
+
+	if (channelsToAdd.empty())
+	{
+		sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), client->getNick(), "JOIN", "Not enough parameters", "");
+		return;
 	}
 
 	if ((pos = command.find(" ")) != std::string::npos)
@@ -238,10 +233,9 @@ void	Server::JOIN(Client *client, Channel *channel) {
 					}
 				}
 
-				//verifier s'il y invitation seulement et si oui, si la personne est sur la liste.
 				if (channel->getInviteMode())
 				{
-					if (channel->isMembre(client))
+					if (channel->isMember(client))
 					{
 						sendErrorMsg(ERR_USERONCHANNEL, client->getFd(), client->getNick(), channel->getChannelName(), "", "");
 						return ;
@@ -302,15 +296,11 @@ void	Server::JOIN(Client *client, Channel *channel) {
 			sendMsgToAllMembers(msg, client->getFd());
 		}
 	}
-
-	// rest a ajouter lA GESTION DES ERREURS par claire
-	
 }
 
 void	Server::MODE(Client *client, Channel *channel) {
 	std::cout << "cmd mode" << std::endl;
 	std::string					msg = "";
-	std::string					modes;
 	std::string					chanName;
 	std::vector<std::string>	modesVec;
 	std::vector<std::string>	args;
@@ -329,22 +319,22 @@ void	Server::MODE(Client *client, Channel *channel) {
 
 	if (!isChannel)
 	{
-		//le channel donne n'existe pas ERREUR
+		sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), client->getNick(), chanName, "", "");
 		return ;
 	}
 
-	//Si le user n'est pas operator du channel: vtff
 	if (!channel->isOperator(client))
+	{
+		sendErrorMsg(ERR_CHANOPRIVSNEEDED, client->getFd(), client->getNick(), channel->getChannelName(), "Not allowed", "");
 		return ;
+	}
 
 	pos = chanName.size() + 1;
-	modes = command.substr(pos, command.find(" ")); // future old way
 
-	modesVec = parseModeCmd(command.substr(pos)); // new way
+	modesVec = parseModeCmd(command.substr(pos));
 	if (modesVec.empty())
 	{
-		std::cout << "mode invalide" << std::endl;
-		// commande invalide
+		sendErrorMsg(ERR_UNKNOWNMODE, client->getFd(), "", "", "", "");
 		return ;
 	}
 	
@@ -362,8 +352,7 @@ void	Server::MODE(Client *client, Channel *channel) {
 
 	if (args.size() > 3)
 	{
-		//trop d'arguments pour notre realite
-		std::cout << "trop d'arguments" << std::endl;
+		sendErrorMsg(ERR_UNKNOWNMODE, client->getFd(), client->getNick(), "", ":too many args", "");
 		return;
 	}
 
@@ -465,6 +454,11 @@ void	Server::MODE(Client *client, Channel *channel) {
 			else
 				msg = ":" + client->getNick() + " MODE " + channel->getChannelName() + " " + (*it) + " :the channel is no longer on invitation-only";
 		}
+		else
+		{
+			sendErrorMsg(ERR_UNKNOWNMODE, client->getFd(), "", "", "", "");
+			return;
+		}
 
 		if (!msg.empty())
 		{
@@ -472,11 +466,6 @@ void	Server::MODE(Client *client, Channel *channel) {
 			sendMsgToAllMembers(msg, client->getFd());
 		}
 	}
-
-
-
-
-
 }
 
 //for PRIVMSG
@@ -628,14 +617,14 @@ void Server::NOTICE(Client *client, Channel *channel) {
 			std::cout << "mot avec # : " << hashChan[i] << std::endl;
 			std::cout << "message a envoyer : " << allChanMsg << std::endl;
 
-			bool found = false;
+			// bool found = false;
 
 			// Comparaison avec les noms de channels existants
 			for (size_t j = 0; j < _channels.size(); ++j) {
 				if (_channels[j]->getChannelName() == hashChan[i]) {
 					// Check if the client is a member of the channel
 					if (_channels[j]->isMember(client)) {
-						found = true;
+						// found = true;
 						// Send the message to all members of the corresponding channel
 						std::string msg = ':' + client->getNick() + '@' + client->getHostname() + " " + token + " " + hashChan[i] + " :" + allChanMsg;
 						sendMsgToAllMembers(msg, client->getFd());
@@ -681,14 +670,6 @@ void	Server::TOPIC(Client *client, Channel *channel) {
 	std::string		msg;
 	size_t			pos = command.find(":");
 
-//	La commande TOPIC peut comporter deux formes :
-
-//	TOPIC #nom_du_canal :nouveau_sujet (pour définir un nouveau sujet)
-//	TOPIC #nom_du_canal (pour récupérer le sujet actuel) // gere automatiquement
-
-// Nouveau sujet uniquement pour les operators
-// Gestion d'erreur: le channel n'existe pas, pas les droits, texte trop long
-
 	if (channel == NULL)
 	{
 		sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), "", "", "", "");
@@ -722,8 +703,6 @@ void	Server::TOPIC(Client *client, Channel *channel) {
 
 }
 
-// surement ici qu'il faudra erase() le member -> _members.erase(it);
-// si plus personne, _members.size() == 0, il faudra aussi _channels.erase(it);
 void	Server::PART(Client *client, Channel *channel){
 	if (channel == NULL){
 		std::cout << "channel null" << std::endl;
@@ -740,25 +719,6 @@ void	Server::PART(Client *client, Channel *channel){
 		sendMsgToAllMembers(msg, client->getFd());
 	else if (channel->getMember().size() == 0)
 		removeChannel(channel);
-
-	// if (channel->getMember().size() > 1)
-	// //if (members.size() > 2)
-	// {
-	// 	// std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " PART " + channel->getChannelName();
-	// 	sendMsg(msg, client->getFd());
-	// 	sendMsgToAllMembers(msg, client->getFd());
-	// }
-	// else if (channel->getMember().size() == 1)
-	// //else if (members.size() == 1)
-	// {
-	// 	// std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " PART " + channel->getChannelName();
-	// 	sendMsg(msg, client->getFd());
-	// }
-	// else if (channel->getMember().size() == 0)
-	// {
-	// 	sendMsg(msg, client->getFd());
-	// 	removeChannel(channel);
-	// }
 }
 
 void	Server::KICK(Client *client, Channel *channel) {
@@ -856,7 +816,6 @@ void	Server::INVITE(Client *client, Channel *channel) {
 
 void	Server::PASS(Client *client, Channel *channel) {
 	(void)channel;
-	std::cout << "password enregistrer chez nous : " << getPassword() << std::endl;
 	std::string pass = command;
 	if (pass.empty()){
 		std::cout << "PASS" << std::endl;
@@ -869,13 +828,11 @@ void	Server::PASS(Client *client, Channel *channel) {
 	}
 	else {
 		if (client->isAuthenticated()){
-			//std::cout << "PASS" << std::endl;
 			sendErrorMsg(ERR_ALREADYREGISTERED, client->getFd(),"", "", "", "");
 		}
 		else {
 			client->setIsAuthenticated(true);
 			passIsValid = true;
-				// first_message(client); fait apres dans USER qui arrive apres NICK
 		}
 	}
 }

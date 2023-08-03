@@ -268,7 +268,6 @@ bool	Channel::addOperator(Client *client)
 	// pas un membre donc erreur
 	std::cout << "Nice try, not a member : " + client->getNick() << std::endl; // erreur existe deja ou osef
 	return (false);
-
 }
 
 bool	Channel::removeOperator(Client *client)

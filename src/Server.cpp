@@ -122,7 +122,7 @@ bool	Server::connection()
 	socklen_t	addrlen;
 	std::map<int, std::string>	msgBuf;
 
-	currentChannel = NULL; // a verifier
+	currentChannel = NULL;
 
 	bzero(&pfd, sizeof(pfd));
 
@@ -167,7 +167,6 @@ bool	Server::connection()
 				}
 				else
 				{
-					// std::cout << "client " << _pfds[i].fd << " request your attention." << std::endl; // only for DEBUG
 					bzero(&buf, sizeof(buf));
 
 					int	bytesNbr = recv(_pfds[i].fd, buf, sizeof(buf), 0);
@@ -176,16 +175,14 @@ bool	Server::connection()
 						if ((*it)->getFd() == _pfds[i].fd)
 						{
 							currentClient = (*it);
-							// break;
+							break;
 						}
 					}
 					int	sender = _pfds[i].fd;
 					msgBuf[sender] += static_cast<std::string>(buf);
 					std::string	rawMsgWithoutEndSeq = msgBuf[sender].substr(0, msgBuf[sender].find(END_SEQUENCE));
 
-					std::cout << "getcurrent before cool : [" + rawMsgWithoutEndSeq + "]" << std::endl;
 					currentChannel = getCurrentChannel(rawMsgWithoutEndSeq);
-					//getPing(buf, currentClient);
 
 					if (static_cast<std::string>(buf).find("\n") != std::string::npos)
 					{
@@ -245,11 +242,6 @@ bool	Server::connection()
 	// getPing(buf, currentClient->getFd()); // PING PONG
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// VERENA
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 void Server::parseCommand(std::string buf)
 {
 	std::string input(buf);
@@ -273,9 +265,8 @@ void Server::parseCommand(std::string buf)
 }
 
 
-void	Server::inputClient(std::string buf, Client *client, Channel *channel) // retourner une veleur ? un string ? return buff
+void	Server::inputClient(std::string buf, Client *client, Channel *channel)
 {
-	// (void)client; //au cas ou on en a besoin quand meme plus tard sinon a virer
 	size_t pos = buf.find(END_SEQUENCE);
 
 	while (pos != std::string::npos)
@@ -370,11 +361,7 @@ std::vector<std::string>	Server::parseModeCmd(std::string buf)
 	else if (firstPos != std::string::npos)
 		buf = buf.substr(firstPos);
 	else
-	{
-		// commande invalide
-		// modeCmds.push_back("");
 		return modeCmds;
-	}
 
 	for (size_t i=0; i < buf.size(); i++)
 	{
@@ -397,9 +384,7 @@ std::vector<std::string>	Server::parseModeCmd(std::string buf)
 
 			if (!validArg)
 			{
-				// lettre/commande pas prise en compte, erreur
 				modeCmds.clear();
-				// modeCmds.push_back("");
 				return modeCmds;
 			}
 
@@ -417,27 +402,8 @@ std::vector<std::string>	Server::parseModeCmd(std::string buf)
 			}
 		}
 	}
-
-	// DEBUG ONLY
-	for (std::vector<std::string>::iterator it = modeCmds.begin(); it != modeCmds.end(); it++)
-		std::cout << "modeCmds : [" + (*it) + "]" << std::endl;	
-	// DEBUG ONLY - END
-
 	return modeCmds;
 }
-
-// std::map<char, int>	Server::setArgsByMode()
-// {
-// 	std::map<char, int>			argsByMode;
-	
-// 	argsByMode['i'] = 0;
-// 	argsByMode['t'] = 0;
-// 	argsByMode['k'] = 1;
-// 	argsByMode['o'] = 1;
-// 	argsByMode['l'] = 1;
-
-// 	return argsByMode;
-// }
 
 std::string	Server::modeTargetMember(std::string buf)
 {
@@ -450,32 +416,18 @@ std::string	Server::modeTargetMember(std::string buf)
 	return "";
 }
 
-// Prochainement lors de la gestion de +/-k
-// std::string	Server::modePassword(std::string buf)
-// {
-
-
-// 	return "";
-// }
-
-
 Channel*	Server::getCurrentChannel(std::string msgBuf)
 {
 	std::string		chanName;
 
 	chanName = parseChan(msgBuf, 0);
-	std::cout << "ChanName result fonction getcurrent : [" + chanName + "]" << std::endl;
 
 	for(std::vector<Channel*>::iterator it=_channels.begin(); it != _channels.end(); it++)
 	{
 		if ((*it)->getChannelName() == chanName)
-		{
-			std::cout << "Chan Name current one: [" + chanName + "]" << std::endl;
 			return (*it);
-		}
 	}
 	return (NULL);
-
 }
 
 std::string	Server::getPassword() {
