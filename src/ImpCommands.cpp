@@ -241,7 +241,7 @@ void	Server::JOIN(Client *client, Channel *channel) {
 				//verifier s'il y invitation seulement et si oui, si la personne est sur la liste.
 				if (channel->getInviteMode())
 				{
-					if (channel->isMembre(client))
+					if (channel->isMember(client))
 					{
 						sendErrorMsg(ERR_USERONCHANNEL, client->getFd(), client->getNick(), channel->getChannelName(), "", "");
 						return ;
@@ -472,11 +472,6 @@ void	Server::MODE(Client *client, Channel *channel) {
 			sendMsgToAllMembers(msg, client->getFd());
 		}
 	}
-
-
-
-
-
 }
 
 //for PRIVMSG
@@ -628,14 +623,14 @@ void Server::NOTICE(Client *client, Channel *channel) {
 			std::cout << "mot avec # : " << hashChan[i] << std::endl;
 			std::cout << "message a envoyer : " << allChanMsg << std::endl;
 
-			bool found = false;
+			//bool found = false;
 
 			// Comparaison avec les noms de channels existants
 			for (size_t j = 0; j < _channels.size(); ++j) {
 				if (_channels[j]->getChannelName() == hashChan[i]) {
 					// Check if the client is a member of the channel
 					if (_channels[j]->isMember(client)) {
-						found = true;
+						//found = true;
 						// Send the message to all members of the corresponding channel
 						std::string msg = ':' + client->getNick() + '@' + client->getHostname() + " " + token + " " + hashChan[i] + " :" + allChanMsg;
 						sendMsgToAllMembers(msg, client->getFd());
