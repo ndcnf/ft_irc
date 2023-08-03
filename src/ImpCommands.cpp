@@ -560,10 +560,6 @@ void Server::PRIVMSG(Client* client, Channel* channel) {
 						sendMsg(privMsgNick, (*it)->getFd());
 						return ;
 					}
-					else if ((*it)->getNick() != nickname || (*it)->getNick() != client->getNick()) {
-						sendErrorMsg(ERR_NOSUCHNICK, client->getFd(), client->getNick(), "", "", "");
-					}
-					break;
 				}
 				sendErrorMsg(ERR_NOSUCHNICK, client->getFd(), client->getNick(), "", "", "");		
 				return ;
