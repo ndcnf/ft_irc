@@ -517,7 +517,7 @@ void Server::PRIVMSG(Client* client, Channel* channel) {
 						// Send the message to all members of the corresponding channel
 						std::string msg = ':' + client->getNick() + '@' + client->getHostname() + " " + token + " " + hashChan[i] + " :" + allChanMsg;
 						sendMsgToAllMembers(msg, client->getFd());
-						break;
+						return;
 					} else {
 						// The client is not a member of the channel
 						sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
@@ -527,6 +527,7 @@ void Server::PRIVMSG(Client* client, Channel* channel) {
 			}
 			if (!found) {
 				sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), hashChan[i], "", "", "");
+				return;
 			}
 		}
 	}
@@ -540,42 +541,36 @@ void Server::PRIVMSG(Client* client, Channel* channel) {
 			if (nickPos != std::string::npos) {
 				// Extraction du nickname
 				std::string nickname = command.substr(0, nickPos);
-			if (nickname.empty())
-				sendErrorMsg(ERR_NORECIPIENT, client->getFd(), nickname, "", "", "");
+				std::cout << "nickname [" << nickname << "]" << std::endl;
+				std::cout << "client [" << client->getNick() << "]" << std::endl;
 				// Find the recipient client from _clients vector
 				// Client* recipientClient = NULL;
-				for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-					// if ((*it)->getNick() != nickname || (*it)->getNick() != client->getNick()) {
-					// 	sendErrorMsg(ERR_NOSUCHNICK, client->getFd(), client->getNick(), "", "", "");
-					// 	break;
-					// }
-					if ((*it)->getNick() == nickname || (*it)->getNick() == client->getNick()) {
-						// recipientClient = *it;
-					// if (recipientClient && channel->isMember(client)) { //verifier si il appartient bien a un channel pour envozer un msg prive
-					// if (nickname = (*it)->getNick()) { //verifier si il appartient bien a un channel pour envozer un msg prive
-						// std::string privMsgNick = "<" + client->getNick() + "> send you : " + privMsg;
-						// std::string privMsgNick = token + " " + client->getNick() + " :" + privMsg;
-						std::string privMsgNick = ":" + (*it)->getNick() + "!~" + client->getUser() + "@" + client->getHostname() + " " + token + " " + client->getNick() + " :" + privMsg;
+				for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); it++)
+				{
+					if (nickname == (*it)->getNick())
+					{ // || (*it)->getNick() == client->getNick()) {
+						std::cout << "nickname2 [" << nickname << "]" << std::endl;
+						std::cout << "client2 [" << client->getNick() << "]" << std::endl;
+						std::cout << "it [" << (*it)->getNick() << "]" << std::endl;
+					
+					//	std::string privMsgNick = ":" + (*it)->getNick() + "!~" + client->getUser() + "@" + client->getHostname() + " " + token + " " + client->getNick() + " :" + privMsg;
+						std::string privMsgNick = ":" + client->getNick() + " " + token + " " + (*it)->getNick() + " :" + privMsg;
 						std::cout << "ca rentre dedant et le nick d envoi est : " << client->getNick() << std::endl;
 						std::cout << "Trying to send message to: " << (*it)->getNick() << std::endl;
-						// std::string privMsgNick = ":" + client->getNick() + "!~" + client->getUser() + "@" + client->getHostname() + " " + token + " " + recipientClient->getNick() + " :" + privMsg;
 						sendMsg(privMsgNick, (*it)->getFd());
-						// sendMsgToAllMembers(privMsgNick, (*it)->getFd()); ca segFault
+						return ;
 					}
 					else if ((*it)->getNick() != nickname || (*it)->getNick() != client->getNick()) {
 						sendErrorMsg(ERR_NOSUCHNICK, client->getFd(), client->getNick(), "", "", "");
 					}
 					break;
 				}
+				sendErrorMsg(ERR_NOSUCHNICK, client->getFd(), client->getNick(), "", "", "");		
+				return ;
+				}
 			}
 		} 
-		else {
-			sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
-		}
-	} 
-	else {
-		sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
-	}
+	sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
 }
 
 
