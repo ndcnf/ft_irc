@@ -19,7 +19,6 @@ class Channel
 			std::string					getPassword();
 			std::string					getAllMembers();
 			std::vector<Client*>		getMember();
-			void						addGuest(Client *client);
 			bool 						isMember(const std::string& nickname);
 			std::vector<Client*>		getGuests();
 			int							getNbLimit();

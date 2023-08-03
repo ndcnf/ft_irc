@@ -472,11 +472,6 @@ void	Server::MODE(Client *client, Channel *channel) {
 			sendMsgToAllMembers(msg, client->getFd());
 		}
 	}
-
-
-
-
-
 }
 
 //for PRIVMSG
@@ -573,7 +568,7 @@ void Server::PRIVMSG(Client* client, Channel* channel) {
 						break;
 					}
 				}
-				if (recipientClient) {
+				if (recipientClient && isMember(client)) {
 					std::string privMsgNick = "<" + client->getNick() + "> send you : " + privMsg;
 					sendMsg(privMsgNick, recipientClient->getFd());
 				}
