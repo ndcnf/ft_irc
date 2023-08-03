@@ -6,7 +6,7 @@
 #    By: vferraro <vferraror@student.42lausanne.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/05/23 15:18:37 by vferraro          #+#    #+#              #
-#    Updated: 2023/07/11 11:11:50 by vferraro         ###   ########.fr        #
+#    Updated: 2023/08/03 14:04:50 by vferraro         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -52,7 +52,7 @@ LOGO_IRC	= 	 @echo "$(CYAN) \tWelcome to : \n\
 								\t  \n"
 
 CC			= c++
-CPPFLAGS	= -Wall -Wextra -Werror -g3 -std=c++98 -fsanitize=address -I./inc #-pedantic -lpoll
+CPPFLAGS	= -Wall -Wextra -Werror -g3 -std=c++98 -I./inc -fsanitize=address #-pedantic -lpoll
 
 AR 		= ar rc
 RM 		= rm -f

@@ -35,14 +35,24 @@ Server	&Server::operator=(Server const &rhs)
 	// _quit = rhs._quit;
 	_password = rhs._password;
 	_lastPing = rhs._lastPing;
+	// _tokens = rhs._tokens;
 
 	return (*this);
 }
 
 Server::~Server()
 {
-	delete currentClient;
-	delete currentChannel; // a verifier
+	if (currentClient != NULL)
+	{
+		delete currentClient;
+		currentClient = NULL;
+	}
+
+	if (currentChannel != NULL)
+	{
+		delete currentChannel;
+		currentChannel = NULL;
+	}
 }
 
 void	Server::setPort(int port)
@@ -208,8 +218,19 @@ bool	Server::connection()
 						{
 							if ((*it)->getFd() == _pfds[i].fd)
 							{
+								for (std::vector<Channel*>::iterator itc = _channels.begin(); itc != _channels.end(); itc++)
+								{
+									if ((*itc)->isMember(*it))
+										(*itc)->removeMember((*it), (*it)->getFd());
+
+									if ((*itc)->isOperator(*it))
+										((*itc)->removeOperator(*it));
+
+									if ((*itc)->isGuest(*it))
+										((*itc)->removeGuest(*it));
+								}
+								delete (*it);
 								_clients.erase(it);
-								// delete &(*it);
 								break;
 							}
 						}
@@ -473,3 +494,14 @@ bool	Server::isNickUsed(std::string nick)
 	}
 	return false;
 }
+
+// std::vector<std::string> Server::getToken()
+// {
+// 	return _tokens;
+// }
+
+// void Server::addToken(std::string token)
+// {
+// 	_tokens.push_back(token);
+// 	return;
+// }
