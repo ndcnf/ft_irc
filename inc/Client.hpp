@@ -36,9 +36,7 @@ class Client
 		bool		nickSet; // to set the nick once at the begining
 
 		int			getFd()const;
-		//autres fonctions probablement necessaires @Verena :
 		std::string	getNick();
-		// void		setNick(std::string nick, std::string buf);
 		void		setNick(std::string nick);
 		void		logIn();
 		void		applyNick();
@@ -59,13 +57,8 @@ class Client
 		std::string	_username;
 		std::string _fullname;
 		std::string _hostname;
-		// std::string	_channel; // un client peut etre connecte a plusieurs channels
 		bool		_isAuthenticated;
-		bool		_connected; // is the client successfully connected or not?
-
-		//CLAIRE
-//		std::string	_hostname; // a deplacer dans channel plus tard ? // Nadia: pas besoin
-
+		bool		_connected;
 };
 
 #endif

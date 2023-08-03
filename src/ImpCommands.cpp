@@ -3,34 +3,10 @@
 #include "../inc/Messages.hpp"
 #include "../inc/Channel.hpp"
 
-// struct CommandHandler {
-//     void (Server::*functionPtr)(Client *client, const std::vector<std::string>& params);
-//     int numParams;
-// };
-
-// CommandHandler commandHandlers[CMDNBR] = {
-//     {&Server::CAP, 1},      // CAP
-//     {&Server::PING, 1},     // PING
-//     {&Server::NICK, 1},     // NICK
-//     {&Server::USER, 4},     // USER
-//     {&Server::JOIN, 1},     // JOIN
-//     {&Server::MODE, 2},     // MODE
-//     {&Server::PRIVMSG, 2},  // PRIVMSG
-//     {&Server::NOTICE, 2},   // NOTICE
-//     {&Server::TOPIC, 2},    // TOPIC
-//     {&Server::PART, 1},     // PART
-//     {&Server::KICK, 2},     // KICK
-//     {&Server::INVITE, 2},   // INVITE
-//     {&Server::PASS, 1},     // PASS
-//     {&Server::QUIT, 0}      // QUIT
-// };
-
 
 void	Server::commands(std::string cmd, Client *client, Channel *channel) {
 
 	std::string _cmdArray[CMDNBR] = {"CAP", "PING", "NICK", "USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
-	// std::string _cmdArrayTwoArg[CMDNBR] = {"CAP", "PING", "NICK", "USER", "JOIN", "MODE", "PRIVMSG", "NOTICE", "TOPIC", "PART", "KICK", "INVITE", "PASS", "QUIT"};
-
 
 	void	(Server::*functionPtr[])(Client *client, Channel *channel) = {
 		&Server::CAP,
@@ -71,7 +47,7 @@ void	Server::PING(Client *client, Channel *channel) {
 	std::string pingContent = command;
 	// Construire la réponse PONG avec le même contenu que le message PING
 	std::string pongResponse = "PONG " + pingContent;
-	_lastPing = time(NULL);
+	// _lastPing = time(NULL);
 	// Envoyer la réponse PONG au client
 	sendMsg(pongResponse, client->getFd());
 }
@@ -79,10 +55,18 @@ void	Server::PING(Client *client, Channel *channel) {
 void Server::NICK(Client *client, Channel *channel) {
 	(void)channel;
 
-	if (passIsValid == false) {
-		sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), "", "PASSWORD REQUIERED", "", "");
-		exit(EXIT_FAILURE);
+	// if (passIsValid == false) {
+	// 	sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), "", "PASSWORD REQUIERED", "", "");
+	// 	exit(EXIT_FAILURE);
+	// }
+
+	if (client->isAuthenticated() == false) {
+		// sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), client->getNick(), "PASSWORD REQUIERED", "", "");
+		// sendErrorMsg(ERR_PASSWDMISMATCH, client->getFd(),"", "", "", "");
+		// exit(EXIT_FAILURE);
+		return;
 	}
+
 	if (client->nickSet == false) {
 		std::string nickname = command;
 		int numberFd = client->getFd();
@@ -104,23 +88,18 @@ void Server::NICK(Client *client, Channel *channel) {
 		std::cerr << "Error: Nickname is longer than 30 characters." << std::endl; //comme dans freenode
 		return;
 	}
-
 	// vérifie si le surnom existe déjà
 	for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
 		if ((*it)->getNick() == newNick) {
 			sendErrorMsg(ERR_NICKNAMEINUSE, client->getFd(), newNick, "", "", "");
-			// std::cerr << "Error: Nickname already exists." << std::endl;// message d erreurs a gerer voir avec claire
-			return;  // quitte la fonction
+			return;
 		}
-  }
-
+	}
 	// vérifie si le nouveau surnom respecte les règles
 	if (newNick.empty() || newNick[0] == '#' || newNick[0] == ':' || newNick.find_first_of(CHANTYPES) != std::string::npos || newNick.find(' ') != std::string::npos) {
 		sendErrorMsg(ERR_ERRONEUSNICKNAME, client->getFd(), newNick, "", "", "");
-  	//std::cerr << "Error: Nickname contains invalid characters." << std::endl; // message d erreurs a gerer voir avec claire
-		return ;  // quitte la fonction
+		return ;
 	}
-
 		// continue avec le reste du code si les conditions sont remplies
 		for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
 			if ((*it)->getFd() == client->getFd()) {
@@ -135,12 +114,8 @@ void Server::NICK(Client *client, Channel *channel) {
 				(*it)->setNick(newNick);
 
 				std::string msg;
-				// if (oldNick.empty())
-				// 	msg = "NICK " + newNick;
-				// else
+
 				msg = ":" + oldNick + " NICK " + newNick;
-				// std::string msg = ":n1t4r4 NICK nana";
-				// std::cout << "MESS : " << msg << std::endl;
 				sendMsg(msg, client->getFd());
 				break;
 			}
@@ -151,11 +126,19 @@ void Server::NICK(Client *client, Channel *channel) {
 void	Server::USER(Client *client, Channel *channel) {
 	(void)channel;
 
-	if (passIsValid == false) {
-		sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), client->getNick(), "PASSWORD REQUIERED", "", "");
-		exit(EXIT_FAILURE);
-	}
+	// if (std::find(_tokens.begin(), _tokens.end(), "PASS") == _tokens.end() && client->isAuthenticated() == false) {
+	// 	// "PASS" is not in _tokens
+	// 	sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), "", "PASSWORD REQUIERED", "", "");
+	// 	return;
+	// }
 
+	if (client->isAuthenticated() == false) {
+		// sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), client->getNick(), "PASSWORD REQUIERED", "", "");
+		// sendErrorMsg(ERR_PASSWDMISMATCH, client->getFd(),"", "", "", "");
+		return;
+	}
+	// if (command.empty())
+	// 	sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), client->getNick(), "", "", ""); on verra si c est necessaire
 	std::size_t colonPos = command.find(':');
 	if (colonPos != std::string::npos) {
 		std::string UserContent = command.substr(colonPos + 1);
@@ -205,7 +188,7 @@ void	Server::JOIN(Client *client, Channel *channel) {
 			passwordEntered = command.substr(pos + 1);
 	}
 
-	std::cout << "Password entered : [" + passwordEntered + "]" << std::endl;
+	std::cout << ": [" + passwordEntered + "]" << std::endl;
 
 	for (std::vector<std::string>::iterator itc = channelsToAdd.begin(); itc != channelsToAdd.end(); itc++)
 	{
@@ -274,8 +257,8 @@ void	Server::JOIN(Client *client, Channel *channel) {
 		sendMsg(msg, client->getFd());
 
 		// send info of all members in the channel
-		msg = ":" + client->getNick() + "@" + client->getHostname() + " = " + (*itc) + " :" + currentChannel->getAllMembers();
-		sendMsg(msg, client->getFd());
+		// msg = ":" + client->getNick() + "@" + client->getHostname() + " = " + (*itc) + " :" + currentChannel->getAllMembers();
+		// sendMsg(msg, client->getFd());
 
 		if (!channelExists)
 		{
@@ -283,8 +266,8 @@ void	Server::JOIN(Client *client, Channel *channel) {
 			sendMsg(msg, client->getFd());
 		}
 
-		msg = ":" + (*itc) + " :End of /NAMES list.";
-		sendMsg(msg, client->getFd());
+		// msg = ":" + (*itc) + " :End of /NAMES list.";
+		// sendMsg(msg, client->getFd());
 
 		msg = ":" + client->getNick() + "@" + client->getHostname() + " JOIN " + (*itc);
 		sendMsgToAllMembers(msg, client->getFd());
@@ -586,7 +569,6 @@ void Server::PRIVMSG(Client* client, Channel* channel) {
 	sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
 }
 
-
 void Server::NOTICE(Client *client, Channel *channel) { 
 	(void)channel;
 	std::cout << "cmd notice" << std::endl;
@@ -717,7 +699,17 @@ void	Server::PART(Client *client, Channel *channel){
 		return;
 	}
 
-	channel->removeMember(client, client->getFd());
+	if (channel->isGuest(client))
+		(channel->removeGuest(client));
+
+	if (channel->isOperator(client))
+		(channel->removeOperator(client));
+
+	if (channel->isMember(client))
+		channel->removeMember((client), client->getFd());
+
+
+	// channel->removeMember(client, client->getFd());
 	std::cout << "Members still on the channel: " << channel->getMember().size() << std::endl;
 
 	std::string msg = ":" + client->getNick() + "@" + client->getHostname() + " PART " + channel->getChannelName();
@@ -744,16 +736,23 @@ void	Server::KICK(Client *client, Channel *channel) {
 		size_t startPos = command.find(chan) + chan.size() + 1; 
 		size_t endPos = command.find(" :");
 		std::string nick = command.substr(startPos, endPos - startPos);
-		if (!channel->isMember(client))
+		if (!channel->isMember(client)) {
 			sendErrorMsg(ERR_NOTONCHANNEL, client->getFd(), channel->getChannelName(), "", "", "");
-		if (!channel->isNickMembre(nick))
+			return;
+		}
+		if (!channel->isNickMembre(nick)) {
 			sendErrorMsg(ERR_USERNOTINCHANNEL, client->getFd(), client->getNick(), channel->getChannelName(), "", "");
+			return;
+		}
 		//SEND MSG
 		std::string msg = ':' + client->getNick() + "!~" + client->getHostname() + ' ' + token + ' ' + chan + ' ' + nick + " :" + reason;
 		if (chan.empty() || nick.empty())
 			sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), chan, nick, "", "");
-		sendMsg(msg, client->getFd());
-		sendMsgToAllMembers(msg, client->getFd());
+		
+		else {
+			sendMsg(msg, client->getFd());
+			sendMsgToAllMembers(msg, client->getFd());
+		}
 	}
 	else {
 		// std::string msg = channel->getChannelName() + " You must be a channel operator";
@@ -814,8 +813,6 @@ void	Server::INVITE(Client *client, Channel *channel) {
 
 					break ;
 				}	
-
-	
 			}
 		}	
 	}
@@ -826,20 +823,26 @@ void	Server::PASS(Client *client, Channel *channel) {
 	std::string pass = command;
 	if (pass.empty()){
 		std::cout << "PASS" << std::endl;
-		sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), client->getNick(), "COMMANDE A IMPLEMENTER", "", "");
+		sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), client->getNick(), "", "", "");
+		return ;
 	}
 	if (pass != getPassword()){
 		std::cout << "PASS" << std::endl;
 		sendErrorMsg(ERR_PASSWDMISMATCH, client->getFd(),"", "", "", "");
-		exit(EXIT_FAILURE);
+		// exit(EXIT_FAILURE);
+		return ;
 	}
 	else {
-		if (client->isAuthenticated()){
+		if (client->isAuthenticated() == true){
 			sendErrorMsg(ERR_ALREADYREGISTERED, client->getFd(),"", "", "", "");
+			return ;
 		}
 		else {
 			client->setIsAuthenticated(true);
-			passIsValid = true;
+			// if (std::find(_tokens.begin(), _tokens.end(), "PASS") == _tokens.end()) {
+			// 	// "PASS" n'est pas dans _tokens
+			// 	_tokens.push_back("PASS");
+			// }
 		}
 	}
 }
@@ -860,9 +863,25 @@ void Server::QUIT(Client *client, Channel *channel) {
 	int clientSocket = client->getFd();
 	close(clientSocket);
 
+	for (std::vector<Channel*>::iterator it = _channels.begin(); it != _channels.end(); it++)
+	{
+		if ((*it)->isGuest(client))
+			((*it)->removeGuest(client));
+
+		if ((*it)->isOperator(client))
+			((*it)->removeOperator(client));
+
+		if ((*it)->isMember(client))
+			(*it)->removeMember((client), client->getFd());
+	}
+
+	// delete (client);
+	// _clients.erase(client);
+
 	// Supprimer l'objet Client du vecteur _clients
 	for (size_t i = 0; i < _clients.size(); i++) {
 		if (_clients[i]->getFd() == clientSocket) {
+			delete (client);
 			_clients.erase(_clients.begin() + i);
 			break;
 		}
