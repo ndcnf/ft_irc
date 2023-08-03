@@ -19,7 +19,6 @@ class Channel
 			std::string					getPassword();
 			std::string					getAllMembers();
 			std::vector<Client*>		getMember();
-			bool 						isMember(const std::string& nickname);
 			std::vector<Client*>		getGuests();
 			int							getNbLimit();
 			bool						getTopicMode();
@@ -43,9 +42,11 @@ class Channel
 			void						sendToAllMembers(std::string msg);
 			bool						addOperator(Client *client);
 			bool						removeOperator(Client *client);
+			void						removeGuest(Client *client);
 			bool						isOperator(Client *client);
 			bool						isNumber(std::string arg);						
 			bool						isMember(Client *client);
+			bool 						isMember(const std::string& nickname);
 			bool						isNickMembre(std::string nickname);
 			bool						isGuest(Client *client);
 
