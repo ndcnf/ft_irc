@@ -257,12 +257,12 @@ bool	Channel::removeOperator(Client *client)
 		{
 			if (client->getFd() == (*itc)->getFd())
 			{
-				if (_operators.size() == 1)
-				{
-					//dernier operator dans le channel, on refuse
-					std::cout << "il faut un admin ici, tu restes." << std::endl;
-					return (false);
-				}
+				// if (_operators.size() == 1)
+				// {
+				// 	//dernier operator dans le channel, on refuse
+				// 	std::cout << "il faut un admin ici, tu restes." << std::endl;
+				// 	return (false);
+				// }
 				std::cout << "operator removed :" + (*itc)->getNick() << std::endl; // erreur existe deja ou osef
 				_operators.erase(itc);
 				return (true);
@@ -315,4 +315,16 @@ bool	Channel::isGuest(Client *client)
 	}
 
 	return false;
+}
+
+void	Channel::removeGuest(Client *client)
+{
+	for(std::vector<Client*>::iterator it = _guests.begin(); it != _guests.end(); it++)
+	{
+		if ((*it)->getFd() == client->getFd())
+		{
+			_guests.erase(it);
+			break;
+		}
+	}
 }
