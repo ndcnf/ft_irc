@@ -52,6 +52,7 @@ class Server
 		std::string	token; //@Verena to have the token
 		std::string	command; //@Verena ... to arrete de se faire chier
 		bool		nickSet; // to set the nick once at the begining // a voir si devait etre enlever ou surtout pas (Nadia)
+		bool		passIsValid; //pour forcer l utilisation d un mot de passe
 
 		bool		createSocket();
 		bool		connection();
@@ -63,6 +64,7 @@ class Server
 		Client* 	findClientByNick(const std::string& nick);
 		void		addInvite(std::string &invited, Channel *channel);
 		
+		bool		canTheyJoinThisChannel(Client *client); // en construction dans JOIN
 		void		inputClient(std::string buf, Client *client, Channel *channel);
 		void		cmdSelection(std::string buf, Client *client);
 		void		capOrNOt(Client *client);
@@ -81,6 +83,10 @@ class Server
 		//COMMNANDS
 		void		parseCommand(std::string buf);
 		std::string	parseChan(std::string buf, size_t pos);
+		std::vector<std::string>	parseModeCmd(std::string buf);
+		std::string	modePassword(std::string buf);
+		std::string	modeTargetMember(std::string buf);
+		std::map<char, int>	setArgsByMode();
 		void		sendMsg(std::string message, int fd);
 		void		sendMsgToAllMembers(std::string message, int fd);
 		void		getCapLs(std::string buf);

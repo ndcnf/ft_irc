@@ -7,11 +7,13 @@ Channel::Channel(){
 	_channelName = "";
 	_topic = "";
 	_topicOperatorsOnly = false;
+	_isLimitSet = false;
 }
 
 Channel::Channel(std::string name): _channelName(name) {
 	_topic = "";
 	_topicOperatorsOnly = false;
+	_isLimitSet = false;
 }
 
 Channel::Channel(Channel const &cpy){
@@ -22,9 +24,10 @@ Channel &Channel::operator=(Channel const &rhs){
 	_channelName = rhs._channelName;
 	_members = rhs._members;
 	_operators = rhs._operators;
-	_banned = rhs._banned;
 	_topic = rhs._topic;
 	_topicOperatorsOnly = rhs._topicOperatorsOnly;
+	_isLimitSet = rhs._isLimitSet;
+	_nbLimit = rhs._nbLimit;
 
 	return (*this);
 }
@@ -33,6 +36,9 @@ Channel::~Channel(){
 
 }
 
+/*---------------------------------------------------------------------------------------------*/
+// GETTERS
+/*---------------------------------------------------------------------------------------------*/
 std::string	Channel::getChannelName()
 {
 	return (_channelName);
@@ -43,6 +49,56 @@ std::string	Channel::getTopic()
 	return (_topic);
 }
 
+std::string	Channel::getPassword()
+{
+	return _password;
+}
+
+std::string	Channel::getAllMembers()
+{
+	std::string	allMembers;
+
+	for (std::vector<Client*>::iterator it=_members.begin(); it != _members.end(); it++)
+	{
+		allMembers += (*it)->getNick() + "@" + (*it)->getHostname() + " ";
+	}
+	// std::cout << "ALLMEMBERS = [" + allMembers + "]" << std::endl;
+	return allMembers;
+}
+
+std::vector<Client*>	Channel::getMember()
+{
+	return _members;
+}
+
+bool	Channel::getTopicMode()
+{
+	return _topicOperatorsOnly;
+}
+
+bool	Channel::getLimitMode()
+{
+	return _isLimitSet;
+}
+
+bool	Channel::getPassMode()
+{
+	return _isPasswordSet;
+}
+
+bool	Channel::getInviteMode()
+{
+	return _isInviteOnly;
+}
+
+int	Channel::getNbLimit()
+{
+	return _nbLimit;
+}
+
+/*---------------------------------------------------------------------------------------------*/
+// SETTERS
+/*---------------------------------------------------------------------------------------------*/
 void	Channel::setTopic(std::string topic, Client *client)
 {
 	if (_topicOperatorsOnly && (!isOperator(client)))
@@ -53,15 +109,69 @@ void	Channel::setTopic(std::string topic, Client *client)
 	_topic = topic;
 }
 
+void	Channel::setTopicMode(bool mode)
+{
+	_topicOperatorsOnly = mode;
+}
+
+void	Channel::setLimit(bool mode, int limit)
+{
+	_isLimitSet = mode;
+
+	if (mode)
+		_nbLimit = limit;
+	else
+		_nbLimit = -1;
+	
+	std::cout << "Limit = " << _nbLimit << std::endl;
+}
+
+bool	Channel::setOperator(bool mode, std::string username)
+{
+	for(std::vector<Client*>::iterator it=_members.begin(); it != _members.end(); it++)
+	{
+		if (mode)
+		{
+			if ((*it)->getNick() == username)
+				return (addOperator(*it));
+		}
+		else
+		{
+			if ((*it)->getNick() == username)
+				return (removeOperator(*it));
+		}
+	}
+	return (false);
+}
+
+void	Channel::setPassMode(bool mode)
+{
+	_isPasswordSet = mode;
+}
+
+void	Channel::setChannelPassword(std::string password)
+{
+	_password = password;
+}
+
+void	Channel::setInviteMode(bool mode)
+{
+	_isInviteOnly = mode;
+}
+
+/*---------------------------------------------------------------------------------------------*/
+// METHODS
+/*---------------------------------------------------------------------------------------------*/
 void Channel::addMember(Client *client)
 {
-	// if (client->isAuthenticated())
-		_members.push_back(client);
-		// std::cout << "new member" << std::endl;
-	// else {
+	_members.push_back(client);
+	return;
+}
 
-		return;
-	// }
+void Channel::addGuest(Client *client)
+{
+	_guests.push_back(client);
+	return;
 }
 
 void Channel::addGuest(Client *client)
@@ -128,7 +238,7 @@ bool						Channel::getTopicMode()
 	return _topicOperatorsOnly;
 }
 
-void				Channel::addOperator(Client *client)
+bool	Channel::addOperator(Client *client)
 {
 	bool		isMember = false;
 	std::string	msg;
@@ -149,21 +259,55 @@ void				Channel::addOperator(Client *client)
 			if (client->getFd() == (*itc)->getFd())
 			{
 				std::cout << "already operator :" + (*itc)->getNick() << std::endl; // erreur existe deja ou osef
-				return ;
+				return (false);
 			}
 		}
 		_operators.push_back(client);
-		return ;
-		
-
-
+		return (true);
 	}
 	// pas un membre donc erreur
 	std::cout << "Nice try, not a member : " + client->getNick() << std::endl; // erreur existe deja ou osef
-	return ;
+	return (false);
 
 }
 
+bool	Channel::removeOperator(Client *client)
+{
+	bool		isMember = false;
+	std::string	msg;
+
+	for (std::vector<Client*>::iterator it = _members.begin(); it != _members.end(); it++)
+	{
+		if (client->getFd() == (*it)->getFd())
+		{
+			isMember = true;
+			break ;
+		}
+	}
+
+	if (isMember)
+	{
+		for (std::vector<Client*>::iterator itc = _operators.begin(); itc != _operators.end(); itc++)
+		{
+			if (client->getFd() == (*itc)->getFd())
+			{
+				if (_operators.size() == 1)
+				{
+					//dernier operator dans le channel, on refuse
+					std::cout << "il faut un admin ici, tu restes." << std::endl;
+					return (false);
+				}
+				std::cout << "operator removed :" + (*itc)->getNick() << std::endl; // erreur existe deja ou osef
+				_operators.erase(itc);
+				return (true);
+			}
+		}
+	}
+	// pas un membre donc erreur
+	std::cout << "Nice try, not a member : " + client->getNick() << std::endl; // erreur existe deja ou osef
+	return (false);
+
+}
 
 bool		Channel::isOperator(Client *client)
 {
@@ -175,18 +319,44 @@ bool		Channel::isOperator(Client *client)
 	return false;
 }
 
-// void	Channel::sendToAllMembers(std::string msg)
-// {
-// 	for (std::vector<Client>::iterator it=_members.begin(); it != _members.end(); it++)
-// 	{
-// 		sendMsg(msg, (*it).getFd());
-// 	}
-// }
+bool	Channel::isNumber(std::string arg)
+{
+	for (unsigned int i = 0; i < arg.length(); i++)
+	{
+		if (!isdigit(arg[i]))
+			return false;
+	}
+	return true;
+}				
+
+bool		Channel::isMember(Client *client)
+{
+	for (std::vector<Client*>::iterator it = _members.begin(); it != _members.end(); it++)
+	{
+		if ((*it)->getFd() == client->getFd())
+			return true;
+	}
+	return false;
+}
+
+bool		Channel::isNickMembre(std::string nickname)
+{
+	for (std::vector<Client*>::iterator it = _members.begin(); it != _members.end(); it++)
+	{
+		if ((*it)->getNick() == nickname)
+			return true;
+	}
+	return false;
+}
 
 
-// Channel* Channel::addChannel(std::string name)
-// {
-// 	Channel* channel = new Channel(name); // Allouer dynamiquement un nouvel objet Channel
-// 	_channels.push_back(*channel);
-// 	return channel;
-// }
+bool	Channel::isGuest(Client *client)
+{
+	for (std::vector<Client*>::iterator it = _guests.begin(); it != _guests.end(); it++)
+	{
+		if ((*it)->getFd() == client->getFd())
+			return true;
+	}
+
+	return false;
+}
