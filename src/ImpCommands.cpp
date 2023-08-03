@@ -234,7 +234,6 @@ void	Server::JOIN(Client *client, Channel *channel) {
 					}
 				}
 
-				//verifier s'il y invitation seulement et si oui, si la personne est sur la liste.
 				if (channel->getInviteMode())
 				{
 					if (channel->isMember(client))
@@ -303,7 +302,6 @@ void	Server::JOIN(Client *client, Channel *channel) {
 void	Server::MODE(Client *client, Channel *channel) {
 	std::cout << "cmd mode" << std::endl;
 	std::string					msg = "";
-	std::string					modes;
 	std::string					chanName;
 	std::vector<std::string>	modesVec;
 	std::vector<std::string>	args;
@@ -322,22 +320,22 @@ void	Server::MODE(Client *client, Channel *channel) {
 
 	if (!isChannel)
 	{
-		//le channel donne n'existe pas ERREUR
+		sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), client->getNick(), chanName, "", "");
 		return ;
 	}
 
-	//Si le user n'est pas operator du channel: vtff
 	if (!channel->isOperator(client))
+	{
+		sendErrorMsg(ERR_CHANOPRIVSNEEDED, client->getFd(), client->getNick(), channel->getChannelName(), "Not allowed", "");
 		return ;
+	}
 
 	pos = chanName.size() + 1;
-	modes = command.substr(pos, command.find(" ")); // future old way
 
-	modesVec = parseModeCmd(command.substr(pos)); // new way
+	modesVec = parseModeCmd(command.substr(pos));
 	if (modesVec.empty())
 	{
-		std::cout << "mode invalide" << std::endl;
-		// commande invalide
+		sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), client->getNick(), "", "", "");
 		return ;
 	}
 	
@@ -355,8 +353,7 @@ void	Server::MODE(Client *client, Channel *channel) {
 
 	if (args.size() > 3)
 	{
-		//trop d'arguments pour notre realite
-		std::cout << "trop d'arguments" << std::endl;
+		sendErrorMsg(ERR_UNKNOWNMODE, client->getFd(), client->getNick(), "", ":too many args", "");
 		return;
 	}
 
@@ -465,11 +462,6 @@ void	Server::MODE(Client *client, Channel *channel) {
 			sendMsgToAllMembers(msg, client->getFd());
 		}
 	}
-
-
-
-
-
 }
 
 //for PRIVMSG
