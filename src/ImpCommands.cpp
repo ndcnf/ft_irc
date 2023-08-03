@@ -205,7 +205,7 @@ void	Server::JOIN(Client *client, Channel *channel) {
 			passwordEntered = command.substr(pos + 1);
 	}
 
-	std::cout << "Passwor entered : [" + passwordEntered + "]" << std::endl;
+	std::cout << "Password entered : [" + passwordEntered + "]" << std::endl;
 
 	for (std::vector<std::string>::iterator itc = channelsToAdd.begin(); itc != channelsToAdd.end(); itc++)
 	{
@@ -235,6 +235,7 @@ void	Server::JOIN(Client *client, Channel *channel) {
 
 				if (channel->getInviteMode())
 				{
+
 					if (channel->isMember(client))
 					{
 						sendErrorMsg(ERR_USERONCHANNEL, client->getFd(), client->getNick(), channel->getChannelName(), "", "");
@@ -486,6 +487,7 @@ size_t countSubstring(const std::string& str, std::string& sub) {
 
 void Server::PRIVMSG(Client* client, Channel* channel) {
 	std::cout << "cmd privmsg" << std::endl;
+	bool	msgSend = false;
 	size_t parsePoint = command.find(':');
 	std::string channelName = command.substr(1, parsePoint - 1);  // Get the channel name
 	std::string messChan = command.substr(parsePoint + 1);;  // Get the message
@@ -497,8 +499,9 @@ void Server::PRIVMSG(Client* client, Channel* channel) {
 		
 		std::string msg = ':' + client->getNick() + '@' + client->getHostname() + " " + token + " " + channelName + " :" + messChan;
 		sendMsgToAllMembers(msg, client->getFd());
+		msgSend = true;
 	}
-	if (command.find('#') != std::string::npos && count == 1) {
+	if (command.find('#') != std::string::npos && count == 1 && msgSend == false) {
 		std::vector<std::string> hashChan;
 		std::string allChanMsg;
 
@@ -531,15 +534,17 @@ void Server::PRIVMSG(Client* client, Channel* channel) {
 						// Send the message to all members of the corresponding channel
 						std::string msg = ':' + client->getNick() + '@' + client->getHostname() + " " + token + " " + hashChan[i] + " :" + allChanMsg;
 						sendMsgToAllMembers(msg, client->getFd());
-						break;
+						return;
 					} else {
 						// The client is not a member of the channel
 						sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
+						return;
 					}
 				}
 			}
 			if (!found) {
 				sendErrorMsg(ERR_NOSUCHCHANNEL, client->getFd(), hashChan[i], "", "", "");
+				return;
 			}
 		}
 	}
@@ -553,32 +558,34 @@ void Server::PRIVMSG(Client* client, Channel* channel) {
 			if (nickPos != std::string::npos) {
 				// Extraction du nickname
 				std::string nickname = command.substr(0, nickPos);
-				
+				std::cout << "nickname [" << nickname << "]" << std::endl;
+				std::cout << "client [" << client->getNick() << "]" << std::endl;
 				// Find the recipient client from _clients vector
-				Client* recipientClient = NULL;
-				for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-					if ((*it)->getNick() == nickname) {
-						recipientClient = *it;
-						break;
+				// Client* recipientClient = NULL;
+				for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); it++)
+				{
+					if (nickname == (*it)->getNick())
+					{ // || (*it)->getNick() == client->getNick()) {
+						std::cout << "nickname2 [" << nickname << "]" << std::endl;
+						std::cout << "client2 [" << client->getNick() << "]" << std::endl;
+						std::cout << "it [" << (*it)->getNick() << "]" << std::endl;
+					
+					//	std::string privMsgNick = ":" + (*it)->getNick() + "!~" + client->getUser() + "@" + client->getHostname() + " " + token + " " + client->getNick() + " :" + privMsg;
+						std::string privMsgNick = ":" + client->getNick() + " " + token + " " + (*it)->getNick() + " :" + privMsg;
+						std::cout << "ca rentre dedant et le nick d envoi est : " << client->getNick() << std::endl;
+						std::cout << "Trying to send message to: " << (*it)->getNick() << std::endl;
+						sendMsg(privMsgNick, (*it)->getFd());
+						return ;
 					}
 				}
-				if (recipientClient) {
-					std::string privMsgNick = "<" + client->getNick() + "> send you : " + privMsg;
-					sendMsg(privMsgNick, recipientClient->getFd());
+				sendErrorMsg(ERR_NOSUCHNICK, client->getFd(), client->getNick(), "", "", "");		
+				return ;
 				}
-				else {
-					sendErrorMsg(ERR_NOSUCHNICK, client->getFd(), client->getNick(), "", "", "");
-				}
-			} 
-			else {
-				sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
 			}
 		} 
-		else {
-			sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
-		}
-	}
+	sendErrorMsg(ERR_CANNOTSENDTOCHAN, client->getFd(), channel->getChannelName(), "", "", "");
 }
+
 
 void Server::NOTICE(Client *client, Channel *channel) { 
 	(void)channel;
