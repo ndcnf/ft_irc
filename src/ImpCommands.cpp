@@ -736,16 +736,23 @@ void	Server::KICK(Client *client, Channel *channel) {
 		size_t startPos = command.find(chan) + chan.size() + 1; 
 		size_t endPos = command.find(" :");
 		std::string nick = command.substr(startPos, endPos - startPos);
-		if (!channel->isMember(client))
+		if (!channel->isMember(client)) {
 			sendErrorMsg(ERR_NOTONCHANNEL, client->getFd(), channel->getChannelName(), "", "", "");
-		if (!channel->isNickMembre(nick))
+			return;
+		}
+		if (!channel->isNickMembre(nick)) {
 			sendErrorMsg(ERR_USERNOTINCHANNEL, client->getFd(), client->getNick(), channel->getChannelName(), "", "");
+			return;
+		}
 		//SEND MSG
 		std::string msg = ':' + client->getNick() + "!~" + client->getHostname() + ' ' + token + ' ' + chan + ' ' + nick + " :" + reason;
 		if (chan.empty() || nick.empty())
 			sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), chan, nick, "", "");
-		sendMsg(msg, client->getFd());
-		sendMsgToAllMembers(msg, client->getFd());
+		
+		else {
+			sendMsg(msg, client->getFd());
+			sendMsgToAllMembers(msg, client->getFd());
+		}
 	}
 	else {
 		// std::string msg = channel->getChannelName() + " You must be a channel operator";
@@ -806,8 +813,6 @@ void	Server::INVITE(Client *client, Channel *channel) {
 
 					break ;
 				}	
-
-	
 			}
 		}	
 	}
