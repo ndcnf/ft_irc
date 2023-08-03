@@ -182,19 +182,9 @@ void	Server::JOIN(Client *client, Channel *channel) {
 	if (command == ":")
 		return;
 
-	// if (chanName == channel.getName()) { // juste ?
-	// 	message d'erreur ce channel existe deja voir avec le mess erreur claire
-	// Nadia: Non, pas de message d'erreur, mais joindre le channel existant en verifiant si droits
-	// }
-	// else {
-		// if (command == 0)
-		// 	Type /join #<channel> pas besoin gere tout seul
-	// if (pos != std::string::npos || command.find(":") != std::string::npos)
-
 	while ((hashtagPos = command.find("#", hashtagPos)) != std::string::npos)
 	{
 		chanName = parseChan(command, hashtagPos);
-		std::cout << "WHILE JOIN chanName [" + chanName + "]" << std::endl;
 
 		if (chanName[0] != '#')
 			chanName = '#' + chanName;
@@ -202,6 +192,12 @@ void	Server::JOIN(Client *client, Channel *channel) {
 		channelsToAdd.push_back(chanName);
 
 		hashtagPos = hashtagPos + 1;
+	}
+
+	if (channelsToAdd.empty())
+	{
+		sendErrorMsg(ERR_NEEDMOREPARAMS, client->getFd(), client->getNick(), "JOIN", "Not enough parameters", "");
+		return;
 	}
 
 	if ((pos = command.find(" ")) != std::string::npos)
@@ -241,7 +237,7 @@ void	Server::JOIN(Client *client, Channel *channel) {
 				//verifier s'il y invitation seulement et si oui, si la personne est sur la liste.
 				if (channel->getInviteMode())
 				{
-					if (channel->isMembre(client))
+					if (channel->isMember(client))
 					{
 						sendErrorMsg(ERR_USERONCHANNEL, client->getFd(), client->getNick(), channel->getChannelName(), "", "");
 						return ;
@@ -302,9 +298,6 @@ void	Server::JOIN(Client *client, Channel *channel) {
 			sendMsgToAllMembers(msg, client->getFd());
 		}
 	}
-
-	// rest a ajouter lA GESTION DES ERREURS par claire
-	
 }
 
 void	Server::MODE(Client *client, Channel *channel) {
@@ -628,14 +621,14 @@ void Server::NOTICE(Client *client, Channel *channel) {
 			std::cout << "mot avec # : " << hashChan[i] << std::endl;
 			std::cout << "message a envoyer : " << allChanMsg << std::endl;
 
-			bool found = false;
+			// bool found = false;
 
 			// Comparaison avec les noms de channels existants
 			for (size_t j = 0; j < _channels.size(); ++j) {
 				if (_channels[j]->getChannelName() == hashChan[i]) {
 					// Check if the client is a member of the channel
 					if (_channels[j]->isMember(client)) {
-						found = true;
+						// found = true;
 						// Send the message to all members of the corresponding channel
 						std::string msg = ':' + client->getNick() + '@' + client->getHostname() + " " + token + " " + hashChan[i] + " :" + allChanMsg;
 						sendMsgToAllMembers(msg, client->getFd());
