@@ -35,6 +35,7 @@ Server	&Server::operator=(Server const &rhs)
 	// _quit = rhs._quit;
 	_password = rhs._password;
 	_lastPing = rhs._lastPing;
+	// _tokens = rhs._tokens;
 
 	return (*this);
 }
@@ -473,3 +474,14 @@ bool	Server::isNickUsed(std::string nick)
 	}
 	return false;
 }
+
+// std::vector<std::string> Server::getToken()
+// {
+// 	return _tokens;
+// }
+
+// void Server::addToken(std::string token)
+// {
+// 	_tokens.push_back(token);
+// 	return;
+// }

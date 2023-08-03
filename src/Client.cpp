@@ -55,8 +55,6 @@ std::string	Client::getNick()
 }
 
 void	Client::setNick(std::string nick) {
-	// si le nickname n existe pas deja?
-	//_username = nick;// pas sure de ca
 	_nick = nick;
 }
 
