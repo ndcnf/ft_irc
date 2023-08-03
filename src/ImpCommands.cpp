@@ -241,7 +241,7 @@ void	Server::JOIN(Client *client, Channel *channel) {
 				//verifier s'il y invitation seulement et si oui, si la personne est sur la liste.
 				if (channel->getInviteMode())
 				{
-					if (channel->isMembre(client))
+					if (channel->isMember(client)) //etait marquer isMembre j ai modifier
 					{
 						sendErrorMsg(ERR_USERONCHANNEL, client->getFd(), client->getNick(), channel->getChannelName(), "", "");
 						return ;
@@ -492,6 +492,7 @@ size_t countSubstring(const std::string& str, std::string& sub) {
 
 void Server::PRIVMSG(Client* client, Channel* channel) {
 	std::cout << "cmd privmsg" << std::endl;
+	bool	msgSend = false;
 	size_t parsePoint = command.find(':');
 	std::string channelName = command.substr(1, parsePoint - 1);  // Get the channel name
 	std::string messChan = command.substr(parsePoint + 1);;  // Get the message
@@ -503,8 +504,9 @@ void Server::PRIVMSG(Client* client, Channel* channel) {
 		
 		std::string msg = ':' + client->getNick() + '@' + client->getHostname() + " " + token + " " + channelName + " :" + messChan;
 		sendMsgToAllMembers(msg, client->getFd());
+		msgSend = true;
 	}
-	if (command.find('#') != std::string::npos && count == 1) {
+	if (command.find('#') != std::string::npos && count == 1 && msgSend == false) {
 		std::vector<std::string> hashChan;
 		std::string allChanMsg;
 
@@ -568,8 +570,9 @@ void Server::PRIVMSG(Client* client, Channel* channel) {
 						break;
 					}
 				}
-				if (recipientClient && isMember(client)) {
-					std::string privMsgNick = "<" + client->getNick() + "> send you : " + privMsg;
+				if (recipientClient && channel->isMember(client)) { //verifier si il appartient bien a un channel pour envozer un msg prive
+					// std::string privMsgNick = "<" + client->getNick() + "> send you : " + privMsg;
+					std::string privMsgNick = token + "" + nickname + " :" + privMsg;
 					sendMsg(privMsgNick, recipientClient->getFd());
 				}
 				else {
@@ -585,6 +588,7 @@ void Server::PRIVMSG(Client* client, Channel* channel) {
 		}
 	}
 }
+
 
 void Server::NOTICE(Client *client, Channel *channel) { 
 	(void)channel;
