@@ -218,20 +218,20 @@ bool	Server::connection()
 						{
 							if ((*it)->getFd() == _pfds[i].fd)
 							{
-								// for (std::vector<Channel*>::iterator itc = _channels.begin(); itc != _channels.end(); itc++)
-								// {
-								// 	if ((*itc)->isMember(*it))
-								// 		(*itc)->removeMember((*it), (*it)->getFd());
+								for (std::vector<Channel*>::iterator itc = _channels.begin(); itc != _channels.end(); itc++)
+								{
+									if ((*itc)->isMember(*it))
+										(*itc)->removeMember((*it), (*it)->getFd());
 
-								// 	if ((*itc)->isOperator(*it))
-								// 		((*itc)->removeOperator(*it));
+									if ((*itc)->isOperator(*it))
+										((*itc)->removeOperator(*it));
 
-								// 	if ((*itc)->isGuest(*it))
-								// 		((*itc)->removeGuest(*it));
-								// }
+									if ((*itc)->isGuest(*it))
+										((*itc)->removeGuest(*it));
+								}
 								delete (*it);
-								it = _clients.erase(it);
-								// break;
+								_clients.erase(it);
+								break;
 							}
 						}
 						msgBuf[_pfds[i].fd].clear();
