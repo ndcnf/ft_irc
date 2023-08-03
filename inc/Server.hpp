@@ -70,6 +70,9 @@ class Server
 		void		capOrNOt(Client *client);
 		void		allSockets();					// useless at the moment
 		// void	errorminator();					// TBD
+		
+		// void		addToken(std::string token);
+		// std::vector<std::string>	getToken();
 
 		int			getPort();
 		int			getSocket();
@@ -120,6 +123,7 @@ class Server
 		std::vector<pollfd>		_pfds;
 		std::vector<Client*>	_clients;	// vecteur clients pour faire le lien entre les classes ? @Verena
 		std::vector<Channel*>	_channels;
+		// std::vector<std::string>	_tokens; // pour la verification du mot de passe 
 		// bool					_quit;		// useless at the moment
 		std::string				_password; //@Verena to get the password
 		int						_lastPing;
