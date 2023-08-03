@@ -94,7 +94,7 @@ void Server::sendErrorMsg(int errorCode, int fd, std::string param1, std::string
 			errorminator += " " + param1 + " " + param2 + " :is not a recognised channel mode.";
 			break;
 		case ERR_INVITEONLYCHAN:
-			errorminator += " ERR_INVITEONYLCHAN " + param1 + " :Cannot join channel. (+i)";
+			errorminator += " ERR_INVITEONYLCHAN " + param1 + " " + param2 + " :Cannot join channel. (+i)";
 			break;
 		case ERR_BADCHANNELKEY:
 			errorminator += " ERR_BADPASSWORD " + param2 + " :Cannot join channel (incorrect channel key)";
